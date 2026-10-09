@@ -1,0 +1,88 @@
+== Detection
+
+[#US-2.1]
+=== US-2.1 Screen states
+
+Status:: Done (0.1.0) +
+Effort:: 6 h +
+Traces to:: <<TS-2.1>>, <<FR-2.1>>
+
+As the run loop, I want every screenshot classified as one state with its tap targets, so that
+no tap is ever sent blindly.
+
+.Acceptance criteria
+. All eleven reference screenshots yield their state.
+. A world map without popup is `WORLD`; a result screen without "Victory!" is `DEFEAT`; a
+  blank image is `UNKNOWN`.
+. The tap targets lie within ±6 px of the positions in SPEC.md §2 (Claim All 360,1128; View
+  360,933; Fight 528,1201; exit 360,1140; Deploy 548,1215; Intel button 663,862).
+. The Intel button is found with and without the red badge.
+. A missing optional template never matches.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): parametrised over the reference screenshots and
+  the synthetic screens.
+
+[#US-2.2]
+=== US-2.2 Mission symbols with status and tier
+
+Status:: Done (0.1.0) +
+Effort:: 8 h +
+Traces to:: <<TS-2.2>>, <<FR-2.2>>, <<FR-2.3>>, <<FR-2.4>>
+
+As the run loop, I want the mission symbols of the Intel screen with type, click point, status
+and tier, so that I can pick the most valuable available mission.
+
+.Acceptance criteria
+. `intel-x.png`: paw 336,289; paw 483,315; tent 287,351; axe 340,378; paw 275,677; axe
+  568,680; skull 518,700 – all `AVAILABLE`, nothing else.
+. `intel-xx.png`: the same, tent `RUNNING` with a saturation below 130.
+. `intel-xxx.png`: the same, tent `DONE`, plus paw 564,737 `DONE`.
+. Positions within ±6 px, scores ≥ 0.75.
+. Tiers as in <<FR-2.4>>; list sorted by tier, then top-down.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): the table of SPEC.md §3.5, tiers, sort order,
+  search band.
+
+[#US-2.3]
+=== US-2.3 Stamina and refresh timer
+
+Status:: Done (0.1.0) +
+Effort:: 6 h +
+Traces to:: <<TS-2.3>>, <<FR-2.5>>
+
+As the run loop, I want the stamina and the remaining refresh time as numbers, so that I can
+skip unaffordable missions and lock the boss for the right time.
+
+.Acceptance criteria
+. Stamina: 2047 (`intel-x.png`), 2035 (`intel-xx.png`, `intel-xxx.png`).
+. Refresh timer: 25167 s, 25150 s, 25145 s.
+. Screens without these texts read as `None`.
+. The digits 1, 6, 8 and 9, which never occur in the stamina of the references, are read from
+  the troop number 169,830 of the Deploy screen.
+. `tools/cut_templates.py` regenerates all digit templates from `ref/`.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): values per screenshot, `None` cases, glyph
+  normalisation, hue distance.
+
+[#US-2.4]
+=== US-2.4 Dialog type, action button and prevail hint
+
+Status:: Done (0.1.0) +
+Effort:: 5 h +
+Traces to:: <<TS-2.4>>, <<FR-2.6>>
+
+As the run loop, I want to know which mission a dialog belongs to and which action a popup
+offers, so that a mis-tap on an overlapping symbol is noticed before a mission is started.
+
+.Acceptance criteria
+. `combat-1-dialog.png` → `COMBAT`, `hunt-1-dialog.png` → `HUNT`; a screen without pin → `None`.
+. A dialog with a tent or skull pin (synthetic) → `RESCUE` / `BOSS`.
+. `combat-2-world-explore.png` → Explore, `hunt-2-world-attack.png` → Attack, a popup with a
+  green button (synthetic) → Rescue.
+. The prevail hint is found on `hunt-3-deploy.png` and not on the same screen without it.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): parametrised over reference and synthetic screens.

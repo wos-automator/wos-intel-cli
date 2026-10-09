@@ -1,0 +1,52 @@
+== 0.1.0 (2026-10-09)
+
+First version: automation of the Intel missions as specified in `SPEC.md`.
+
+=== Features
+
+* ADB-only device access with a start-up check of device state, resolution 720x1280 and
+  foreground package (<<US-1.1>>, <<FR-1.1>>, <<FR-1.2>>).
+* Commands `run [--dry-run] [--debug]`, `detect <image>` and `snap <name>` with timestamped
+  logging (<<US-1.2>>, <<FR-1.3>>, <<FR-1.4>>).
+* `config.toml` with every threshold, wait time and coordinate (<<US-1.3>>, <<FR-1.5>>).
+* Screen state detection for all reference screens (<<US-2.1>>, <<FR-2.1>>).
+* Mission symbols with type, status and tier; reproduces the table of SPEC.md §3.5
+  (<<US-2.2>>, <<FR-2.2>>, <<FR-2.3>>, <<FR-2.4>>).
+* Stamina and refresh timer by template matching on single digits (<<US-2.3>>, <<FR-2.5>>).
+* Plausibility checks: mission type in the dialog, action button in the popup, prevail hint
+  (<<US-2.4>>, <<FR-2.6>>).
+* Run loop: open Intel, claim rewards, start missions by tier, end regularly
+  (<<US-3.1>>, <<US-3.3>>, <<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>>, <<FR-4.3>>).
+* Mission sequences for combat, hunt, boss and rescue (<<US-3.2>>, <<FR-3.4>>).
+* Boss lock per refresh cycle in `state.json` (<<US-3.4>>, <<FR-3.5>>).
+* Polling with timeouts and careful recovery with BACK; the screenshot of a skipped mission or
+  failed step is kept as `debug/failure-*.png` (<<US-3.5>>, <<FR-3.6>>).
+* The boss is attacked last, once nothing else is left (<<US-3.3>>, <<FR-3.3>>).
+* The run waits for running missions and claims their rewards before it ends; new settings
+  `timing.completion_timeout` and `timing.completion_poll` (<<US-3.6>>, <<FR-3.7>>).
+* Input restricted to detected targets; no swipe, no macOS input (<<US-4.1>>, <<FR-4.1>>,
+  <<FR-4.2>>).
+* Quality gate `uv run poe check` and the specification validator (<<US-4.2>>, <<NFR-1>>,
+  <<NFR-2>>).
+
+=== New templates
+
+* `templates/title_rewards.png` and `templates/digits/*.png`, generated from `ref/` by
+  `tools/cut_templates.py`.
+
+=== Known limitations
+
+* Not yet run against the game: acceptance criteria 2 and 3 of SPEC.md §8 are open
+  (<<US-4.3>>).
+* Rescue, boss, `DEFEAT` and the dialogs for missing stamina or troops have no reference
+  screenshot; they are implemented and tested on synthetic screens only (<<NFR-3>>).
+* Waiting for running missions assumes that the Intel screen updates while it stays open;
+  this is not verified on the device (<<FR-3.7>>).
+* The glyphs for the digits 1, 6, 8 and 9 come from another font size than the stamina
+  display; an unreadable stamina does not stop the run (<<FR-3.3>>).
+* If the refresh timer is unreadable the boss is locked for the configured 8 h, which is an
+  assumption about the cycle length (<<FR-3.5>>).
+
+=== Breaking changes
+
+None.

@@ -1,0 +1,71 @@
+== Platform
+
+[#US-1.1]
+=== US-1.1 ADB wrapper and device check
+
+Status:: Done (0.1.0) +
+Effort:: 4 h +
+Traces to:: <<TS-1.1>>, <<FR-1.1>>, <<FR-1.2>>, <<FR-4.2>>
+
+As the operator, I want the tool to talk to exactly one BlueStacks instance through ADB and to
+verify it before acting, so that it never acts on the wrong device or the wrong screen size.
+
+.Acceptance criteria
+. Every command starts with `adb -s <serial>`.
+. `check()` raises for a device that is not ready, a resolution other than 720x1280 and a game
+  that is not in the foreground.
+. `screenshot()` returns a 720x1280 BGR image and raises for undecodable data or another size.
+. A missing binary, a timeout and a non-zero exit code raise `AdbError` with the cause.
+. No swipe, zoom, drag or text input exists.
+
+.Test criteria
+* Component test (pytest + pytest-mock, `tests/test_adb.py`): `subprocess.run` mocked; one test
+  per criterion.
+
+[#US-1.2]
+=== US-1.2 Command line and logging
+
+Status:: Done (0.1.0) +
+Effort:: 5 h +
+Traces to:: <<TS-1.2>>, <<FR-1.3>>, <<FR-1.4>>
+
+As the operator, I want the commands `run`, `detect` and `snap` with timestamped logs, so that
+I can run the automation, inspect a screenshot and collect reference images.
+
+.Acceptance criteria
+. `python -m wos_intel detect ref/intel-xxx.png` exits with 0, logs `state INTEL_CLAIMABLE`,
+  `stamina 2035` and eight symbols, and writes `intel-xxx.debug.png`.
+. Each log line starts with a timestamp.
+. `snap <name>` writes `ref/<name>.png`; an existing file needs `--force`; a name with a
+  directory is refused.
+. `run --dry-run --debug` sends no input and writes one annotated image per analysed
+  screenshot to `debug/`.
+. Exit codes: 0 regular end, 1 aborted run or device/configuration/template error, 2 usage.
+
+.Test criteria
+* Blackbox test (pytest + subprocess, `tests/test_cli.py`): `detect` and the usage error as a
+  separate process.
+* Integration test (pytest, `tests/test_cli.py`): `snap`, `run --dry-run --debug`, wrong
+  screen, error mapping – in-process with the `Adb` methods mocked and files in `tmp_path`.
+
+[#US-1.3]
+=== US-1.3 Configuration file
+
+Status:: Done (0.1.0) +
+Effort:: 3 h +
+Traces to:: <<TS-1.3>>, <<FR-1.5>>
+
+As the operator, I want thresholds, wait times and coordinates in `config.toml`, so that I can
+tune the tool without changing code.
+
+.Acceptance criteria
+. The built-in defaults equal the values of SPEC.md.
+. The shipped `config.toml` contains every setting and loads to exactly the defaults.
+. Single keys can be overridden; lists become tuples; `ANDROID_SERIAL` overrides the serial.
+. Unknown sections/keys and wrong types raise `ConfigError` naming the entry.
+. Relative paths resolve against the directory of the configuration file.
+
+.Test criteria
+* Unit test (pytest, `tests/test_config_state.py`): defaults.
+* Integration test (pytest, `tests/test_config_state.py`): shipped file, overrides, environment
+  variable, ten invalid files.

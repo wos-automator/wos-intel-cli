@@ -1,0 +1,111 @@
+== Mission Flow
+
+[#FR-3.1]
+=== FR-3.1 Entering the Intel screen
+
+.Acceptance criteria
+. On `WORLD` the Intel button is tapped and `INTEL` is awaited.
+. On `INTEL` or `INTEL_CLAIMABLE` the run starts directly.
+. On any other state the run aborts with a message; nothing is tapped ("no guessing").
+
+Stakeholder need:: SPEC.md §5 (start) +
+Effort:: 1 h
+
+[#FR-3.2]
+=== FR-3.2 Claiming rewards
+
+.Acceptance criteria
+. On `INTEL_CLAIMABLE` "Claim All" is tapped at its detected position and `REWARDS` awaited.
+. `REWARDS` is left by a tap at 360,180 (above the rewards); then `INTEL` is awaited.
+. Rewards are claimed before the next mission is selected.
+
+Stakeholder need:: SPEC.md §5 (loop), acceptance criterion 3 in §8 +
+Effort:: 1 h
+
+[#FR-3.3]
+=== FR-3.3 Mission selection
+
+.Acceptance criteria
+. Only `AVAILABLE` symbols are candidates, in the order of <<FR-2.4>>.
+. The boss is the exception to that order: it is attacked last, only when no other affordable
+  candidate is left, and once (<<FR-3.5>>).
+. A mission is only started if the stamina covers its cost (hunt 10, rescue 12, combat 10,
+  boss 10); unaffordable missions are skipped.
+. The run ends regularly when the stamina is below 10, when no candidate is left, or when
+  no remaining candidate is affordable – after running missions have been waited for
+  (<<FR-3.7>>).
+. If the stamina cannot be read the run continues.
+. A symbol is attempted at most once per run.
+. If another detected symbol lies closer than 30 px to the click point and further in front
+  (larger y of the ground ring), the one in front is processed first; if that one is not a
+  candidate, the tap moves to the edge of the disc opposite to it.
+
+Stakeholder need:: SPEC.md §3.3, §3.5 step 5, §4, §5 +
+Effort:: 4 h
+
+[#FR-3.4]
+=== FR-3.4 Starting a mission
+
+.Acceptance criteria
+. Tap on the symbol → `MISSION_DIALOG`. The dialog must show the expected mission type
+  (<<FR-2.6>>); otherwise BACK and the symbol is skipped for this run.
+. Tap "View" → `WORLD_TARGET`. The popup must offer the action of the mission type
+  (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.
+. Combat: tap the action → `SQUAD` → tap "Fight" (never "Quick Deploy") → `VICTORY` or `DEFEAT`
+  within 60 s → tap "Tap anywhere to exit" → `WORLD`.
+. Hunt and boss: tap the action → `DEPLOY`. Only if "You are quite likely to prevail" is shown:
+  tap "Deploy" → `WORLD`; otherwise BACK and skip. Troops and heroes are never changed.
+. Rescue: tap the action → `WORLD`; there is no deploy step.
+. After each mission the Intel button on `WORLD` is tapped and `INTEL` awaited.
+. A "not enough stamina" dialog ends the run regularly; so does a "no troops / march slots"
+  dialog.
+
+Stakeholder need:: SPEC.md §3.2, §5 +
+Effort:: 6 h
+
+[#FR-3.5]
+=== FR-3.5 Boss only once per refresh cycle
+
+.Acceptance criteria
+. After a boss attack the boss is locked until the end of the refresh cycle: time of the
+  attack plus the remaining time of "Refreshes In" read before the attack.
+. If the timer is unreadable the lock lasts a configurable time (default 8 h).
+. The lock is stored in `state.json` and survives a restart.
+. A locked boss is not a candidate; an expired lock has no effect.
+
+Stakeholder need:: SPEC.md §3.2 (BOSS), §5 (BOSS, state.json) +
+Effort:: 3 h
+
+[#FR-3.6]
+=== FR-3.6 Waiting and recovery
+
+.Acceptance criteria
+. After every tap the program waits 1.0 s (configurable), then takes a fresh screenshot and
+  determines the state.
+. Waiting for an expected state lasts at most 8 s (configurable) with a screenshot every 0.7 s.
+. After a timeout BACK is pressed up to 3 times, re-detecting before each press; BACK is never
+  pressed on `INTEL` or `WORLD`. `REWARDS`, `VICTORY` and `DEFEAT` are left by their exit tap.
+. After 3 failed steps in a row the run ends with exit code 1.
+. The screenshot on which a mission was skipped or a step failed is saved under `debug/`.
+
+Stakeholder need:: SPEC.md §2 (state detection), §5 (expect X) +
+Effort:: 3 h
+
+[#FR-3.7]
+=== FR-3.7 Waiting for running missions and claiming them
+
+The run does not end while missions are running; the player does not have to claim by hand.
+
+.Acceptance criteria
+. When nothing is left to start, and a symbol is shown as `RUNNING` or a mission was started in
+  this run since the last claim, the program stays on the Intel screen and takes a screenshot
+  every 10 s (configurable).
+. As soon as "Claim All" appears the rewards are claimed (<<FR-3.2>>) and the Intel screen is
+  evaluated again, so further running missions are waited for as well.
+. The wait lasts at most 15 min (configurable); then the run ends regularly and the log says
+  that rewards were not claimed.
+. Without running missions the run ends immediately.
+. A dry run only logs that it would wait.
+
+Stakeholder need:: SPEC.md §5 (loop, End of the run), acceptance criterion 3 in §8 +
+Effort:: 3 h

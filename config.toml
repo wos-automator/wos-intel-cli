@@ -1,0 +1,105 @@
+# wos-intel configuration. Every value below is the built-in default; change what you need.
+# All coordinates refer to the 720x1280 Android image (adb exec-out screencap -p).
+# Colours are HSV on the OpenCV scale (H 0-179, S/V 0-255). Regions are [x0, y0, x1, y1].
+
+[device]
+serial = "127.0.0.1:5555"   # overridden by the environment variable ANDROID_SERIAL
+adb_path = "adb"
+package = "com.gof.global"
+width = 720
+height = 1280
+command_timeout = 15.0      # seconds per adb call
+
+[timing]
+tap_delay = 1.0             # wait after every tap / BACK
+poll_interval = 0.7         # screenshot interval while waiting for a screen
+expect_timeout = 8.0        # default wait for an expected screen
+fight_timeout = 60.0        # wait for Victory/Defeat after "Fight"
+completion_timeout = 900.0  # wait for running missions to finish before the run ends
+completion_poll = 10.0      # screenshot interval while waiting for running missions
+
+[limits]
+max_missions = 30           # per run
+max_back = 3                # BACK presses while recovering
+max_failures = 3            # consecutive failed steps before the run ends
+min_stamina = 10            # below this the run ends regularly
+
+[costs]
+hunt = 10
+rescue = 12
+combat = 10
+boss = 10
+
+[symbols]
+search_y = [170, 1050]
+white_lo = [0, 0, 215]
+white_hi = [180, 45, 255]
+match_threshold = 0.75
+nms_radius = 20
+disc_radius = 26
+disc_white_lo = [0, 0, 200]
+disc_white_hi = [180, 60, 255]
+available_min_saturation = 150
+running_max_saturation = 130
+check_lo = [45, 120, 120]
+check_hi = [75, 255, 255]
+check_min_area = 40
+check_max_area = 600
+check_offset = [24, -24]
+check_tolerance = 14
+hue_gold = 16
+hue_blue = 109
+hue_purple = 143
+overlap_distance = 30
+edge_tap_radius = 20
+ring_offset_pin = 55
+ring_offset_boss = 65
+lock_radius = 12
+dialog_pin_region = [310, 320, 410, 420]
+dialog_pin_scales = [0.70, 0.75, 0.80]
+dialog_pin_threshold = 0.75
+
+[buttons]
+threshold = 0.9
+intel_button_threshold = 0.85
+action_region = [0, 250, 720, 700]
+color_region = [245, 598, 475, 660]
+color_min_saturation = 120
+color_min_value = 120
+color_min_fraction = 0.6
+hue_explore = [95, 115]
+hue_attack = [5, 20]
+hue_rescue = [50, 75]
+rewards_exit = [360, 180]
+
+[ocr]
+white_lo = [0, 0, 225]
+white_hi = [180, 40, 255]
+stamina_region = [595, 25, 675, 60]
+timer_region = [215, 108, 510, 146]
+glyph_min_height_ratio = 0.75
+glyph_min_height = 10
+glyph_threshold = 0.6
+max_stamina_digits = 6
+
+[boss]
+fallback_cycle_hours = 8.0  # boss lock if the "Refreshes In" timer cannot be read
+
+[paths]
+templates = "templates"
+ref = "ref"
+debug = "debug"
+state_file = "state.json"
+
+[regions]
+title_intel = [60, 10, 220, 75]
+btn_claim_all = [150, 1050, 570, 1210]
+title_rewards = [200, 260, 520, 380]
+btn_view = [150, 850, 570, 1010]
+btn_deploy = [360, 1150, 720, 1280]
+btn_fight = [330, 1140, 720, 1265]
+title_victory = [150, 380, 570, 560]
+text_tap_anywhere = [150, 1080, 570, 1220]
+text_likely_prevail = [120, 570, 600, 640]
+intel_button = [600, 700, 720, 1000]
+intel_button_badge = [600, 700, 720, 1000]

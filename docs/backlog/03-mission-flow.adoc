@@ -1,0 +1,141 @@
+== Mission Flow
+
+The component tests of this chapter run the real `Runner` and the real `Detector` against a
+scripted fake game (`tests/conftest.py`, `FakeGame`): taps move between the reference
+screenshots, every tap that hits no known target is recorded as a stray tap.
+
+[#US-3.1]
+=== US-3.1 Run loop, claiming rewards, dry run
+
+Status:: Done (0.1.0) +
+Effort:: 5 h +
+Traces to:: <<TS-3.1>>, <<FR-3.1>>, <<FR-3.2>>, <<FR-4.3>>
+
+As the operator, I want one command that claims the rewards and works off the missions until
+nothing is left, so that I do not have to do it by hand.
+
+.Acceptance criteria
+. Started on `WORLD`, the first tap is the Intel button; started on `INTEL*`, the run begins
+  directly; on any other screen the outcome is `WRONG_SCREEN` with no input.
+. On `INTEL_CLAIMABLE`: tap Claim All, then 360,180 on `REWARDS`, before any mission.
+. A dry run sends no tap and no BACK, writes no `state.json` and logs the state, the stamina,
+  all symbols and the tap it would send.
+. With `max_missions = 1` the run ends with `MISSION_LIMIT` after one mission.
+
+.Test criteria
+* Component test (pytest + fake game, `tests/test_flow.py`): start screens, claim sequence,
+  dry run on three start screens, mission limit.
+
+[#US-3.2]
+=== US-3.2 Mission sequences
+
+Status:: Done (0.1.0) – rescue and boss verified on synthetic screens only, see <<US-4.3>> +
+Effort:: 8 h +
+Traces to:: <<TS-3.2>>, <<FR-3.4>>
+
+As the operator, I want each mission type started by its own sequence with plausibility checks,
+so that only the intended mission is started.
+
+.Acceptance criteria
+. A full run on `intel-x.png` starts two combat missions and three hunts with exactly the taps
+  View → Explore → Fight → exit → Intel button, resp. View → Attack → Deploy → Intel button,
+  and no stray tap.
+. A dialog of another type is closed with BACK, "View" is not tapped, the symbol is not retried.
+. A popup with another action than expected is not tapped.
+. Without the prevail hint "Deploy" is not tapped; the run backs out to the world map.
+. A lost fight is dismissed by the exit tap and the run continues.
+. Rescue: View → Rescue → `WORLD`, no deploy step.
+
+.Test criteria
+* Component test (pytest + fake game, `tests/test_flow.py`): one test per criterion.
+
+[#US-3.3]
+=== US-3.3 Mission selection
+
+Status:: Done (0.1.0) +
+Effort:: 4 h +
+Traces to:: <<TS-3.3>>, <<FR-3.3>>
+
+As the operator, I want the most valuable affordable mission first and no tap on a covered
+symbol, so that stamina goes to the best rewards and the right pin is hit.
+
+.Acceptance criteria
+. Order on `intel-x.png`: tent, axe 340,378, paw 275,677, paw 336,289, paw 483,315,
+  axe 568,680, and the boss last and once.
+. With stamina 10 the rescue (12) is unaffordable and the boss is attacked after the others.
+. Stamina 9 → `OUT_OF_STAMINA` without a tap. Stamina 11 → the rescue (12) is never tapped,
+  everything else is, then `OUT_OF_STAMINA`. Unreadable stamina → the run continues.
+. A candidate in front of the target (closer than 30 px) is chosen instead.
+. With a non-candidate in front, the tap point is 20 px from the centre, opposite to it.
+. The boss ring offset (65 px) is used for the depth order.
+
+.Test criteria
+* Unit test (pytest, `tests/test_flow.py`): `choose_target`, `find_occluder`, `mission_cost` on
+  constructed symbols.
+* Component test (pytest + fake game + pytest-mock, `tests/test_flow.py`): order and stamina
+  cases.
+
+[#US-3.4]
+=== US-3.4 Boss lock
+
+Status:: Done (0.1.0) – boss flow verified on synthetic screens only, see <<US-4.3>> +
+Effort:: 3 h +
+Traces to:: <<TS-3.4>>, <<FR-3.5>>
+
+As the operator, I want the boss attacked only once per refresh cycle, also across restarts.
+
+.Acceptance criteria
+. After a boss attack `state.json` holds `locked_until` = attack time + 06:59:27 (the timer of
+  `intel-x.png`).
+. With an unreadable timer the lock lasts 8 h.
+. A locked boss is not tapped; an expired lock is ignored.
+. A broken or malformed `state.json` means "not locked"; other keys in the file are kept.
+
+.Test criteria
+* Integration test (pytest, `tests/test_config_state.py`): round trip through the file, broken
+  files, unrelated keys.
+* Component test (pytest + fake game, `tests/test_flow.py`): lock written, fallback, locked and
+  expired.
+
+[#US-3.5]
+=== US-3.5 Waiting and recovery
+
+Status:: Done (0.1.0) +
+Effort:: 3 h +
+Traces to:: <<TS-3.5>>, <<FR-3.6>>
+
+As the operator, I want the run to leave unexpected screens carefully and to stop when it
+keeps failing, so that it never loops or clicks around.
+
+.Acceptance criteria
+. A step polls every 0.7 s for 8 s (13 screenshots) before it fails.
+. An unexpected screen is left with BACK; nothing is tapped on it.
+. BACK is never pressed on `INTEL` or `WORLD`.
+. Three failed steps in a row end the run with `TOO_MANY_FAILURES`.
+. The screenshot of a skipped mission is saved as `debug/failure-<step>-<STATE>.png`.
+
+.Test criteria
+* Component test (pytest + fake game with a fake clock, `tests/test_flow.py`): screenshot
+  count, BACK on an unknown screen, three failures, saved failure screenshots.
+
+[#US-3.6]
+=== US-3.6 Wait for running missions and claim all
+
+Status:: Done (0.1.0) – waiting verified on the fake game only, see <<US-4.3>> +
+Effort:: 3 h +
+Traces to:: <<TS-3.1>>, <<FR-3.7>>, <<FR-3.2>>
+
+As the operator, I want the run to wait until the started missions are finished and to claim
+their rewards, so that I do not have to tap "Claim All" myself.
+
+.Acceptance criteria
+. With the tent `RUNNING` (`intel-xx.png`) and nothing else to start, the run waits; when the
+  screen turns into `intel-xxx.png` it taps Claim All and the rewards exit, with no stray tap.
+. If nothing finishes within the timeout the run ends with its regular outcome and logs that
+  rewards were not claimed; BACK is not pressed while waiting.
+. Without running missions the run ends without waiting.
+. A dry run logs "would wait" and neither waits nor taps.
+
+.Test criteria
+* Component test (pytest + fake game with a timed screen change, `tests/test_flow.py`): one
+  test per criterion.

@@ -1,0 +1,15 @@
+= wos-intel – Backlog
+:toc: left
+:toclevels: 3
+:sectnums:
+
+User stories with acceptance and test criteria. Test levels: unit, component, integration and
+blackbox (pytest markers of the same name).
+
+include::docs/backlog/01-platform.adoc[]
+
+include::docs/backlog/02-detection.adoc[]
+
+include::docs/backlog/03-mission-flow.adoc[]
+
+include::docs/backlog/04-safety-and-quality.adoc[]

@@ -1,0 +1,15 @@
+= wos-intel – Requirements Specification
+:toc: left
+:toclevels: 3
+:sectnums:
+
+Functional and non-functional requirements of `wos-intel`, derived from `SPEC.md` (the
+stakeholder input). All coordinates refer to the 720x1280 Android image.
+
+include::docs/specifications/01-platform.adoc[]
+
+include::docs/specifications/02-detection.adoc[]
+
+include::docs/specifications/03-mission-flow.adoc[]
+
+include::docs/specifications/04-safety-and-quality.adoc[]

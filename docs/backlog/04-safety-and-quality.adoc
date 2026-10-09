@@ -1,0 +1,66 @@
+== Safety and Quality
+
+[#US-4.1]
+=== US-4.1 Safe input
+
+Status:: Done (0.1.0) +
+Effort:: 2 h +
+Traces to:: <<TS-4.1>>, <<FR-4.1>>, <<FR-4.2>>
+
+As the operator, I want the tool to tap only what it recognised, so that it can never buy
+something or move the map.
+
+.Acceptance criteria
+. In every flow test the fake game records no stray tap.
+. Unknown screens receive BACK only.
+. `Adb` offers no swipe, zoom, drag or text input and refuses taps outside the screen.
+
+.Test criteria
+* Component test (pytest, `tests/test_flow.py`, `tests/test_adb.py`): stray-tap assertions,
+  BACK on unknown screens, API surface of `Adb`.
+
+[#US-4.2]
+=== US-4.2 Quality gate and specification validator
+
+Status:: Done (0.1.0) +
+Effort:: 4 h +
+Traces to:: <<TS-4.2>>, <<NFR-1>>, <<NFR-2>>
+
+As a developer, I want one command that checks code and documents, so that a change is only
+done when everything is consistent.
+
+.Acceptance criteria
+. `uv run poe check` runs lint, format check, strict type check, tests and
+  `scripts/validate_specs.py` and fails if any of them fails.
+. The validator reports missing masters and include targets, chapters that are not included,
+  duplicate and misplaced anchors, unresolved references and missing traceability.
+. The documents of this project validate cleanly.
+
+.Test criteria
+* Integration test (pytest, `tests/test_validate_specs.py`): one generated document tree per
+  rule in `tmp_path`, plus the real project.
+
+[#US-4.3]
+=== US-4.3 Verify on the device and complete the references
+
+Status:: Open +
+Effort:: 4 h +
+Traces to:: <<TS-4.3>>, <<NFR-3>>, <<FR-3.4>>
+
+As the operator, I want the paths without reference screenshot verified on the real game, so
+that rescue, boss, defeat and the blocking dialogs are as reliable as combat and hunt.
+
+.Acceptance criteria
+. `python -m wos_intel run --dry-run` on the device logs the correct symbols without input
+  (SPEC.md §8, acceptance criterion 2).
+. A real run works off all `AVAILABLE` missions, claims the rewards and ends regularly
+  (acceptance criterion 3).
+. `snap` references exist for: rescue dialog, rescue popup, boss dialog and popup, `DEFEAT`,
+  "not enough stamina", "no troops / march slots".
+. `btn_rescue.png`, `dialog_no_stamina.png` and `dialog_no_troops.png` are cut from them and
+  the synthetic test screens are replaced by the real ones.
+
+.Test criteria
+* Blackbox test (manual, on the device): dry run, then a supervised real run.
+* Unit test (pytest, `tests/test_detect.py`): the new references added to the state and symbol
+  tables.

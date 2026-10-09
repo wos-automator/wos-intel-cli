@@ -1,0 +1,117 @@
+== Detection (`wos_intel/detect.py`)
+
+.Data model
+[source,python]
+----
+class State(StrEnum):       INTEL, INTEL_CLAIMABLE, REWARDS, MISSION_DIALOG, WORLD_TARGET, DEPLOY,
+                            SQUAD, VICTORY, DEFEAT, WORLD, NO_STAMINA, NO_TROOPS, UNKNOWN
+class MissionType(StrEnum): HUNT, RESCUE, COMBAT, BOSS
+class Tier(IntEnum):        BLUE = 1, PURPLE = 2, GOLD = 3
+class Status(StrEnum):      AVAILABLE, RUNNING, DONE
+class Action(StrEnum):      EXPLORE, ATTACK, RESCUE
+
+Match(name, score, x, y)                               # centre of a template match
+Symbol(type, x, y, score, saturation, status, tier)    # x, y = click point
+Screen(state, matches: dict[str, Match], action: Action | None)
+----
+
+`Detector(config)` loads all templates once. Required templates raise `DetectError` when
+missing; the optional ones (`btn_rescue`, `dialog_no_stamina`, `dialog_no_troops`) take part
+only if the file exists.
+
+[#TS-2.1]
+=== TS-2.1 State detection
+
+Implements <<FR-2.1>>.
+
+`Detector.find(image, name, region=None, threshold=None)` matches one colour template with
+`cv2.matchTemplate(..., TM_CCOEFF_NORMED)` inside the region configured for it and returns a
+`Match` or `None`. `detect_state(image)` checks in this order and returns the first hit:
+
+[cols="1,2,2"]
+|===
+|State |Condition |Matches (tap targets)
+
+|`NO_STAMINA`, `NO_TROOPS` |optional dialog template |–
+|`REWARDS` |`title_rewards` |–
+|`VICTORY` |`text_tap_anywhere` and `title_victory` |`exit`
+|`DEFEAT` |`text_tap_anywhere` without `title_victory` |`exit`
+|`DEPLOY` |`btn_deploy` |`btn_deploy`
+|`SQUAD` |`btn_fight` |`btn_fight`
+|`MISSION_DIALOG` |`btn_view` |`btn_view`
+|`WORLD_TARGET` |action button (<<TS-2.4>>) |`action`
+|`INTEL_CLAIMABLE` |`title_intel` and `btn_claim_all` |`btn_claim_all`
+|`INTEL` |`title_intel` |–
+|`WORLD` |`intel_button` or `intel_button_badge`, threshold 0.85 |`intel_button`
+|`UNKNOWN` |otherwise |–
+|===
+
+The order resolves overlaps: the popup of `WORLD_TARGET` is checked before the Intel button
+that is visible behind it, and the dialog before the Intel title. `title_rewards` is cut from
+`ref/intel-xxxx.png` by `tools/cut_templates.py` because `text_tap_anywhere` (cut from the
+victory screen) does not match the rewards screen. `title_deploy` and `title_squad_settings`
+are not used (0.77 against each other's screen).
+
+[#TS-2.2]
+=== TS-2.2 Symbol detection, status and tier
+
+Implements <<FR-2.2>>, <<FR-2.3>> and <<FR-2.4>>.
+
+`detect_symbols(image) -> list[Symbol]`:
+
+. HSV image; white mask `inRange(white_lo, white_hi)`; rows outside `search_y` set to 0.
+. Per type: `matchTemplate(mask, <type>_mask, TM_CCOEFF_NORMED)`; repeatedly take the maximum
+  while it is ≥ `match_threshold` and blank ±`nms_radius` around it; then keep the best hit
+  within `nms_radius` across all types.
+. Disc statistics: pixels within `disc_radius` of the centre that are not white
+  (`disc_white_lo`–`disc_white_hi`); median saturation and median hue.
+. Check marks: connected components of the green mask (`check_lo`–`check_hi`) inside the
+  search band with an area between `check_min_area` and `check_max_area`.
+. Status: `DONE` if a check mark centroid lies within `check_tolerance` of centre +
+  `check_offset`; else `AVAILABLE` if saturation ≥ `available_min_saturation`; else `RUNNING`.
+. Tier: nearest of `hue_gold`, `hue_blue`, `hue_purple` by `hue_distance` (circular, 0–179).
+  The tier of a greyed-out `RUNNING` symbol is not reliable and is never used.
+. Result sorted by `(-tier, y, x)`.
+
+This is the algorithm of `tools/prototype_detect.py`; the prototype output in SPEC.md §3.5 is
+the expected test result.
+
+[#TS-2.3]
+=== TS-2.3 Digit OCR
+
+Implements <<FR-2.5>>.
+
+* `segment_glyphs(image, lo, hi, min_height_ratio, min_height)`: white mask of the region,
+  connected components, components lower than `min_height` or lower than `min_height_ratio` ×
+  the tallest one are dropped (comma, colon dots), the rest is returned left to right.
+* `normalize_glyph(glyph)`: scaled to 16 px height keeping the aspect ratio, centred on a
+  16x16 canvas. A "1" therefore stays narrow.
+* Classification: best `TM_CCOEFF_NORMED` score against all digit templates in
+  `templates/digits/<digit>_<source>.png`; below `glyph_threshold` (0.6) the whole reading is
+  `None`.
+* `read_stamina(image)`: all glyphs of `stamina_region`, at most `max_stamina_digits`.
+* `read_refresh_seconds(image)`: the six rightmost glyphs of `timer_region` as HHMMSS; minutes
+  and seconds above 59 give `None`. The letters of "Refreshes In" left of them are ignored.
+
+`tools/cut_templates.py` generates the digit templates from `ref/`: stamina (0, 2, 3, 4, 5, 7),
+refresh timer (0, 1, 2, 5, 6, 7, 9) and the troop and power numbers of the Deploy screen
+(0, 1, 3, 4, 5, 6, 8, 9). The glyphs for 1, 6, 8 and 9 exist only in the font size of the
+other screens; normalising the height makes them usable for the stamina.
+
+[#TS-2.4]
+=== TS-2.4 Dialog type, action button, prevail hint
+
+Implements <<FR-2.6>>.
+
+* `dialog_type(image) -> (MissionType, score) | None`: white mask of `dialog_pin_region`
+  (310–410 / 320–420); each symbol mask scaled by `dialog_pin_scales` (0.70, 0.75, 0.80 – the
+  pin in the dialog is smaller than on the Intel screen) and matched; best type if its score is
+  ≥ `dialog_pin_threshold` (0.75). Measured: correct type 0.93–0.94, other types ≤ 0.58.
+* `find_action_button(image) -> (Action, Match) | None`: `btn_explore_top`, `btn_attack` and
+  the optional `btn_rescue` in `action_region` (y 250–700), best score wins. Without a template
+  hit: in `color_region` the pixels with S > 120 and V > 120 must cover at least
+  `color_min_fraction` (0.6) and their median hue must lie in `hue_rescue` (50–75) → `RESCUE`
+  with the region centre as tap point. Measured hue: Explore 105, Attack 12.
+* `likely_to_prevail(image)`: `text_likely_prevail` (colour template, so a differently
+  coloured hint does not match).
+* `annotate(image, screen, symbols)`: copy of the screenshot with state, matches and symbols.

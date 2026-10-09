@@ -1,0 +1,56 @@
+== Safety and Quality
+
+[#TS-4.1]
+=== TS-4.1 Safety by construction
+
+Implements <<FR-4.1>> and <<FR-4.2>>.
+
+* All input goes through `Runner._tap` and `Runner._back`. `_tap` is called with a `Match`
+  point, a symbol click point from `choose_target`, or `buttons.rewards_exit`; there is no other
+  source of coordinates.
+* The set of templates that can be tapped is closed: Intel button, Claim All, View,
+  Explore/Attack/Rescue, Fight, Deploy, "Tap anywhere to exit". Shop, purchase and diamond
+  dialogs match none of them, are `UNKNOWN` and are only ever answered with BACK.
+* "Quick Deploy" is never a target: only `btn_fight` is matched on `SQUAD`.
+* `Adb` has no swipe/zoom/text method and `Adb.tap` rejects off-screen coordinates
+  (<<TS-1.1>>).
+
+[#TS-4.2]
+=== TS-4.2 Toolchain and specification validation
+
+Implements <<NFR-1>> and <<NFR-2>>.
+
+* Python ≥ 3.11, dependencies and tasks in `pyproject.toml`, environment managed with `uv`
+  (`uv sync`). Runtime: `numpy`, `opencv-python`. Development: `pytest`, `pytest-mock`, `ruff`,
+  `mypy`, `poethepoet`.
+* `uv run poe check` = `ruff check .` + `ruff format --check .` + `mypy` (strict) + `pytest` +
+  `python scripts/validate_specs.py`. Ruff rule `T20` forbids `print`.
+* pytest markers map the test pyramid: `unit` (pure logic and detection on reference
+  screenshots), `component` (one module with fakes/mocks: flow with a scripted fake game, ADB
+  with a mocked `subprocess.run`), `integration` (configuration and state files, CLI
+  in-process), `blackbox` (CLI as a separate process).
+* `scripts/validate_specs.py`: masters and `include::` targets exist; every chapter is
+  included; anchors `[#FR-x.y]`, `[#NFR-x]`, `[#TS-x.y]`, `[#US-x.y]` are unique and in the
+  folder of their kind; every `<<ID>>` resolves; each TS references a requirement, each US a TS
+  and a requirement.
+* `tools/prototype_detect.py` is the frozen prototype of SPEC.md and excluded from linting.
+
+[#TS-4.3]
+=== TS-4.3 Screens without reference screenshot
+
+Implements <<NFR-3>>.
+
+[cols="1,2,2"]
+|===
+|Screen |Current handling |To complete
+
+|Rescue popup |green button by hue (<<TS-2.4>>) |`snap`, cut `templates/btn_rescue.png`
+|Rescue / boss dialog pin |scaled `tent_mask` / `skull_mask` (<<TS-2.4>>) |verify on the device
+|`DEFEAT` |exit text without "Victory!" (<<TS-2.1>>) |verify on the device
+|Not enough stamina |`templates/dialog_no_stamina.png` if present; else timeout → recovery |`snap`, cut the template
+|No troops / march slots |`templates/dialog_no_troops.png` if present; else timeout → recovery |`snap`, cut the template
+|===
+
+Synthetic test screens (`tests/conftest.py`) stand in for the missing references: a recoloured
+Explore button for Rescue, a dialog with a pasted tent/skull mask, a victory screen without
+title, a Deploy screen without the prevail hint.

@@ -1,0 +1,41 @@
+[project]
+name = "wos-intel"
+version = "0.1.0"
+description = "Automates the Intel missions in Whiteout Survival via ADB"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26", "opencv-python>=4.9"]
+
+[dependency-groups]
+dev = ["mypy>=1.10", "poethepoet>=0.27", "pytest>=8", "pytest-mock>=3.14", "ruff>=0.6"]
+
+[tool.poe.tasks]
+lint = "ruff check ."
+format-check = "ruff format --check ."
+typecheck = "mypy"
+test = "pytest"
+validate-specs = "python scripts/validate_specs.py"
+check = ["lint", "format-check", "typecheck", "test", "validate-specs"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# The prototype is the frozen reference from SPEC.md §3.5 and is kept as delivered.
+extend-exclude = ["tools/prototype_detect.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "T20", "RUF"]
+
+[tool.mypy]
+strict = true
+files = ["wos_intel", "scripts", "tools/cut_templates.py", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "--strict-markers"
+markers = [
+    "unit: pure logic on in-memory data and reference screenshots",
+    "component: one module with its collaborators replaced by fakes or mocks",
+    "integration: several modules together, including the file system",
+    "blackbox: the command line interface run as a separate process",
+]

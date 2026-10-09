@@ -1,0 +1,77 @@
+"""Cuts the templates that are derived from ref/ screenshots: digit glyphs and title_rewards.
+
+Usage: python tools/cut_templates.py
+
+Each digit source names a reference image, a region and the digits visible in it. The
+glyphs are normalised exactly like the OCR does at runtime (wos_intel.detect).
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import cv2
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from wos_intel.config import Config, Region
+from wos_intel.detect import DIGITS_DIR, normalize_glyph, segment_glyphs
+
+# tag, reference image, region (x0, y0, x1, y1), expected glyphs ("/" = glyph to skip)
+DIGIT_SOURCES: tuple[tuple[str, str, Region, str], ...] = (
+    ("stamina-a", "intel-x", (595, 25, 675, 60), "2047"),
+    ("stamina-b", "intel-xxx", (595, 25, 675, 60), "2035"),
+    ("timer-a", "intel-x", (375, 108, 510, 146), "065927"),
+    ("timer-b", "intel-xx", (375, 108, 510, 146), "065910"),
+    ("timer-c", "intel-xxx", (375, 108, 510, 146), "065905"),
+    ("troops", "hunt-3-deploy", (82, 178, 265, 212), "169830/169830"),
+    ("power", "hunt-3-deploy", (530, 178, 675, 212), "1155314530"),
+)
+
+# name, reference image, region
+CUTS: tuple[tuple[str, str, Region], ...] = (("title_rewards", "intel-xxxx", (268, 300, 454, 342)),)
+
+
+def main() -> int:
+    config = Config()
+    ref = config.path(config.paths.ref)
+    templates = config.path(config.paths.templates)
+    digits = templates / DIGITS_DIR
+    digits.mkdir(parents=True, exist_ok=True)
+    for stale in digits.glob("[0-9]_*.png"):
+        stale.unlink()
+
+    written: set[str] = set()
+    for tag, name, (x0, y0, x1, y1), expected in DIGIT_SOURCES:
+        image = np.asarray(cv2.imread(str(ref / f"{name}.png")), dtype=np.uint8)
+        glyphs = segment_glyphs(
+            image[y0:y1, x0:x1],
+            config.ocr.white_lo,
+            config.ocr.white_hi,
+            config.ocr.glyph_min_height_ratio,
+            config.ocr.glyph_min_height,
+        )
+        if len(glyphs) != len(expected):
+            sys.stderr.write(f"{tag}: expected {len(expected)} glyphs, found {len(glyphs)}\n")
+            return 1
+        for index, (char, glyph) in enumerate(zip(expected, glyphs, strict=True)):
+            if not char.isdigit():
+                continue
+            cv2.imwrite(str(digits / f"{char}_{tag}-{index}.png"), normalize_glyph(glyph))
+            written.add(char)
+
+    missing = sorted(set("0123456789") - written)
+    if missing:
+        sys.stderr.write(f"no glyph for digit(s): {', '.join(missing)}\n")
+        return 1
+
+    for name, source, (x0, y0, x1, y1) in CUTS:
+        image = np.asarray(cv2.imread(str(ref / f"{source}.png")), dtype=np.uint8)
+        cv2.imwrite(str(templates / f"{name}.png"), image[y0:y1, x0:x1])
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
