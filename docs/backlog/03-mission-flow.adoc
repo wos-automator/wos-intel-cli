@@ -29,7 +29,7 @@ nothing is left, so that I do not have to do it by hand.
 [#US-3.2]
 === US-3.2 Mission sequences
 
-Status:: Done (0.1.0) – rescue and boss verified on synthetic screens only, see <<US-4.3>> +
+Status:: Done (0.1.0) – rescue verified on synthetic screens only, see <<US-4.3>> +
 Effort:: 8 h +
 Traces to:: <<TS-3.2>>, <<FR-3.4>>
 
@@ -42,7 +42,9 @@ so that only the intended mission is started.
   and no stray tap.
 . A dialog of another type is closed with BACK, "View" is not tapped, the symbol is not retried.
 . A popup with another action than expected is not tapped.
-. Without the prevail hint "Deploy" is not tapped; the run backs out to the world map.
+. A hunt without the prevail hint is not deployed; the run backs out to the world map.
+. The boss (`boss-1-dialog.png` → `boss-2-world-attack.png` → `boss-3-deploy.png`) is deployed
+  although the screen says "not likely to prevail"; a warning is logged.
 . A lost fight is dismissed by the exit tap and the run continues.
 . Rescue: View → Rescue → `WORLD`, no deploy step.
 
@@ -78,7 +80,7 @@ symbol, so that stamina goes to the best rewards and the right pin is hit.
 [#US-3.4]
 === US-3.4 Boss lock
 
-Status:: Done (0.1.0) – boss flow verified on synthetic screens only, see <<US-4.3>> +
+Status:: Done (0.1.0) +
 Effort:: 3 h +
 Traces to:: <<TS-3.4>>, <<FR-3.5>>
 

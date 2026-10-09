@@ -130,6 +130,9 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("combat-3-squad-fight", State.SQUAD),
         ("combat-4-victory", State.VICTORY),
         ("hunt-3-deploy", State.DEPLOY),
+        ("boss-1-dialog", State.MISSION_DIALOG),
+        ("boss-2-world-attack", State.WORLD_TARGET),
+        ("boss-3-deploy", State.DEPLOY),
         ("world", State.WORLD),
         ("rescue-popup", State.WORLD_TARGET),
         ("defeat", State.DEFEAT),
@@ -150,6 +153,7 @@ def test_unknown_state_for_a_blank_screen(detector: Detector) -> None:
     [
         ("intel-xxx", "btn_claim_all", (360, 1128)),
         ("combat-1-dialog", "btn_view", (360, 933)),
+        ("boss-1-dialog", "btn_view", (360, 870)),
         ("combat-2-world-explore", "action", (360, 615)),
         ("hunt-2-world-attack", "action", (360, 615)),
         ("combat-3-squad-fight", "btn_fight", (528, 1201)),
@@ -172,6 +176,7 @@ def test_tap_targets(
     [
         ("combat-2-world-explore", Action.EXPLORE),
         ("hunt-2-world-attack", Action.ATTACK),
+        ("boss-2-world-attack", Action.ATTACK),
         ("rescue-popup", Action.RESCUE),
     ],
 )
@@ -200,7 +205,7 @@ def test_optional_template_never_matches_while_missing(detector: Detector) -> No
         ("combat-1-dialog", COMBAT),
         ("hunt-1-dialog", HUNT),
         ("rescue-dialog", RESCUE),
-        ("boss-dialog", BOSS),
+        ("boss-1-dialog", BOSS),
     ],
 )
 def test_dialog_type(
@@ -219,6 +224,8 @@ def test_dialog_type_is_none_without_a_pin(detector: Detector) -> None:
 def test_likely_to_prevail(detector: Detector, images: dict[str, Image]) -> None:
     assert detector.likely_to_prevail(images["hunt-3-deploy"])
     assert not detector.likely_to_prevail(images["deploy-unlikely"])
+    # red "You are not likely to prevail" on the boss deploy screen
+    assert not detector.likely_to_prevail(images["boss-3-deploy"])
 
 
 @pytest.mark.parametrize(

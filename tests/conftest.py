@@ -18,6 +18,7 @@ TEMPLATE_DIR = PROJECT_ROOT / "templates"
 Point = tuple[int, int]
 
 VIEW: Point = (360, 932)
+BOSS_VIEW: Point = (360, 870)
 ACTION: Point = (360, 615)
 FIGHT: Point = (530, 1202)
 DEPLOY: Point = (550, 1215)
@@ -106,7 +107,6 @@ def images() -> dict[str, Image]:
     loaded["world"] = make_world()
     loaded["rescue-popup"] = make_rescue_popup()
     loaded["rescue-dialog"] = make_dialog("tent_mask")
-    loaded["boss-dialog"] = make_dialog("skull_mask")
     loaded["deploy-unlikely"] = make_deploy_unlikely()
     loaded["defeat"] = make_defeat()
     return loaded
@@ -156,7 +156,9 @@ class FakeGame:
             "combat-1-dialog": [(VIEW, "combat-2-world-explore")],
             "hunt-1-dialog": [(VIEW, "hunt-2-world-attack")],
             "rescue-dialog": [(VIEW, "rescue-popup")],
-            "boss-dialog": [(VIEW, "hunt-2-world-attack")],
+            "boss-1-dialog": [(BOSS_VIEW, "boss-2-world-attack")],
+            "boss-2-world-attack": [(ACTION, "boss-3-deploy")],
+            "boss-3-deploy": [(DEPLOY, "world")],
             "combat-2-world-explore": [(ACTION, "combat-3-squad-fight")],
             "hunt-2-world-attack": [(ACTION, "hunt-3-deploy")],
             "rescue-popup": [((360, 629), "world")],
@@ -171,7 +173,9 @@ class FakeGame:
             "combat-1-dialog": intel,
             "hunt-1-dialog": intel,
             "rescue-dialog": intel,
-            "boss-dialog": intel,
+            "boss-1-dialog": intel,
+            "boss-2-world-attack": "world",
+            "boss-3-deploy": "boss-2-world-attack",
             "combat-2-world-explore": "world",
             "hunt-2-world-attack": "world",
             "rescue-popup": "world",

@@ -11,7 +11,8 @@ As the run loop, I want every screenshot classified as one state with its tap ta
 no tap is ever sent blindly.
 
 .Acceptance criteria
-. All eleven reference screenshots yield their state.
+. All fourteen reference screenshots yield their state; the lower boss dialog has its "View"
+  button at 360,870.
 . A world map without popup is `WORLD`; a result screen without "Victory!" is `DEFEAT`; a
   blank image is `UNKNOWN`.
 . The tap targets lie within ±6 px of the positions in SPEC.md §2 (Claim All 360,1128; View
@@ -79,10 +80,11 @@ offers, so that a mis-tap on an overlapping symbol is noticed before a mission i
 
 .Acceptance criteria
 . `combat-1-dialog.png` → `COMBAT`, `hunt-1-dialog.png` → `HUNT`; a screen without pin → `None`.
-. A dialog with a tent or skull pin (synthetic) → `RESCUE` / `BOSS`.
+. `boss-1-dialog.png` → `BOSS`; a dialog with a tent pin (synthetic) → `RESCUE`.
 . `combat-2-world-explore.png` → Explore, `hunt-2-world-attack.png` → Attack, a popup with a
   green button (synthetic) → Rescue.
-. The prevail hint is found on `hunt-3-deploy.png` and not on the same screen without it.
+. The prevail hint is found on `hunt-3-deploy.png`, not on the same screen without it and not
+  on `boss-3-deploy.png` (red "not likely to prevail").
 
 .Test criteria
 * Unit test (pytest, `tests/test_detect.py`): parametrised over reference and synthetic screens.

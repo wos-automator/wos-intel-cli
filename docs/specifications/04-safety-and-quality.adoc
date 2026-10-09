@@ -62,7 +62,7 @@ Effort:: 3 h
 [#NFR-3]
 === NFR-3 Screens without reference screenshot
 
-Rescue (popup button and what follows), boss, `DEFEAT`, the "not enough stamina" dialog and the
+Rescue (popup button and what follows), `DEFEAT`, the "not enough stamina" dialog and the
 "no troops / march slots" dialog have no reference screenshot yet.
 
 .Acceptance criteria

@@ -86,8 +86,8 @@ WORLD_TARGET --> WORLD : RESCUE, tap Rescue
 WORLD_TARGET --> [*] : wrong action (rejected)
 SQUAD --> RESULT : tap Fight, up to 60 s
 RESULT --> WORLD : tap exit text
-DEPLOY --> WORLD : prevail hint, tap Deploy
-DEPLOY --> [*] : no prevail hint (rejected)
+DEPLOY --> WORLD : prevail hint or BOSS, tap Deploy
+DEPLOY --> [*] : HUNT without prevail hint (rejected)
 WORLD --> INTEL : tap Intel button
 @enduml
 ----

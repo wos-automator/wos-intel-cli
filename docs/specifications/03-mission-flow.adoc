@@ -53,8 +53,11 @@ Effort:: 4 h
   (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.
 . Combat: tap the action → `SQUAD` → tap "Fight" (never "Quick Deploy") → `VICTORY` or `DEFEAT`
   within 60 s → tap "Tap anywhere to exit" → `WORLD`.
-. Hunt and boss: tap the action → `DEPLOY`. Only if "You are quite likely to prevail" is shown:
+. Hunt: tap the action → `DEPLOY`. Only if "You are quite likely to prevail" is shown:
   tap "Deploy" → `WORLD`; otherwise BACK and skip. Troops and heroes are never changed.
+. Boss: tap the action → `DEPLOY` → tap "Deploy" → `WORLD`, also when the game shows "You are
+  not likely to prevail": the boss is attacked once per cycle whatever the odds, and the
+  missing hint is logged as a warning. Troops and heroes are never changed.
 . Rescue: tap the action → `WORLD`; there is no deploy step.
 . After each mission the Intel button on `WORLD` is tapped and `INTEL` awaited.
 . A "not enough stamina" dialog ends the run regularly; so does a "no troops / march slots"

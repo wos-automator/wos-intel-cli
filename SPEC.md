@@ -44,7 +44,8 @@ Related tool: `wos-watchdog.sh` (crash restart + Endless Trial macro).
 | `UNKNOWN` | none of these | – |
 
 > **Still open:** hunt (`WORLD_TARGET` with Attack, troop selection with Deploy, result),
-> rescue (`WORLD_TARGET` with Rescue, what appears afterwards), boss, `DEFEAT`, not-enough-stamina dialog.
+> rescue (`WORLD_TARGET` with Rescue, what appears afterwards), `DEFEAT`, not-enough-stamina dialog.
+> Boss: reference images `ref/boss-1-dialog.png`, `boss-2-world-attack.png`, `boss-3-deploy.png` exist.
 > Until then Claude Code implements these steps with placeholder templates and `--dry-run`.
 
 **Rescue without a reference image:** flow like hunt, but the popup button is labelled **"Rescue"**
@@ -173,6 +174,9 @@ loop:
              → expect VICTORY | DEFEAT (the fight takes time; timeout here 60 s)
              → tap "Tap anywhere to exit" (≈ 360,1140) → expect WORLD
   HUNT/BOSS: → expect DEPLOY
+             Exception BOSS: the boss is attacked even with "You are not likely to prevail" (red,
+             `ref/boss-3-deploy.png`) – once per refresh cycle, regardless of the
+             odds. The following safety rule applies to HUNT only.
              Safety rule: only if "You are quite likely to prevail" (green) is visible,
              otherwise BACK, lock the mission for this run, continue.
              Do NOT change troops/heroes (use the game's preset).
@@ -254,6 +258,11 @@ config.toml
 - `hunt-2-world-attack.png`: `WORLD_TARGET` with popup "Lv. 22 Giant Elk", button "Attack 10" (orange);
   Intel button here with a red badge (match 0.94 – threshold for `intel_button` therefore 0.85).
 - `hunt-3-deploy.png`: `DEPLOY` with "You are quite likely to prevail" and button "Deploy 10".
+- `boss-1-dialog.png`: `MISSION_DIALOG` of the boss ("Ultimate Bounty: No. 17"). The dialog is
+  lower than for hunt/combat: button View at ≈ 360,870, skull shield at ≈ 356,430
+  (smaller than in the hunt/combat dialog, mask ×0.60 instead of ×0.75).
+- `boss-2-world-attack.png`: `WORLD_TARGET` of the boss with button "Attack 10".
+- `boss-3-deploy.png`: `DEPLOY` of the boss with "You are not likely to prevail" (red).
 
 ### Templates
 Symbol masks: `paw_mask`, `tent_mask`, `axe_mask`, `skull_mask` (+ colour cut-outs), `check` (green check mark).

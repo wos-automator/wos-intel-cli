@@ -45,7 +45,7 @@ Implements <<NFR-3>>.
 |Screen |Current handling |To complete
 
 |Rescue popup |green button by hue (<<TS-2.4>>) |`snap`, cut `templates/btn_rescue.png`
-|Rescue / boss dialog pin |scaled `tent_mask` / `skull_mask` (<<TS-2.4>>) |verify on the device
+|Rescue dialog pin |scaled `tent_mask` (<<TS-2.4>>) |verify on the device
 |`DEFEAT` |exit text without "Victory!" (<<TS-2.1>>) |verify on the device
 |Not enough stamina |`templates/dialog_no_stamina.png` if present; else timeout → recovery |`snap`, cut the template
 |No troops / march slots |`templates/dialog_no_troops.png` if present; else timeout → recovery |`snap`, cut the template

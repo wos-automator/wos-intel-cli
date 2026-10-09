@@ -18,6 +18,9 @@ First version: automation of the Intel missions as specified in `SPEC.md`.
 * Run loop: open Intel, claim rewards, start missions by tier, end regularly
   (<<US-3.1>>, <<US-3.3>>, <<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>>, <<FR-4.3>>).
 * Mission sequences for combat, hunt, boss and rescue (<<US-3.2>>, <<FR-3.4>>).
+* Boss: the lower boss dialog and its smaller skull shield are recognised (references
+  `ref/boss-*.png`); the boss is deployed even when the game says "not likely to prevail"
+  (<<US-2.1>>, <<US-2.4>>, <<US-3.2>>, <<FR-2.6>>, <<FR-3.4>>).
 * Boss lock per refresh cycle in `state.json` (<<US-3.4>>, <<FR-3.5>>).
 * Polling with timeouts and careful recovery with BACK; the screenshot of a skipped mission or
   failed step is kept as `debug/failure-*.png` (<<US-3.5>>, <<FR-3.6>>).
@@ -38,7 +41,7 @@ First version: automation of the Intel missions as specified in `SPEC.md`.
 
 * Not yet run against the game: acceptance criteria 2 and 3 of SPEC.md §8 are open
   (<<US-4.3>>).
-* Rescue, boss, `DEFEAT` and the dialogs for missing stamina or troops have no reference
+* Rescue, `DEFEAT` and the dialogs for missing stamina or troops have no reference
   screenshot; they are implemented and tested on synthetic screens only (<<NFR-3>>).
 * Waiting for running missions assumes that the Intel screen updates while it stays open;
   this is not verified on the device (<<FR-3.7>>).

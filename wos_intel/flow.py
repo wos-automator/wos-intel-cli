@@ -405,7 +405,7 @@ class Runner:
         elif target.type is MissionType.RESCUE:
             world = self._rescue()
         else:
-            world = self._deploy()
+            world = self._deploy(require_prevail=target.type is not MissionType.BOSS)
         self.missions_started += 1
         self._unclaimed += 1
 
@@ -445,11 +445,14 @@ class Runner:
         self._end_if_blocked(screen)
         return screen
 
-    def _deploy(self) -> Screen:
+    def _deploy(self, require_prevail: bool) -> Screen:
         screen, image = self._expect({State.DEPLOY, State.NO_STAMINA, State.NO_TROOPS})
         self._end_if_blocked(screen)
         if not self._detector.likely_to_prevail(image):
-            raise MissionRejected('"You are quite likely to prevail" is not shown')
+            if require_prevail:
+                raise MissionRejected('"You are quite likely to prevail" is not shown')
+            # The boss is attacked once per cycle whatever the odds (SPEC §5).
+            log.warning('deploying without "You are quite likely to prevail"')
         self._tap_match(screen.matches["btn_deploy"])
         screen, _ = self._expect({State.WORLD, State.NO_TROOPS})
         self._end_if_blocked(screen)

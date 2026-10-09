@@ -104,9 +104,13 @@ other screens; normalising the height makes them usable for the stamina.
 Implements <<FR-2.6>>.
 
 * `dialog_type(image) -> (MissionType, score) | None`: white mask of `dialog_pin_region`
-  (310–410 / 320–420); each symbol mask scaled by `dialog_pin_scales` (0.70, 0.75, 0.80 – the
-  pin in the dialog is smaller than on the Intel screen) and matched; best type if its score is
-  ≥ `dialog_pin_threshold` (0.75). Measured: correct type 0.93–0.94, other types ≤ 0.58.
+  (300–420 / 320–500); each symbol mask scaled by `dialog_pin_scales` (0.60, 0.70, 0.75, 0.80 –
+  the pin in the dialog is smaller than on the Intel screen) and matched; best type if its
+  score is ≥ `dialog_pin_threshold` (0.75). Measured: paw and axe pins at ≈ 359,367 score
+  0.93–0.94 at scale 0.75; the boss shield of `ref/boss-1-dialog.png` sits lower at ≈ 356,430
+  and scores 0.85 at scale 0.60; other types ≤ 0.58.
+* The boss dialog is lower than the hunt and combat dialogs: its "View" button is at 360,870
+  instead of 360,932, so the region of `btn_view` spans y 780–1010.
 * `find_action_button(image) -> (Action, Match) | None`: `btn_explore_top`, `btn_attack` and
   the optional `btn_rescue` in `action_region` (y 250–700), best score wins. Without a template
   hit: in `color_region` the pixels with S > 120 and V > 120 must cover at least

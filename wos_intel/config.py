@@ -84,8 +84,8 @@ class SymbolConfig:
     ring_offset_pin: int = 55
     ring_offset_boss: int = 65
     lock_radius: int = 12
-    dialog_pin_region: Region = (310, 320, 410, 420)
-    dialog_pin_scales: tuple[float, ...] = (0.70, 0.75, 0.80)
+    dialog_pin_region: Region = (300, 320, 420, 500)
+    dialog_pin_scales: tuple[float, ...] = (0.60, 0.70, 0.75, 0.80)
     dialog_pin_threshold: float = 0.75
 
 
@@ -134,7 +134,7 @@ def _default_regions() -> dict[str, Region]:
         "title_intel": (60, 10, 220, 75),
         "btn_claim_all": (150, 1050, 570, 1210),
         "title_rewards": (200, 260, 520, 380),
-        "btn_view": (150, 850, 570, 1010),
+        "btn_view": (150, 780, 570, 1010),
         "btn_deploy": (360, 1150, 720, 1280),
         "btn_fight": (330, 1140, 720, 1265),
         "title_victory": (150, 380, 570, 560),

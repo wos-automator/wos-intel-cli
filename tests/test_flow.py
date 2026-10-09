@@ -15,6 +15,7 @@ from tests.conftest import (
     AXE_BLUE,
     AXE_PURPLE,
     BOSS,
+    BOSS_VIEW,
     CLAIM_ALL,
     DEPLOY,
     FIGHT,
@@ -295,7 +296,7 @@ def test_popup_with_unexpected_action_is_rejected(
 def test_boss_is_locked_for_the_refresh_cycle(
     game_factory: GameFactory, detector: Detector, state_file: Path
 ) -> None:
-    game = game_factory(overrides={"intel-x": [(BOSS, "boss-dialog")]})
+    game = game_factory(overrides={"intel-x": [(BOSS, "boss-1-dialog")]})
     runner = make_runner(game, detector, state_file)
 
     assert runner.run() is Outcome.NOTHING_TO_DO
@@ -309,7 +310,7 @@ def test_boss_lock_falls_back_to_configured_cycle(
     game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
 ) -> None:
     mocker.patch.object(detector, "read_refresh_seconds", return_value=None)
-    game = game_factory(overrides={"intel-x": [(BOSS, "boss-dialog")]})
+    game = game_factory(overrides={"intel-x": [(BOSS, "boss-1-dialog")]})
 
     make_runner(game, detector, state_file).run()
 
@@ -341,21 +342,41 @@ def test_expired_boss_lock_is_ignored(
 def test_boss_is_attacked_once_after_everything_else(
     game_factory: GameFactory, detector: Detector, state_file: Path
 ) -> None:
-    game = game_factory(overrides={"intel-x": [(BOSS, "boss-dialog")]})
+    game = game_factory(overrides={"intel-x": [(BOSS, "boss-1-dialog")]})
 
     make_runner(game, detector, state_file).run()
 
     taps = game.taps_on("intel-x")
     assert near(taps[-1], BOSS, 8)
     assert sum(near(tap, BOSS, 8) for tap in taps) == 1
-    assert game.taps_on("boss-dialog") == [VIEW]
+    assert game.taps_on("boss-1-dialog") == [BOSS_VIEW]
+
+
+def test_boss_is_deployed_even_when_not_likely_to_prevail(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    game = game_factory(overrides={"intel-x": [(BOSS, "boss-1-dialog")]})
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert len(game.taps_on("boss-2-world-attack")) == 1
+    assert len(game.taps_on("boss-3-deploy")) == 1
+    assert near(game.taps_on("boss-3-deploy")[0], DEPLOY, 8)
+    assert "boss-3-deploy" not in game.backs
+    assert runner.missions_started == 6
+    assert game.stray_taps == []
+    assert 'deploying without "You are quite likely to prevail"' in caplog.text
 
 
 def test_boss_is_attacked_when_it_is_the_only_affordable_mission(
     game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
 ) -> None:
     mocker.patch.object(detector, "read_stamina", return_value=10)
-    game = game_factory(overrides={"intel-x": [(BOSS, "boss-dialog")]})
+    game = game_factory(overrides={"intel-x": [(BOSS, "boss-1-dialog")]})
 
     make_runner(game, detector, state_file).run()
 
