@@ -3,7 +3,7 @@
 [#TS-3.1]
 === TS-3.1 Runner and run loop
 
-Implements <<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>> and <<FR-4.3>>.
+Implements <<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>>, <<FR-3.7>>, <<FR-3.8>> and <<FR-4.3>>.
 
 [source,python]
 ----
@@ -64,6 +64,15 @@ screen again; `INTEL` → keep waiting; any other state → `StepFailed`. On tim
 warning and returns `final`. `_unclaimed` exists because a greyed-out running pin is not always
 found by the white mask (SPEC.md §3.5).
 
+Expert (<<FR-3.8>>): on every evaluation of the Intel screen `Detector.find_expert` is asked
+for the sign and a hit is logged (`expert sign at x,y`), so a dry run always shows it. It is
+tapped after the mission-limit check and before the stamina check, if every candidate is a
+boss (or there is none) and `_expert_used` is not set. The sign (template `expert_sign`, cut by `tools/cut_templates.py` from the inside
+of the sign in `ref/intel-expert-available.png`, region `regions.expert_sign`; other references
+score ≤ 0.57). If found: set `_expert_used`, tap the match, return `None` so that the loop
+evaluates the Intel screen again. What the game shows after the tap has no reference yet; a
+screen other than `INTEL*` runs into the normal `StepFailed` recovery (<<TS-3.5>>).
+
 Candidates are the `AVAILABLE` symbols that were not attempted in this run (same type within
 `lock_radius` of an attempted one) and, for the boss, not locked (<<TS-3.4>>). With `dry_run`
 the runner logs the tap it would send (Intel button, Claim All, first mission) and returns
@@ -102,6 +111,14 @@ Control flow uses three exceptions, handled in `Runner.run`:
 |`StepFailed` |Expected state did not appear. Counted; recovery; after `max_failures` in a row `TOO_MANY_FAILURES`.
 |`RunEnded(outcome)` |`NO_STAMINA` or `NO_TROOPS` dialog: one BACK, the run ends with that outcome.
 |===
+
+Dialog type under a banner: if `dialog_type` returns `None` on the first `MISSION_DIALOG`
+screenshot, `_run_mission` polls (`poll_interval`, up to `expect_timeout`) and asks again on
+each fresh screenshot; a state other than `MISSION_DIALOG` raises `StepFailed`. A positively
+recognised other type rejects at once. Found on the device run of 2026-10-10: two dialogs
+opened under a notification banner (`ref/hunt-1-dialog-banner.png`,
+`ref/rescue-1-dialog-banner.png`), were rejected immediately and their missions were then
+passed over in favour of the boss.
 
 `ACTION_FOR` maps COMBAT → EXPLORE, HUNT/BOSS → ATTACK, RESCUE → RESCUE. The target is added
 to the attempted list before the first tap, so no symbol is tapped twice in a run.

@@ -18,6 +18,7 @@ from tests.conftest import (
     BOSS_VIEW,
     CLAIM_ALL,
     DEPLOY,
+    EXPERT,
     FIGHT,
     INTEL_BUTTON,
     PAW_BLUE_LEFT,
@@ -281,6 +282,85 @@ def test_rescue_starts_without_deploy(
     assert game.stray_taps == []
 
 
+def banner_game(game_factory: GameFactory, banner_seconds: float | None) -> FakeGame:
+    """Device run of 2026-10-10: hunt and rescue dialogs open under a notification banner.
+
+    The banner hides the pin; after ``banner_seconds`` it is gone (``None``: it stays).
+    The boss answers with its real dialog.
+    """
+    game = game_factory(
+        overrides={
+            "intel-x": [
+                (PAW_PURPLE, "hunt-1-dialog-banner"),
+                (PAW_BLUE_LEFT, "hunt-1-dialog-banner"),
+                (PAW_BLUE_RIGHT, "hunt-1-dialog-banner"),
+                (TENT, "rescue-1-dialog-banner"),
+                (BOSS, "boss-1-dialog"),
+            ]
+        }
+    )
+    if banner_seconds is not None:
+        game.transient["hunt-1-dialog-banner"] = (banner_seconds, "hunt-1-dialog")
+        game.transient["rescue-1-dialog-banner"] = (banner_seconds, "rescue-dialog")
+    return game
+
+
+def test_missions_under_a_notification_banner_are_started_before_the_boss(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = banner_game(game_factory, banner_seconds=3.0)
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    # nothing is tapped and nothing is closed while the pin is hidden
+    assert game.taps_on("hunt-1-dialog-banner") == []
+    assert game.taps_on("rescue-1-dialog-banner") == []
+    assert game.backs == []
+    assert game.stray_taps == []
+    # every regular mission is started: 3 hunts, 1 rescue, 2 combats - and then the boss
+    assert len(game.taps_on("hunt-3-deploy")) == 3
+    assert len(game.taps_on("rescue-popup")) == 1
+    assert len(game.taps_on("combat-3-squad-fight")) == 2
+    assert runner.missions_started == 7
+    intel_taps = game.taps_on("intel-x")
+    assert len(intel_taps) == 7
+    assert near(intel_taps[-1], BOSS, 8)
+    assert sum(near(tap, BOSS, 8) for tap in intel_taps) == 1
+
+
+def test_boss_is_not_attacked_before_a_mission_delayed_by_a_banner(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = banner_game(game_factory, banner_seconds=3.0)
+
+    make_runner(game, detector, state_file).run()
+
+    screens = [screen for screen, _ in game.taps]
+    boss_dialog = screens.index("boss-1-dialog")
+    last_regular = max(
+        index
+        for index, screen in enumerate(screens)
+        if screen in ("hunt-3-deploy", "rescue-popup", "combat-3-squad-fight")
+    )
+    assert last_regular < boss_dialog
+
+
+def test_dialog_that_stays_unreadable_is_closed_after_the_timeout(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = banner_game(game_factory, banner_seconds=None)
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert game.taps_on("hunt-1-dialog-banner") == []
+    assert game.backs.count("hunt-1-dialog-banner") == 3
+    assert game.backs.count("rescue-1-dialog-banner") == 1
+    assert runner.missions_started == 3  # the two combats and the boss
+
+
 def test_popup_with_unexpected_action_is_rejected(
     game_factory: GameFactory, detector: Detector, state_file: Path
 ) -> None:
@@ -426,6 +506,116 @@ def test_waiting_for_running_missions_gives_up_after_the_timeout(
     assert "did not finish in time" in caplog.text
     assert game.stray_taps == []
     assert "intel-xx" not in game.backs
+
+
+def test_running_boss_is_not_tapped_but_waited_for(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    game = game_factory(start="intel-boss-running")
+    caplog.set_level("INFO")
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps == []
+    assert game.backs == []
+    assert "BOSS GOLD RUNNING at 518,700" in caplog.text
+    assert "waiting up to 30 s for running missions (1 shown as running" in caplog.text
+
+
+def test_expert_is_tapped_when_no_regular_mission_is_left(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    # only the running boss is on the screen; the expert then hands out the missions of intel-x
+    game = game_factory(start="expert-only-boss-running")
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert game.taps[0][0] == "expert-only-boss-running"
+    assert near(game.taps[0][1], EXPERT, 8)
+    assert len(game.taps_on("expert-only-boss-running")) == 1
+    assert runner.missions_started == 5
+    assert game.stray_taps == []
+
+
+def test_expert_comes_after_the_regular_missions_and_before_the_boss(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = game_factory(start="expert-and-missions", intel="expert-and-missions")
+
+    make_runner(game, detector, state_file).run()
+
+    taps = game.taps_on("expert-and-missions")
+    regular = [TENT, AXE_PURPLE, PAW_PURPLE, PAW_BLUE_LEFT, PAW_BLUE_RIGHT, AXE_BLUE]
+    assert len(taps) == len(regular) + 1
+    assert all(near(tap, point, 8) for tap, point in zip(taps, regular, strict=False))
+    assert near(taps[-1], EXPERT, 8)
+    # the boss is only tapped afterwards, on the screen the expert leads to
+    assert [near(tap, BOSS, 8) for tap in game.taps_on("intel-x")] == [True]
+
+
+def test_expert_is_left_alone_while_regular_missions_are_available(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    game = game_factory(start="intel-expert-available")
+    caplog.set_level("INFO")
+
+    outcome = make_runner(game, detector, state_file, dry_run=True).run()
+
+    assert outcome is Outcome.DRY_RUN
+    # the sign is reported as seen, but the planned tap is a mission
+    assert "expert sign at 59,210 (score 1.00)" in caplog.text
+    assert "expert_sign" not in caplog.text
+    assert "dry run: would tap 380,323 (RESCUE GOLD AVAILABLE" in caplog.text
+
+
+def test_expert_is_used_even_without_stamina(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    mocker.patch.object(detector, "read_stamina", return_value=9)
+    game = game_factory(start="expert-only-boss-running")
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.OUT_OF_STAMINA
+    assert len(game.taps) == 1
+    assert near(game.taps[0][1], EXPERT, 8)
+
+
+def test_expert_is_tapped_only_once_per_run(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = game_factory(start="expert-only-boss-running")
+    game.transitions["expert-only-boss-running"] = []  # the sign stays whatever is tapped
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert len(game.taps) == 1
+    assert game.backs == []
+
+
+def test_dry_run_reports_the_expert_tap(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    game = game_factory(start="expert-only-boss-running")
+    caplog.set_level("INFO")
+
+    outcome = make_runner(game, detector, state_file, dry_run=True).run()
+
+    assert outcome is Outcome.DRY_RUN
+    assert game.taps == []
+    assert "dry run: would tap 59,210 (expert_sign)" in caplog.text
 
 
 def test_nothing_running_ends_without_waiting(

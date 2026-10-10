@@ -167,6 +167,7 @@ class Runner:
         self._last: tuple[Screen, Image] | None = None
         self._attempted: list[Symbol] = []
         self._unclaimed = 0
+        self._expert_used = False
         self.missions_started = 0
 
     # ------------------------------------------------------------------ primitives
@@ -297,13 +298,27 @@ class Runner:
         symbols = self._detector.detect_symbols(image)
         for symbol in symbols:
             log.info("symbol %s", symbol.describe())
+        expert = self._detector.find_expert(image)
+        if expert is not None:
+            log.info("expert sign at %d,%d (score %.2f)", expert.x, expert.y, expert.score)
 
         if self.missions_started >= self._config.limits.max_missions:
             return self._settle(Outcome.MISSION_LIMIT, symbols)
-        if stamina is not None and stamina < self._config.limits.min_stamina:
-            return self._settle(Outcome.OUT_OF_STAMINA, symbols)
 
         candidates = self._candidates(symbols)
+        # The expert hands out more missions once a day. Use it as soon as no regular mission
+        # is left - before the boss, and even if the stamina is used up - so it is not lost.
+        only_boss_left = all(symbol.type is MissionType.BOSS for symbol in candidates)
+        if expert is not None and only_boss_left and not self._expert_used:
+            if self._dry_run:
+                log.info("dry run: would tap %d,%d (%s)", expert.x, expert.y, expert.name)
+                return Outcome.DRY_RUN
+            self._expert_used = True
+            self._tap_match(expert)
+            return None
+
+        if stamina is not None and stamina < self._config.limits.min_stamina:
+            return self._settle(Outcome.OUT_OF_STAMINA, symbols)
         if not candidates:
             return self._settle(Outcome.NOTHING_TO_DO, symbols)
         affordable = [
@@ -389,6 +404,17 @@ class Runner:
         self._tap(point, f"{target.type} symbol")
         screen, image = self._expect({State.MISSION_DIALOG})
         shown = self._detector.dialog_type(image)
+        # A notification banner ("Troops have returned to the city.") can slide over the pin
+        # for a few seconds. An unreadable pin is therefore looked at again; only a pin that
+        # clearly shows another type, or stays unreadable, rejects the mission.
+        timing = self._config.timing
+        deadline = self._clock() + timing.expect_timeout
+        while shown is None and self._clock() < deadline:
+            self._sleep(timing.poll_interval)
+            screen, image = self._observe()
+            if screen.state is not State.MISSION_DIALOG:
+                raise StepFailed(f"mission dialog disappeared, screen is {screen.state}")
+            shown = self._detector.dialog_type(image)
         if shown is None or shown[0] is not target.type:
             found = "no known type" if shown is None else str(shown[0])
             raise MissionRejected(f"dialog shows {found}, expected {target.type}")

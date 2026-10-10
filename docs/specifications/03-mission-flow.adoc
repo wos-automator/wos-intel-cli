@@ -49,6 +49,11 @@ Effort:: 4 h
 .Acceptance criteria
 . Tap on the symbol → `MISSION_DIALOG`. The dialog must show the expected mission type
   (<<FR-2.6>>); otherwise BACK and the symbol is skipped for this run.
+. If the type cannot be recognised – a notification banner such as "Troops have returned to the
+  city." covers the pin for a few seconds – the dialog is checked again every 0.7 s for up to
+  8 s. Nothing is tapped meanwhile. Only a pin that shows another type, or stays unreadable
+  until the timeout, causes the skip, so that a workable mission is not left behind and the
+  boss is not attacked before it.
 . Tap "View" → `WORLD_TARGET`. The popup must offer the action of the mission type
   (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.
 . Combat: tap the action → `SQUAD` → tap "Fight" (never "Quick Deploy") → `VICTORY` or `DEFEAT`
@@ -92,6 +97,28 @@ Effort:: 3 h
 . The screenshot on which a mission was skipped or a step failed is saved under `debug/`.
 
 Stakeholder need:: SPEC.md §2 (state detection), §5 (expect X) +
+Effort:: 3 h
+
+[#FR-3.8]
+=== FR-3.8 Expert: more missions once a day
+
+Once a day a white sign pointing left with a bust portrait – the expert – appears top left on
+the Intel screen (`ref/intel-expert-available.png`, centre ≈ 59,210). Tapping it yields
+additional missions.
+
+.Acceptance criteria
+. The sign is detected by a colour template (threshold 0.9) in the region x 0–160, y 140–290
+  and is not detected on any other reference screenshot.
+. When no regular mission is left to work on (boss aside) and the sign is visible, it is
+  tapped – before the boss (<<FR-3.3>>), before waiting for running missions (<<FR-3.7>>) and
+  also when the stamina is below the minimum, so that the daily offer is not lost.
+. While a regular mission can still be worked on, the sign is not tapped.
+. The sign is tapped at most once per run; afterwards the Intel screen is evaluated again.
+. Whenever the sign is visible on the Intel screen this is logged with its position, also when
+  it is not tapped.
+. A dry run logs the tap instead of sending it.
+
+Stakeholder need:: SPEC.md §3.6, §5 +
 Effort:: 3 h
 
 [#FR-3.7]

@@ -63,6 +63,8 @@ class SymbolConfig:
     search_y: Point = (170, 1050)
     white_lo: Hsv = (0, 0, 215)
     white_hi: Hsv = (180, 45, 255)
+    dim_white_lo: Hsv = (0, 0, 190)
+    dim_white_hi: Hsv = (180, 70, 255)
     match_threshold: float = 0.75
     nms_radius: int = 20
     disc_radius: int = 26
@@ -112,6 +114,7 @@ class OcrConfig:
     timer_region: Region = (215, 108, 510, 146)
     glyph_min_height_ratio: float = 0.75
     glyph_min_height: int = 10
+    glyph_max_aspect: float = 1.3
     glyph_threshold: float = 0.6
     max_stamina_digits: int = 6
 
@@ -134,6 +137,7 @@ def _default_regions() -> dict[str, Region]:
         "title_intel": (60, 10, 220, 75),
         "btn_claim_all": (150, 1050, 570, 1210),
         "title_rewards": (200, 260, 520, 380),
+        "expert_sign": (0, 140, 160, 290),
         "btn_view": (150, 780, 570, 1010),
         "btn_deploy": (360, 1150, 720, 1280),
         "btn_fight": (330, 1140, 720, 1265),

@@ -5,6 +5,7 @@ Everything here is a pure function of a 720x1280 BGR screenshot plus the templat
 
 from __future__ import annotations
 
+import itertools
 import logging
 import math
 from dataclasses import dataclass, field
@@ -94,6 +95,7 @@ REQUIRED_TEMPLATES: tuple[str, ...] = (
     "intel_button_badge",
     "title_intel",
     "title_rewards",
+    "expert_sign",
     "title_victory",
     "text_tap_anywhere",
     "text_likely_prevail",
@@ -184,10 +186,33 @@ def normalize_glyph(glyph: Image) -> Image:
     return canvas
 
 
+def _split_touching(component: Image, parts: int) -> list[Image]:
+    """Cut a component made of touching glyphs at its thinnest columns."""
+    width = component.shape[1]
+    columns = (component > 0).sum(axis=0)
+    cuts = [0]
+    for index in range(1, parts):
+        centre = round(index * width / parts)
+        slack = max(1, width // (4 * parts))
+        lo, hi = max(cuts[-1] + 1, centre - slack), min(width - 1, centre + slack)
+        cuts.append(lo + int(np.argmin(columns[lo : hi + 1])))
+    cuts.append(width)
+    return [component[:, start:end] for start, end in itertools.pairwise(cuts)]
+
+
 def segment_glyphs(
-    image: Image, lo: Hsv, hi: Hsv, min_height_ratio: float, min_height: int
+    image: Image,
+    lo: Hsv,
+    hi: Hsv,
+    min_height_ratio: float,
+    min_height: int,
+    max_aspect: float,
 ) -> list[Image]:
-    """Split white text into glyphs (left to right); separators such as ``,`` and ``:`` drop out."""
+    """Split white text into glyphs (left to right); separators such as ``,`` and ``:`` drop out.
+
+    A component wider than ``max_aspect`` times its height is two or more touching digits
+    (bold "46" in the refresh timer) and is cut apart.
+    """
     mask = _in_range(_hsv(image), lo, hi)
     count, labels, stats, _ = cv2.connectedComponentsWithStats(mask)
     boxes = [
@@ -198,12 +223,16 @@ def segment_glyphs(
     if not boxes:
         return []
     tallest = max(box[3] for box in boxes)
+    boxes = sorted(box for box in boxes if box[3] >= min_height_ratio * tallest)
+    single = sorted(box[2] for box in boxes if box[2] <= max_aspect * box[3])
+    typical = single[len(single) // 2] if single else 0.75 * tallest
     glyphs: list[Image] = []
-    for x, y, width, height, label in sorted(boxes):
-        if height < min_height_ratio * tallest:
-            continue
+    for x, y, width, height, label in boxes:
         component = (labels[y : y + height, x : x + width] == label).astype(np.uint8) * 255
-        glyphs.append(component)
+        if width > max_aspect * height:
+            glyphs.extend(_split_touching(component, max(2, round(width / typical))))
+        else:
+            glyphs.append(component)
     return glyphs
 
 
@@ -339,6 +368,10 @@ class Detector:
 
         return Screen(State.UNKNOWN)
 
+    def find_expert(self, image: Image) -> Match | None:
+        """The expert sign top left on the Intel screen (once a day: more missions)."""
+        return self.find(image, "expert_sign")
+
     def likely_to_prevail(self, image: Image) -> bool:
         """True if the Deploy screen shows the green "You are quite likely to prevail"."""
         return self.find(image, "text_likely_prevail") is not None
@@ -394,15 +427,13 @@ class Detector:
         }
         return min(centres, key=lambda tier: hue_distance(hue, centres[tier]))
 
-    def detect_symbols(self, image: Image) -> list[Symbol]:
-        """All mission symbols of the Intel screen, highest tier first, then top-down."""
+    def _mask_hits(self, hsv: Image, lo: Hsv, hi: Hsv) -> list[tuple[float, MissionType, int, int]]:
+        """Symbol mask matches (score, type, x, y) on the white mask ``lo``-``hi``."""
         symbols = self._config.symbols
-        hsv = _hsv(image)
-        white = _in_range(hsv, symbols.white_lo, symbols.white_hi)
+        radius = symbols.nms_radius
+        white = _in_range(hsv, lo, hi)
         white[: symbols.search_y[0]] = 0
         white[symbols.search_y[1] :] = 0
-        radius = symbols.nms_radius
-
         hits: list[tuple[float, MissionType, int, int]] = []
         for kind, mask in self._masks.items():
             result = cv2.matchTemplate(white, mask, cv2.TM_CCOEFF_NORMED)
@@ -416,11 +447,27 @@ class Detector:
                 result[
                     max(0, top - radius) : top + radius, max(0, left - radius) : left + radius
                 ] = -1
+        return hits
 
+    def detect_symbols(self, image: Image) -> list[Symbol]:
+        """All mission symbols of the Intel screen, highest tier first, then top-down."""
+        symbols = self._config.symbols
+        hsv = _hsv(image)
+        radius = symbols.nms_radius
+
+        # A running mission is drawn half transparent: its symbol is no longer white enough
+        # for the normal mask. A second pass with a wider mask finds those. It also picks up
+        # a vivid pin the first pass narrowly missed (partly covered), so the status of its
+        # hits is decided by the saturation like for any other hit.
         kept: list[tuple[float, MissionType, int, int]] = []
-        for hit in sorted(hits, key=lambda item: item[0], reverse=True):
-            if all(math.hypot(hit[2] - other[2], hit[3] - other[3]) >= radius for other in kept):
-                kept.append(hit)
+        for lo, hi in (
+            (symbols.white_lo, symbols.white_hi),
+            (symbols.dim_white_lo, symbols.dim_white_hi),
+        ):
+            hits = self._mask_hits(hsv, lo, hi)
+            for score, kind, x, y in sorted(hits, key=lambda item: item[0], reverse=True):
+                if all(math.hypot(x - other[2], y - other[3]) >= radius for other in kept):
+                    kept.append((score, kind, x, y))
 
         checks = self._green_checks(hsv)
         offset_x, offset_y = symbols.check_offset
@@ -454,6 +501,7 @@ class Detector:
             ocr.white_hi,
             ocr.glyph_min_height_ratio,
             ocr.glyph_min_height,
+            ocr.glyph_max_aspect,
         )
         if len(glyphs) < last:
             return None

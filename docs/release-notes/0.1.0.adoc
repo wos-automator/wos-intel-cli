@@ -21,6 +21,18 @@ First version: automation of the Intel missions as specified in `SPEC.md`.
 * Boss: the lower boss dialog and its smaller skull shield are recognised (references
   `ref/boss-*.png`); the boss is deployed even when the game says "not likely to prevail"
   (<<US-2.1>>, <<US-2.4>>, <<US-3.2>>, <<FR-2.6>>, <<FR-3.4>>).
+* A dimmed, running boss (or other symbol) is now found by a second detection pass and
+  reported as `RUNNING`, so the run waits for it instead of not seeing it; reference
+  `ref/intel-boss-running.png` (<<US-2.2>>, <<FR-2.3>>).
+* The refresh timer is read when bold digits touch (02:46:03); before, such a timer was
+  unreadable and the boss lock fell back to 8 h (<<US-2.3>>, <<FR-2.5>>, <<FR-3.5>>).
+* Fix: a mission whose dialog opened under a notification banner was skipped for the whole run
+  and the boss was attacked while it was still available. An unreadable pin is now re-checked
+  until the banner is gone (<<US-3.2>>, <<FR-3.4>>).
+* Expert: when no regular mission is left, the daily expert sign top left is tapped to receive
+  more missions – before the boss and regardless of the stamina; new template
+  `templates/expert_sign.png`, reference `ref/intel-expert-available.png` (<<US-3.7>>,
+  <<FR-3.8>>).
 * Boss lock per refresh cycle in `state.json` (<<US-3.4>>, <<FR-3.5>>).
 * Polling with timeouts and careful recovery with BACK; the screenshot of a skipped mission or
   failed step is kept as `debug/failure-*.png` (<<US-3.5>>, <<FR-3.6>>).
@@ -43,10 +55,13 @@ First version: automation of the Intel missions as specified in `SPEC.md`.
   (<<US-4.3>>).
 * Rescue, `DEFEAT` and the dialogs for missing stamina or troops have no reference
   screenshot; they are implemented and tested on synthetic screens only (<<NFR-3>>).
+* What the game shows after the expert sign is tapped has no reference screenshot; if it needs
+  a confirmation the run backs out and saves the screenshot under `debug/` (<<FR-3.8>>).
 * Waiting for running missions assumes that the Intel screen updates while it stays open;
   this is not verified on the device (<<FR-3.7>>).
-* The glyphs for the digits 1, 6, 8 and 9 come from another font size than the stamina
-  display; an unreadable stamina does not stop the run (<<FR-3.3>>).
+* The glyph for the digit 8 comes from another screen than the stamina display. On the device
+  run of 2026-10-10 the stamina 2,083 was read as 2,063; a reference screenshot with an 8 in
+  the stamina is needed (<<FR-2.5>>, <<FR-3.3>>).
 * If the refresh timer is unreadable the boss is locked for the configured 8 h, which is an
   assumption about the cycle length (<<FR-3.5>>).
 

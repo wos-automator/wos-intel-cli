@@ -102,6 +102,13 @@ Exception `BOSS`: regardless of the tier always **last** (see 5).
 2. **White mask** of the image: HSV `(0,0,215)–(180,45,255)`.
 3. `cv2.matchTemplate(mask, template_mask, TM_CCOEFF_NORMED)`; threshold **0.75**;
    non-maximum suppression within a radius of 20 px. (Prototype: real hits 0.82–1.00.)
+   **Second pass for dimmed symbols:** a running symbol is half transparent and too dark for
+   the white mask (running boss in `ref/intel-boss-running.png`: score 0.51).
+   Therefore additionally search with the wider mask HSV `(0,0,190)–(180,70,255)` (running
+   boss: 0.82 at 518,700, disc saturation 99; other types there ≤ 0.46). The second
+   pass also finds strongly coloured symbols that the first one narrowly misses (partly covered;
+   measured on the device: score 0.76 at saturation 224). The status therefore follows 3.4
+   alone here as well (saturation/check mark), not which pass found the symbol.
 4. Per hit: status according to 3.4, tier according to 3.3.
 5. **Overlap:** symbols can cover one another. Template matching on the white mask
    usually still finds covered symbols (partial occlusion). Before the tap, check whether another
@@ -112,6 +119,13 @@ Exception `BOSS`: regardless of the tier always **last** (see 5).
 6. **Plausibility check after the tap:** the opened `MISSION_DIALOG` must match the expected
    type (template of the type symbol in the dialog or button text). If not: `BACK`, lock the
    symbol for this run, continue.
+   **Notification banner:** messages such as "Troops have returned to the city." or "We have
+   wiped out Giant Elk!" slide across the dialog for a few seconds and cover the
+   pin (`ref/hunt-1-dialog-banner.png`, `ref/rescue-1-dialog-banner.png`). If the type is **not
+   recognisable**, therefore do not abort at once, but check the dialog again until the timeout
+   (8 s, every 0.7 s). The symbol is locked only if the pin clearly shows a **different** type
+   or stays unreadable until the timeout. Otherwise workable missions would be skipped and the
+   boss attacked too early.
 
 Prototype: `tools/prototype_detect.py` (threshold 0.75). Results = **expected values for the tests**
 (type, x, y, score, disc saturation, status):
@@ -124,6 +138,25 @@ intel-xxx  like intel-x, but tent 287,351 DONE and paw 564,737 0.83 sat 184 DONE
            green check marks at 311,328 and 587,714
 ```
 Tolerance for positions in tests: ±6 px.
+
+### 3.6 Expert (additional missions, once a day)
+
+Once a day a small **white sign pointing to the left with the bust of a person** appears at the
+top left of the Intel screen – the expert (`ref/intel-expert-available.png`,
+centre ≈ 59,210, template `templates/expert_sign.png`). A tap on it delivers further missions.
+
+- Detection: colour template like the buttons (threshold 0.9), search area x 0–160, y 140–290.
+  Cross-check: ≤ 0.57 on all other reference images.
+- **Rule:** when no regular mission other than the boss is workable any more and the sign is
+  visible, tap the sign – **before** the boss and even when the stamina no longer suffices.
+  The offer exists only once a day; it must not expire.
+- As long as regular missions are workable, the sign stays untouched.
+- A visible sign is always logged (position, score), even when it is not tapped –
+  in particular with `--dry-run`.
+- At most one tap per run. Afterwards evaluate the Intel screen again (new symbols).
+- **Still open:** what appears after the tap (dialog, animation) is not covered by a reference
+  image. If something other than the Intel screen appears, the normal recovery applies
+  (`BACK`), and the screenshot is stored under `debug/`.
 
 ---
 
@@ -155,6 +188,8 @@ loop:
         rewards) → INTEL ; continue
   symbols = detect_symbols(image)            # AVAILABLE only, sorted by tier
   remove BOSS if already attacked in this refresh cycle
+  if no regular mission other than the BOSS is workable any more and the expert sign
+        (top left, 3.6) is visible: tap the sign (once per run) ; continue with loop
   BOSS to the end: the boss is attacked exactly once, and only when no workable symbol
         other than it is left
   if none (or none affordable):
@@ -248,13 +283,19 @@ config.toml
 ### Reference images (content)
 - `intel-x.png`: golden paw bottom right is running (`RUNNING`), all others `AVAILABLE`, boss present.
 - `intel-xx.png`: additionally the purple tent top left `RUNNING`.
+- `intel-boss-running.png`: only the boss left, dimmed (`RUNNING`, attack under way); stamina 1,975,
+  timer 02:46:03 (the bold digits "46" touch and have to be separated for the digit OCR).
 - `intel-xxx.png`: tent and golden paw `DONE` (green check marks), "Claim All" visible.
+- `intel-expert-available.png`: `INTEL` with the expert sign top left (≈ 59,210), eight `AVAILABLE` symbols
+  (among them a golden tent and a golden axe), stamina 2,165, timer 00:54:43.
 - `intel-xxxx.png`: `REWARDS` after "Claim All"; a tap top centre leads back to `INTEL`.
 - `combat-1-dialog.png`: `MISSION_DIALOG` of a combat mission ("A Hero's Journey Lv. 10", blue axe pin), button View.
 - `combat-2-world-explore.png`: `WORLD_TARGET` with popup and button "Explore 10"; Intel button on the right at ≈ 663,862.
 - `combat-3-squad-fight.png`: `SQUAD` ("Squad Settings"), buttons Quick Deploy / Fight.
 - `combat-4-victory.png`: `VICTORY` with "Tap anywhere to exit".
 - `hunt-1-dialog.png`: `MISSION_DIALOG` of a hunt ("Beast Hunting Lv. 10", purple paw pin), button View.
+- `hunt-1-dialog-banner.png`, `rescue-1-dialog-banner.png`: `MISSION_DIALOG` (hunt and "Rescue Survivors
+  Lv. 10" respectively, View at ≈ 360,883), each with a notification banner over the pin – type not recognisable.
 - `hunt-2-world-attack.png`: `WORLD_TARGET` with popup "Lv. 22 Giant Elk", button "Attack 10" (orange);
   Intel button here with a red badge (match 0.94 – threshold for `intel_button` therefore 0.85).
 - `hunt-3-deploy.png`: `DEPLOY` with "You are quite likely to prevail" and button "Deploy 10".
@@ -268,7 +309,8 @@ config.toml
 Symbol masks: `paw_mask`, `tent_mask`, `axe_mask`, `skull_mask` (+ colour cut-outs), `check` (green check mark).
 Buttons/titles: `btn_view`, `btn_explore`, `btn_explore_top`, `btn_attack`, `btn_fight`, `btn_deploy`,
 `btn_claim_all`, `intel_button`, `intel_button_badge`, `dialog_pin_axe`, `dialog_pin_paw`,
-`title_intel`, `title_squad_settings`, `title_deploy`, `title_victory`, `text_tap_anywhere`, `text_likely_prevail`.
+`title_intel`, `title_squad_settings`, `title_deploy`, `title_victory`, `text_tap_anywhere`, `text_likely_prevail`,
+`expert_sign`.
 Button matching in colour (BGR) with `TM_CCOEFF_NORMED`, threshold 0.9 (exception `intel_button`: 0.85).
 For Explore/Attack match only the label half (`*_top`/`btn_attack`) – the cost figure below it can vary.
 Do not use `title_deploy` alone for state detection (0.77 against "Squad Settings").

@@ -24,7 +24,7 @@ Every screenshot is classified as exactly one state.
 |===
 
 .Acceptance criteria
-. Each of the fourteen reference screenshots yields the state listed for it.
+. Each of the eighteen reference screenshots yields the state listed for it.
 . Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
   the Intel button with 0.85, with and without the red badge.
 . `DEPLOY` is recognised by the Deploy button, never by the title alone.
@@ -60,6 +60,10 @@ Effort:: 5 h
 . `AVAILABLE`: not `DONE` and the median saturation of the non-white disc pixels is ≥ 150.
 . `RUNNING`: everything else; values from 130 to 149 are treated as `RUNNING` so that an
   uncertain symbol is never started.
+. A dimmed symbol that the normal white mask no longer finds is searched with a second, wider
+  white mask HSV (0,0,190)–(180,70,255). Its status follows the same rules as above: this pass
+  also finds vivid pins the first pass narrowly missed, and those stay `AVAILABLE`. On
+  `intel-boss-running.png` the boss at 518,700 is `RUNNING` (saturation 99).
 . On the reference screenshots: the tent is `RUNNING` in `intel-xx.png` (saturation 38) and
   `DONE` in `intel-xxx.png`; the golden paw at 564,737 is `DONE` in `intel-xxx.png`.
 
@@ -91,6 +95,8 @@ Stamina (top right) and the remaining time of "Refreshes In" are read without an
   thousands separator and is ignored.
 . `ref/intel-x.png` reads 2047, `intel-xx.png` and `intel-xxx.png` read 2035.
 . The refresh timer of the three Intel screenshots reads 06:59:27, 06:59:10 and 06:59:05.
+. `intel-boss-running.png` reads stamina 1975 and timer 02:46:03; digits that touch each other
+  (the bold "46") are separated before they are classified.
 . If a glyph cannot be classified the result is "unreadable", never a guessed number.
 
 Stakeholder need:: SPEC.md §4, §5 (BOSS, refresh cycle) +

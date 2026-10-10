@@ -6,6 +6,7 @@ import dataclasses
 
 import numpy as np
 import pytest
+from pytest_mock import MockerFixture
 
 from tests.conftest import load_ref
 from wos_intel.config import Config
@@ -76,6 +77,31 @@ def test_symbols_match_the_spec_table(
         assert hits[0].score >= 0.75
 
 
+def test_dimmed_running_boss_is_found(detector: Detector) -> None:
+    symbols = detector.detect_symbols(load_ref("intel-boss-running"))
+
+    assert len(symbols) == 1
+    boss = symbols[0]
+    assert boss.type is BOSS
+    assert boss.status is RUNNING
+    assert abs(boss.x - 518) <= POSITION_TOLERANCE and abs(boss.y - 700) <= POSITION_TOLERANCE
+    assert boss.saturation < 130
+    assert boss.score >= 0.75
+
+
+def test_vivid_symbol_found_only_by_the_dim_pass_is_available(
+    config: Config, mocker: MockerFixture
+) -> None:
+    # A partly covered pin can miss the first pass (seen on the device: score 0.76, sat 224).
+    # Its saturation decides the status, not the pass that found it.
+    detector = Detector(config)
+    mocker.patch.object(detector, "_disc", return_value=(224, 143))
+
+    (symbol,) = detector.detect_symbols(load_ref("intel-boss-running"))
+
+    assert symbol.status is AVAILABLE
+
+
 def test_running_symbol_has_low_saturation(detector: Detector) -> None:
     tent = next(s for s in detector.detect_symbols(load_ref("intel-xx")) if s.type is RESCUE)
 
@@ -123,6 +149,7 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("intel-xx", State.INTEL),
         ("intel-xxx", State.INTEL_CLAIMABLE),
         ("intel-xxxx", State.REWARDS),
+        ("intel-boss-running", State.INTEL),
         ("combat-1-dialog", State.MISSION_DIALOG),
         ("hunt-1-dialog", State.MISSION_DIALOG),
         ("combat-2-world-explore", State.WORLD_TARGET),
@@ -217,8 +244,48 @@ def test_dialog_type(
     assert shown[0] is kind
 
 
+@pytest.mark.parametrize("name", ["hunt-1-dialog-banner", "rescue-1-dialog-banner"])
+def test_dialog_type_is_unknown_while_a_banner_covers_the_pin(
+    detector: Detector, name: str
+) -> None:
+    """Screenshots of the device run: a notification banner lies over the pin."""
+    image = load_ref(name)
+
+    assert detector.detect_state(image).state is State.MISSION_DIALOG
+    assert detector.dialog_type(image) is None
+
+
 def test_dialog_type_is_none_without_a_pin(detector: Detector) -> None:
     assert detector.dialog_type(load_ref("hunt-3-deploy")) is None
+
+
+def test_expert_sign_is_found_top_left(detector: Detector, images: dict[str, Image]) -> None:
+    match = detector.find_expert(images["intel-expert-available"])
+
+    assert match is not None
+    assert abs(match.x - 59) <= POSITION_TOLERANCE and abs(match.y - 210) <= POSITION_TOLERANCE
+    assert detector.find_expert(images["expert-only-boss-running"]) is not None
+
+
+@pytest.mark.parametrize("name", ["intel-x", "intel-xxx", "intel-boss-running", "intel-xxxx"])
+def test_expert_sign_is_not_found_when_absent(detector: Detector, name: str) -> None:
+    assert detector.find_expert(load_ref(name)) is None
+
+
+def test_expert_reference_screen_is_read_completely(detector: Detector) -> None:
+    image = load_ref("intel-expert-available")
+
+    assert detector.detect_state(image).state is State.INTEL
+    assert detector.read_stamina(image) == 2165
+    assert detector.read_refresh_seconds(image) == 54 * 60 + 43
+    symbols = detector.detect_symbols(image)
+    assert len(symbols) == 8
+    assert all(symbol.status is AVAILABLE for symbol in symbols)
+    assert sum(symbol.type is BOSS for symbol in symbols) == 1
+    assert [s.type for s in symbols if s.tier is Tier.GOLD and s.type is not BOSS] == [
+        RESCUE,
+        COMBAT,
+    ]
 
 
 def test_likely_to_prevail(detector: Detector, images: dict[str, Image]) -> None:
@@ -229,7 +296,8 @@ def test_likely_to_prevail(detector: Detector, images: dict[str, Image]) -> None
 
 
 @pytest.mark.parametrize(
-    ("name", "stamina"), [("intel-x", 2047), ("intel-xx", 2035), ("intel-xxx", 2035)]
+    ("name", "stamina"),
+    [("intel-x", 2047), ("intel-xx", 2035), ("intel-xxx", 2035), ("intel-boss-running", 1975)],
 )
 def test_stamina(detector: Detector, name: str, stamina: int) -> None:
     assert detector.read_stamina(load_ref(name)) == stamina
@@ -245,6 +313,8 @@ def test_stamina_is_none_when_unreadable(detector: Detector) -> None:
         ("intel-x", 6 * 3600 + 59 * 60 + 27),
         ("intel-xx", 6 * 3600 + 59 * 60 + 10),
         ("intel-xxx", 6 * 3600 + 59 * 60 + 5),
+        # 02:46:03 - the bold "46" touches and has to be cut apart
+        ("intel-boss-running", 2 * 3600 + 46 * 60 + 3),
     ],
 )
 def test_refresh_timer(detector: Detector, name: str, seconds: int) -> None:

@@ -26,6 +26,8 @@ RESULT_EXIT: Point = (360, 1140)
 CLAIM_ALL: Point = (360, 1127)
 REWARDS_EXIT: Point = (360, 180)
 INTEL_BUTTON: Point = (663, 862)
+EXPERT: Point = (59, 210)
+EXPERT_AREA = (10, 165, 105, 255)
 
 BOSS: Point = (518, 700)
 TENT: Point = (287, 351)
@@ -81,6 +83,14 @@ def make_dialog(mask_name: str) -> Image:
     return out
 
 
+def with_expert(name: str) -> Image:
+    """An Intel reference with the expert sign of intel-expert-available.png pasted in."""
+    out = load_ref(name)
+    x0, y0, x1, y1 = EXPERT_AREA
+    out[y0:y1, x0:x1] = load_ref("intel-expert-available")[y0:y1, x0:x1]
+    return out
+
+
 def make_deploy_unlikely() -> Image:
     """Deploy screen without the green "You are quite likely to prevail" hint."""
     return _fill(load_ref("hunt-3-deploy"), (150, 585, 570, 628), (104, 53, 13))
@@ -109,6 +119,8 @@ def images() -> dict[str, Image]:
     loaded["rescue-dialog"] = make_dialog("tent_mask")
     loaded["deploy-unlikely"] = make_deploy_unlikely()
     loaded["defeat"] = make_defeat()
+    loaded["expert-only-boss-running"] = with_expert("intel-boss-running")
+    loaded["expert-and-missions"] = with_expert("intel-x")
     return loaded
 
 
@@ -138,6 +150,10 @@ class FakeGame:
         self.checked = 0
         # screen -> (fake time, next screen): the screen changes by itself once the time is up
         self.timed: dict[str, tuple[float, str]] = {}
+        # screen -> (seconds, next screen): every visit turns into the next screen after
+        # that many seconds, e.g. a dialog whose notification banner fades away
+        self.transient: dict[str, tuple[float, str]] = {}
+        self.entered = 0.0
         self.clock: FakeClock | None = None
         symbols = [
             (BOSS, "hunt-1-dialog"),
@@ -153,6 +169,8 @@ class FakeGame:
             "intel-xx": list(symbols),
             "intel-xxx": [(CLAIM_ALL, "intel-xxxx"), *symbols],
             "intel-xxxx": [(REWARDS_EXIT, intel)],
+            "expert-only-boss-running": [(EXPERT, "intel-x")],
+            "expert-and-missions": [(EXPERT, "intel-x"), *symbols],
             "combat-1-dialog": [(VIEW, "combat-2-world-explore")],
             "hunt-1-dialog": [(VIEW, "hunt-2-world-attack")],
             "rescue-dialog": [(VIEW, "rescue-popup")],
@@ -173,6 +191,8 @@ class FakeGame:
             "combat-1-dialog": intel,
             "hunt-1-dialog": intel,
             "rescue-dialog": intel,
+            "hunt-1-dialog-banner": intel,
+            "rescue-1-dialog-banner": intel,
             "boss-1-dialog": intel,
             "boss-2-world-attack": "world",
             "boss-3-deploy": "boss-2-world-attack",
@@ -194,6 +214,10 @@ class FakeGame:
             if self.clock.now >= at:
                 del self.timed[self.screen]
                 self.screen = target
+        if self.clock is not None and self.screen in self.transient:
+            duration, target = self.transient[self.screen]
+            if self.clock.now - self.entered >= duration:
+                self.screen = target
         return self._images[self.screen]
 
     def tap(self, x: int, y: int) -> None:
@@ -201,6 +225,7 @@ class FakeGame:
         for point, target in self.transitions.get(self.screen, []):
             if near((x, y), point):
                 self.screen = target
+                self.entered = self.clock.now if self.clock is not None else 0.0
                 return
         self.stray_taps.append((self.screen, (x, y)))
 

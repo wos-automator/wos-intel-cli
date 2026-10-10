@@ -11,7 +11,7 @@ As the run loop, I want every screenshot classified as one state with its tap ta
 no tap is ever sent blindly.
 
 .Acceptance criteria
-. All fourteen reference screenshots yield their state; the lower boss dialog has its "View"
+. All eighteen reference screenshots yield their state; the lower boss dialog has its "View"
   button at 360,870.
 . A world map without popup is `WORLD`; a result screen without "Victory!" is `DEFEAT`; a
   blank image is `UNKNOWN`.
@@ -38,6 +38,8 @@ and tier, so that I can pick the most valuable available mission.
 . `intel-x.png`: paw 336,289; paw 483,315; tent 287,351; axe 340,378; paw 275,677; axe
   568,680; skull 518,700 – all `AVAILABLE`, nothing else.
 . `intel-xx.png`: the same, tent `RUNNING` with a saturation below 130.
+. `intel-boss-running.png`: exactly one symbol, the dimmed boss at 518,700, `RUNNING`; a symbol
+  found only by the dim pass but with a saturation ≥ 150 is `AVAILABLE`.
 . `intel-xxx.png`: the same, tent `DONE`, plus paw 564,737 `DONE`.
 . Positions within ±6 px, scores ≥ 0.75.
 . Tiers as in <<FR-2.4>>; list sorted by tier, then top-down.
@@ -59,6 +61,7 @@ skip unaffordable missions and lock the boss for the right time.
 .Acceptance criteria
 . Stamina: 2047 (`intel-x.png`), 2035 (`intel-xx.png`, `intel-xxx.png`).
 . Refresh timer: 25167 s, 25150 s, 25145 s.
+. `intel-boss-running.png`: stamina 1975, refresh timer 9963 s (02:46:03, touching "46").
 . Screens without these texts read as `None`.
 . The digits 1, 6, 8 and 9, which never occur in the stamina of the references, are read from
   the troop number 169,830 of the Deploy screen.

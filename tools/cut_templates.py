@@ -26,12 +26,20 @@ DIGIT_SOURCES: tuple[tuple[str, str, Region, str], ...] = (
     ("timer-a", "intel-x", (375, 108, 510, 146), "065927"),
     ("timer-b", "intel-xx", (375, 108, 510, 146), "065910"),
     ("timer-c", "intel-xxx", (375, 108, 510, 146), "065905"),
+    ("timer-d", "intel-boss-running", (375, 108, 510, 146), "024603"),
+    ("stamina-c", "intel-boss-running", (595, 25, 675, 60), "1975"),
+    ("timer-e", "intel-expert-available", (375, 108, 510, 146), "005443"),
+    ("stamina-d", "intel-expert-available", (595, 25, 675, 60), "2165"),
     ("troops", "hunt-3-deploy", (82, 178, 265, 212), "169830/169830"),
     ("power", "hunt-3-deploy", (530, 178, 675, 212), "1155314530"),
 )
 
 # name, reference image, region
-CUTS: tuple[tuple[str, str, Region], ...] = (("title_rewards", "intel-xxxx", (268, 300, 454, 342)),)
+CUTS: tuple[tuple[str, str, Region], ...] = (
+    ("title_rewards", "intel-xxxx", (268, 300, 454, 342)),
+    # inside of the white sign, without the map behind its rounded corners
+    ("expert_sign", "intel-expert-available", (26, 178, 92, 242)),
+)
 
 
 def main() -> int:
@@ -52,6 +60,7 @@ def main() -> int:
             config.ocr.white_hi,
             config.ocr.glyph_min_height_ratio,
             config.ocr.glyph_min_height,
+            config.ocr.glyph_max_aspect,
         )
         if len(glyphs) != len(expected):
             sys.stderr.write(f"{tag}: expected {len(expected)} glyphs, found {len(glyphs)}\n")

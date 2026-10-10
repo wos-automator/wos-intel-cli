@@ -8,7 +8,7 @@ Implements <<FR-4.1>> and <<FR-4.2>>.
 * All input goes through `Runner._tap` and `Runner._back`. `_tap` is called with a `Match`
   point, a symbol click point from `choose_target`, or `buttons.rewards_exit`; there is no other
   source of coordinates.
-* The set of templates that can be tapped is closed: Intel button, Claim All, View,
+* The set of templates that can be tapped is closed: Intel button, Claim All, expert sign, View,
   Explore/Attack/Rescue, Fight, Deploy, "Tap anywhere to exit". Shop, purchase and diamond
   dialogs match none of them, are `UNKNOWN` and are only ever answered with BACK.
 * "Quick Deploy" is never a target: only `btn_fight` is matched on `SQUAD`.
@@ -45,6 +45,7 @@ Implements <<NFR-3>>.
 |Screen |Current handling |To complete
 
 |Rescue popup |green button by hue (<<TS-2.4>>) |`snap`, cut `templates/btn_rescue.png`
+|After the expert tap |re-evaluate the screen; anything but `INTEL*` → recovery (<<TS-3.1>>) |`snap` what appears, extend the flow if it needs a confirmation
 |Rescue dialog pin |scaled `tent_mask` (<<TS-2.4>>) |verify on the device
 |`DEFEAT` |exit text without "Victory!" (<<TS-2.1>>) |verify on the device
 |Not enough stamina |`templates/dialog_no_stamina.png` if present; else timeout → recovery |`snap`, cut the template

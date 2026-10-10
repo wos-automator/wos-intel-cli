@@ -62,7 +62,15 @@ Implements <<FR-2.2>>, <<FR-2.3>> and <<FR-2.4>>.
 . HSV image; white mask `inRange(white_lo, white_hi)`; rows outside `search_y` set to 0.
 . Per type: `matchTemplate(mask, <type>_mask, TM_CCOEFF_NORMED)`; repeatedly take the maximum
   while it is ≥ `match_threshold` and blank ±`nms_radius` around it; then keep the best hit
-  within `nms_radius` across all types.
+  within `nms_radius` across all types (`_mask_hits`).
+. Second pass with the wider mask `dim_white_lo`–`dim_white_hi` (0,0,190)–(180,70,255): a
+  running mission is drawn half transparent and its symbol is too dark for the first mask
+  (running boss of `ref/intel-boss-running.png`: 0.51 with the first mask, 0.82 with the
+  second; other types ≤ 0.46). Hits within `nms_radius` of a first-pass hit are dropped; the
+  remaining ones are treated like first-pass hits. The pass that found a symbol says nothing
+  about its status: on the device a vivid, partly covered pin (saturation 224) was found by
+  the second pass only, with a score of 0.76. On the other Intel references this pass adds
+  nothing.
 . Disc statistics: pixels within `disc_radius` of the centre that are not white
   (`disc_white_lo`–`disc_white_hi`); median saturation and median hue.
 . Check marks: connected components of the green mask (`check_lo`–`check_hi`) inside the
@@ -81,9 +89,12 @@ the expected test result.
 
 Implements <<FR-2.5>>.
 
-* `segment_glyphs(image, lo, hi, min_height_ratio, min_height)`: white mask of the region,
-  connected components, components lower than `min_height` or lower than `min_height_ratio` ×
-  the tallest one are dropped (comma, colon dots), the rest is returned left to right.
+* `segment_glyphs(image, lo, hi, min_height_ratio, min_height, max_aspect)`: white mask of the
+  region, connected components, components lower than `min_height` or lower than
+  `min_height_ratio` × the tallest one are dropped (comma, colon dots), the rest is returned
+  left to right. A component wider than `glyph_max_aspect` (1.3) × its height consists of
+  touching digits (the bold "46" of 02:46:03 is one 35x21 component); it is cut into
+  `round(width / typical width)` parts at the thinnest column near each even division.
 * `normalize_glyph(glyph)`: scaled to 16 px height keeping the aspect ratio, centred on a
   16x16 canvas. A "1" therefore stays narrow.
 * Classification: best `TM_CCOEFF_NORMED` score against all digit templates in
@@ -95,8 +106,9 @@ Implements <<FR-2.5>>.
 
 `tools/cut_templates.py` generates the digit templates from `ref/`: stamina (0, 2, 3, 4, 5, 7),
 refresh timer (0, 1, 2, 5, 6, 7, 9) and the troop and power numbers of the Deploy screen
-(0, 1, 3, 4, 5, 6, 8, 9). The glyphs for 1, 6, 8 and 9 exist only in the font size of the
-other screens; normalising the height makes them usable for the stamina.
+(0, 1, 3, 4, 5, 6, 8, 9). `ref/intel-boss-running.png` adds 1, 5, 7, 9 in the stamina size and
+0, 2, 3, 4, 6 in the timer size. The glyphs for 6 and 8 in the stamina size and for 8 in the
+timer size still come from another font size; normalising the height makes them usable.
 
 [#TS-2.4]
 === TS-2.4 Dialog type, action button, prevail hint
