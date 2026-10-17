@@ -1,0 +1,23 @@
+[#US-2.2]
+=== US-2.2 Mission symbols with status and tier
+
+Status:: Done (0.1.0) +
+Effort:: 8 h +
+Traces to:: <<TS-2.2>>, <<FR-2.2>>, <<FR-2.3>>, <<FR-2.4>>
+
+As the run loop, I want the mission symbols of the Intel screen with type, click point, status
+and tier, so that I can pick the most valuable available mission.
+
+.Acceptance criteria
+. `intel-x.png`: paw 336,289; paw 483,315; tent 287,351; axe 340,378; paw 275,677; axe
+  568,680; skull 518,700 – all `AVAILABLE`, nothing else.
+. `intel-xx.png`: the same, tent `RUNNING` with a saturation below 130.
+. `intel-boss-running.png`: exactly one symbol, the dimmed boss at 518,700, `RUNNING`; a symbol
+  found only by the dim pass but with a saturation ≥ 150 is `AVAILABLE`.
+. `intel-xxx.png`: the same, tent `DONE`, plus paw 564,737 `DONE`.
+. Positions within ±6 px, scores ≥ 0.75.
+. Tiers as in <<FR-2.4>>; list sorted by tier, then top-down.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): the table of SPEC.md §3.5, tiers, sort order,
+  search band.

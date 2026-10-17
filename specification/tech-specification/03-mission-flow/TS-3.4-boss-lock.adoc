@@ -1,0 +1,15 @@
+[#TS-3.4]
+=== TS-3.4 Boss lock (`wos_intel/state.py`)
+
+Implements <<FR-3.5>>.
+
+[source,json]
+----
+{ "boss": { "attacked_at": "2026-10-09T19:00:00", "locked_until": "2026-10-10T01:59:27" } }
+----
+
+`StateStore(path)`: `boss_locked(now)`, `boss_locked_until()`, `lock_boss(now, cycle_seconds)`.
+Writing goes to `state.json.tmp` followed by `os.replace`. A missing, unreadable or malformed
+file means "not locked". The runner reads the refresh timer from the Intel screenshot on which
+the boss was selected and locks after the march has started; an unreadable timer falls back to
+`boss.fallback_cycle_hours`.

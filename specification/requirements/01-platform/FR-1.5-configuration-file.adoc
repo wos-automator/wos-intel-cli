@@ -1,0 +1,14 @@
+[#FR-1.5]
+=== FR-1.5 Configuration file
+
+Thresholds, wait times and coordinates are configurable in `config.toml`.
+
+.Acceptance criteria
+. Without a file the built-in defaults apply; they equal the values of SPEC.md.
+. The shipped `config.toml` lists every setting with its default value.
+. An unknown section or key, or a value of the wrong type, aborts with a message naming it.
+. Relative paths (templates, ref, debug, state file) resolve against the directory of the
+  configuration file.
+
+Stakeholder need:: SPEC.md §7 (configuration) +
+Effort:: 3 h

@@ -1,23 +1,23 @@
 ---
 name: update-feature
 description: >-
-  Perform impact analysis on a feature change and update modular specification chapters across docs/ while preserving reference traceability.
+  Perform impact analysis on a feature change and update modular specification item files across specification/ while preserving reference traceability.
 ---
 
 # Skill: Update Feature
 
-Update existing feature artifacts through end-to-end impact analysis across modular chapter files.
+Update existing feature artifacts through end-to-end impact analysis across modular item files.
 
 ## Files Modified
 
-- `docs/specifications/<chapter>.adoc`
-- `docs/tech-specifications/<chapter>.adoc`
-- `docs/backlog/<chapter>.adoc`
+- `specification/requirements/<NN-chapter>/<ID>-<slug>.adoc`
+- `specification/tech-specification/<NN-chapter>/<ID>-<slug>.adoc`
+- `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc`
 
 ## Execution Steps
 
-1. **Targeted Reading**: Read only the relevant feature chapter files (e.g. `docs/specifications/01-core-shell.adoc`, `docs/tech-specifications/01-core-shell.adoc`, `docs/backlog/01-core-shell.adoc`) rather than the whole suite.
-2. **Requirement Updates**: Apply [update-requirement](../update-requirement/SKILL.md) to modify requirements in the specification chapter file.
-3. **Tech Spec Updates**: Update architecture, data models, or interface definitions in the tech-specification chapter file.
-4. **Backlog Updates**: Update user stories, acceptance criteria, and test pyramid criteria in the backlog chapter file using [update-user-story](../update-user-story/SKILL.md).
+1. **Targeted Reading**: Read only the affected item files (e.g. `specification/requirements/01-core-shell/FR-1.2-*.adoc` and the TS/US items referencing it) rather than whole chapters or the whole suite; list a chapter folder to see its items.
+2. **Requirement Updates**: Apply [update-requirement](../update-requirement/SKILL.md) to modify requirements in their item files.
+3. **Tech Spec Updates**: Update architecture, data models, or interface definitions in the affected tech-specification item files.
+4. **Backlog Updates**: Update user stories, acceptance criteria, and test pyramid criteria in the affected backlog item files using [update-user-story](../update-user-story/SKILL.md).
 5. **Traceability & Validation**: Run `npm run validate:specs` to verify cross-references.

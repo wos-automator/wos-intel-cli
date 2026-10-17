@@ -1,0 +1,17 @@
+== Defects
+
+Defects found on device runs. Each story names the defect ID (`BUG-<step>`, the failure number
+of the screenshot `debug/failure-<step>-<STATE>.png` the run saved) and keeps that screenshot
+as a reference image under `ref/`, so the regression test runs on what the device showed.
+
+include::US-5.1-simple-battle-mode-hint.adoc[]
+
+include::US-5.2-quit-game-confirmation.adoc[]
+
+include::US-5.3-retry-tap-on-world-target.adoc[]
+
+include::US-5.4-reconnect-after-login-elsewhere.adoc[]
+
+include::US-5.5-retry-tap-on-boss-target.adoc[]
+
+include::US-5.6-vanished-world-target.adoc[]

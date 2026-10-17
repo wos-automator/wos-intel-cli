@@ -27,6 +27,10 @@ CLAIM_ALL: Point = (360, 1127)
 REWARDS_EXIT: Point = (360, 180)
 INTEL_BUTTON: Point = (663, 862)
 EXPERT: Point = (59, 210)
+HINT: Point = (341, 856)
+CANCEL: Point = (210, 787)
+RECONNECT: Point = (520, 802)
+WORLD_TARGET: Point = (360, 731)  # below the intel pin at 360,661
 EXPERT_AREA = (10, 165, 105, 255)
 
 BOSS: Point = (518, 700)
@@ -186,6 +190,11 @@ class FakeGame:
             "hunt-3-deploy": [(DEPLOY, "world")],
             "deploy-unlikely": [(DEPLOY, "world")],
             "world": [(INTEL_BUTTON, intel)],
+            "world-simple-battle-mode": [(HINT, "world")],
+            "hunt-2-world-no-popup": [(INTEL_BUTTON, intel)],
+            "boss-2-world-no-popup": [(INTEL_BUTTON, intel)],
+            "world-target-vanished": [(INTEL_BUTTON, intel)],
+            "dialog-logged-in-elsewhere": [(RECONNECT, "world")],
         }
         self.back_transitions: dict[str, str] = {
             "combat-1-dialog": intel,

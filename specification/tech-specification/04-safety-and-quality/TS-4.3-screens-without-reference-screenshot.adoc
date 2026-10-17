@@ -1,0 +1,20 @@
+[#TS-4.3]
+=== TS-4.3 Screens without reference screenshot
+
+Implements <<NFR-3>>.
+
+[cols="1,2,2"]
+|===
+|Screen |Current handling |To complete
+
+|Rescue popup |green button by hue (<<TS-2.4>>) |`snap`, cut `templates/btn_rescue.png`
+|After the expert tap |re-evaluate the screen; anything but `INTEL*` → recovery (<<TS-3.1>>) |`snap` what appears, extend the flow if it needs a confirmation
+|Rescue dialog pin |scaled `tent_mask` (<<TS-2.4>>) |verify on the device
+|`DEFEAT` |exit text without "Victory!" (<<TS-2.1>>) |verify on the device
+|Not enough stamina |`templates/dialog_no_stamina.png` if present; else timeout → recovery |`snap`, cut the template
+|No troops / march slots |`templates/dialog_no_troops.png` if present; else timeout → recovery |`snap`, cut the template
+|===
+
+Synthetic test screens (`tests/conftest.py`) stand in for the missing references: a recoloured
+Explore button for Rescue, a dialog with a pasted tent/skull mask, a victory screen without
+title, a Deploy screen without the prevail hint.

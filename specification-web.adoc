@@ -6,10 +6,10 @@
 Functional and non-functional requirements of `wos-intel`, derived from `SPEC.md` (the
 stakeholder input). All coordinates refer to the 720x1280 Android image.
 
-include::docs/specifications/01-platform.adoc[]
+include::specification/requirements/01-platform/index.adoc[]
 
-include::docs/specifications/02-detection.adoc[]
+include::specification/requirements/02-detection/index.adoc[]
 
-include::docs/specifications/03-mission-flow.adoc[]
+include::specification/requirements/03-mission-flow/index.adoc[]
 
-include::docs/specifications/04-safety-and-quality.adoc[]
+include::specification/requirements/04-safety-and-quality/index.adoc[]

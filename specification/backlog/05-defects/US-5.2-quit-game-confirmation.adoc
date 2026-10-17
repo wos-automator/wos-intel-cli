@@ -1,0 +1,26 @@
+[#US-5.2]
+=== US-5.2 BUG-0006 "Quit game?" confirmation after BACK
+
+Status:: Done (0.1.1) +
+Effort:: 2 h +
+Traces to:: <<TS-3.5>>, <<FR-3.6>>, <<FR-4.1>>
+
+As the operator, I want the run to cancel the "Quit game?" confirmation, so that the recovery
+never closes the game.
+
+Defect:: A "Confirmation" dialog with the text "Quit game?" and the buttons "Cancel" (orange)
+and "Confirm" (blue) covers the screen. The game shows it when BACK is pressed with nothing
+open on the world map or city; here the recovery pressed BACK on the unrecognised world map of
+BUG-0002. The dialog is not detected. Screenshot: `failure-0006-UNKNOWN.png`.
+
+.Acceptance criteria
+. The dialog is detected by its text on `ref/dialog-quit-game.png`; its "Cancel" button is
+  reported as tap target.
+. The recovery taps "Cancel" and stops pressing BACK: the confirmation shows that nothing was
+  open any more. "Confirm" is never tapped.
+. The run then continues with the next iteration.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): state and "Cancel" position on the reference screenshot.
+* Component test (`tests/test_flow.py`): BACK on an unknown screen that opens the confirmation
+  is answered with exactly one tap on "Cancel" and no further BACK.

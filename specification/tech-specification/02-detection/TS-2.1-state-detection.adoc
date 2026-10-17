@@ -1,0 +1,38 @@
+[#TS-2.1]
+=== TS-2.1 State detection
+
+Implements <<FR-2.1>>.
+
+`Detector.find(image, name, region=None, threshold=None)` matches one colour template with
+`cv2.matchTemplate(..., TM_CCOEFF_NORMED)` inside the region configured for it and returns a
+`Match` or `None`. `detect_state(image)` checks in this order and returns the first hit:
+
+[cols="1,2,2"]
+|===
+|State |Condition |Matches (tap targets)
+
+|`HINT` |`text_simple_battle_mode` |`hint`
+|`QUIT_CONFIRMATION` |`text_quit_game` and `btn_cancel` |`btn_cancel`
+|`SESSION_LOST` |`text_logged_in_elsewhere` and `btn_reconnect` |`btn_reconnect`
+|`NO_STAMINA`, `NO_TROOPS` |optional dialog template |–
+|`REWARDS` |`title_rewards` |–
+|`VICTORY` |`text_tap_anywhere` and `title_victory` |`exit`
+|`DEFEAT` |`text_tap_anywhere` without `title_victory` |`exit`
+|`DEPLOY` |`btn_deploy` |`btn_deploy`
+|`SQUAD` |`btn_fight` |`btn_fight`
+|`MISSION_DIALOG` |`btn_view` |`btn_view`
+|`WORLD_TARGET` |action button (<<TS-2.4>>) |`action`
+|`INTEL_CLAIMABLE` |`title_intel` and `btn_claim_all` |`btn_claim_all`
+|`INTEL` |`title_intel` |–
+|`WORLD` |`intel_button` or `intel_button_badge`, threshold 0.85 |`intel_button`
+|`UNKNOWN` |otherwise |–
+|===
+
+The order resolves overlaps: the popup of `WORLD_TARGET` is checked before the Intel button
+that is visible behind it, and the dialog before the Intel title. `title_rewards` is cut from
+`ref/intel-xxxx.png` by `tools/cut_templates.py` because `text_tap_anywhere` (cut from the
+victory screen) does not match the rewards screen. `text_simple_battle_mode` (first line of the
+hint bubble) is cut from `ref/world-simple-battle-mode.png` the same way, `text_quit_game` and
+`btn_cancel` from `ref/dialog-quit-game.png`, `text_logged_in_elsewhere` and `btn_reconnect`
+from `ref/dialog-logged-in-elsewhere.png`. `title_deploy` and `title_squad_settings`
+are not used (0.77 against each other's screen).

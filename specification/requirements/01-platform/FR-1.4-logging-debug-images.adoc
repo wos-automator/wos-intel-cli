@@ -1,0 +1,12 @@
+[#FR-1.4]
+=== FR-1.4 Logging and debug images
+
+.Acceptance criteria
+. Every log line goes to stdout and starts with a timestamp.
+. Logged are: each detected state, each symbol (type, tier, status, position), the stamina and
+  each tap or BACK with its reason.
+. With `run --debug` every analysed screenshot is saved under `debug/` with the detected
+  matches and symbols drawn in.
+
+Stakeholder need:: SPEC.md §7 +
+Effort:: 2 h

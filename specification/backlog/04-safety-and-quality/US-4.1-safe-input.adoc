@@ -1,0 +1,18 @@
+[#US-4.1]
+=== US-4.1 Safe input
+
+Status:: Done (0.1.0) +
+Effort:: 2 h +
+Traces to:: <<TS-4.1>>, <<FR-4.1>>, <<FR-4.2>>
+
+As the operator, I want the tool to tap only what it recognised, so that it can never buy
+something or move the map.
+
+.Acceptance criteria
+. In every flow test the fake game records no stray tap.
+. Unknown screens receive BACK only.
+. `Adb` offers no swipe, zoom, drag or text input and refuses taps outside the screen.
+
+.Test criteria
+* Component test (pytest, `tests/test_flow.py`, `tests/test_adb.py`): stray-tap assertions,
+  BACK on unknown screens, API surface of `Adb`.

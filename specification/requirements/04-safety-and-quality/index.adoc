@@ -1,0 +1,13 @@
+== Safety and Quality
+
+include::FR-4.1-taps-detected-targets.adoc[]
+
+include::FR-4.2-map-is-never-moved.adoc[]
+
+include::FR-4.3-upper-limit-missions.adoc[]
+
+include::NFR-1-technology.adoc[]
+
+include::NFR-2-quality-gate.adoc[]
+
+include::NFR-3-screens-without-reference-screenshot.adoc[]

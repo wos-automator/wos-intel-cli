@@ -1,0 +1,55 @@
+[#TS-3.2]
+=== TS-3.2 Mission sequences
+
+Implements <<FR-3.4>>.
+
+[plantuml]
+----
+@startuml
+[*] --> MISSION_DIALOG : tap symbol
+MISSION_DIALOG --> WORLD_TARGET : type ok, tap View
+MISSION_DIALOG --> [*] : type mismatch (rejected)
+WORLD_TARGET --> SQUAD : COMBAT, tap Explore
+WORLD_TARGET --> DEPLOY : HUNT/BOSS, tap Attack
+WORLD_TARGET --> WORLD : RESCUE, tap Rescue
+WORLD_TARGET --> [*] : wrong action (rejected)
+SQUAD --> RESULT : tap Fight, up to 60 s
+RESULT --> WORLD : tap exit text
+DEPLOY --> WORLD : prevail hint or BOSS, tap Deploy
+DEPLOY --> [*] : HUNT without prevail hint (rejected)
+WORLD --> INTEL : tap Intel button
+@enduml
+----
+
+Control flow uses four exceptions, handled in `Runner.run`:
+
+[cols="1,3"]
+|===
+|Exception |Meaning and handling
+
+|`MissionRejected` |Plausibility or safety check failed. Recovery (<<TS-3.5>>), next symbol; not counted as a failure.
+|`StepFailed` |Expected state did not appear. Counted; recovery; after `max_failures` in a row `TOO_MANY_FAILURES`.
+|`Reconnected` |The session was reclaimed after a login on another device (<<TS-3.5>>). Next iteration; not counted. On the start screen the detection is repeated.
+|`RunEnded(outcome)` |`NO_STAMINA` or `NO_TROOPS` dialog: one BACK, the run ends with that outcome.
+|===
+
+Dialog type under a banner: if `dialog_type` returns `None` on the first `MISSION_DIALOG`
+screenshot, `_run_mission` polls (`poll_interval`, up to `expect_timeout`) and asks again on
+each fresh screenshot; a state other than `MISSION_DIALOG` raises `StepFailed`. A positively
+recognised other type rejects at once. Found on the device run of 2026-10-10: two dialogs
+opened under a notification banner (`ref/hunt-1-dialog-banner.png`,
+`ref/rescue-1-dialog-banner.png`), were rejected immediately and their missions were then
+passed over in favour of the boss.
+
+Popup that did not open: `_await_popup(target)` waits for `WORLD_TARGET`; on `StepFailed`
+with the last screen `WORLD` it asks `world_pin` on that screenshot. A pin of `target.type` is
+tapped `world_pin_tap_offset` (70 px) below its centre – the target the map is centred on,
+≈ 360,731 – and `WORLD_TARGET` is awaited once more. Without a pin of that type the target has
+vanished (`ref/world-target-vanished.png`, BUG-0118) and `MissionRejected` is raised, so the
+recovery leads back to the Intel screen and the next mission is selected (<<US-5.6>>); a
+screen other than `WORLD` re-raises the `StepFailed`.
+Found on the device run of 2026-10-17 (`ref/hunt-2-world-no-popup.png`, Marching 5/6), also
+for the boss right after a march returned (BUG-0095b, BUG-0141).
+
+`ACTION_FOR` maps COMBAT → EXPLORE, HUNT/BOSS → ATTACK, RESCUE → RESCUE. The target is added
+to the attempted list before the first tap, so no symbol is tapped twice in a run.

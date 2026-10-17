@@ -1,0 +1,23 @@
+[#US-5.5]
+=== US-5.5 BUG-0098 Boss target without popup
+
+Status:: Done (0.1.1) +
+Effort:: 1 h +
+Traces to:: <<TS-3.2>>, <<TS-3.4>>, <<FR-3.4>>, <<FR-3.5>>
+
+As the operator, I want a swallowed tap on the boss to be retried like any other target, so
+that the boss of the refresh cycle is not lost.
+
+Defect:: After "View" in the boss dialog the world map is centred on the boss with its orange
+skull pin, but the popup with the "Attack" button is not shown; the screen stays `WORLD`.
+Screenshot: `failure-0098-WORLD.png`.
+
+.Acceptance criteria
+. The skull pin is detected as `BOSS` on `ref/boss-2-world-no-popup.png`.
+. The retry of <<US-5.3>> also applies to the boss; the boss is locked for the cycle only
+  after it has been deployed.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): pin type and position on the reference screenshot.
+* Component test (`tests/test_flow.py`): a boss whose first tap is swallowed is deployed after
+  one more tap and then locked.

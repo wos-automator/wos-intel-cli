@@ -1,0 +1,13 @@
+== Detection: Screens, Symbols, Stamina
+
+include::FR-2.1-screen-states.adoc[]
+
+include::FR-2.2-mission-symbols.adoc[]
+
+include::FR-2.3-symbol-status.adoc[]
+
+include::FR-2.4-symbol-tier.adoc[]
+
+include::FR-2.5-stamina-refresh-timer.adoc[]
+
+include::FR-2.6-mission-type-dialog-action.adoc[]

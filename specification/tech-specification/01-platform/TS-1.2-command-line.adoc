@@ -1,0 +1,13 @@
+[#TS-1.2]
+=== TS-1.2 Command line (`wos_intel/__main__.py`)
+
+Implements <<FR-1.3>> and <<FR-1.4>>.
+
+* `argparse` with the global option `--config <file>` and the sub-commands `run [--dry-run]
+  [--debug]`, `detect <image>`, `snap <name> [--force]`.
+* `logging.basicConfig` on stdout, format `%(asctime)s %(levelname)-7s %(message)s`.
+* `run` wires `Adb`, `Detector`, `StateStore` and `Runner`; exit code 0 if `Outcome.ok`, else 1.
+* `detect` logs state, matches, stamina, refresh timer and symbols and writes
+  `<image stem>.debug.png` using `Detector.annotate`. Unreadable or wrongly sized image: exit 2.
+* `snap` accepts a plain file name only (no directories) and writes `ref/<name>.png`.
+* `AdbError`, `ConfigError` and `DetectError` are logged and mapped to exit code 1.

@@ -1,0 +1,22 @@
+[#US-5.6]
+=== US-5.6 BUG-0118 World target has vanished
+
+Status:: Done (0.1.1) +
+Effort:: 2 h +
+Traces to:: <<TS-3.2>>, <<TS-3.5>>, <<FR-3.4>>, <<FR-3.6>>
+
+As the operator, I want the run to go back to the Intel screen when the target is no longer on
+the map, so that it selects the next mission instead of failing.
+
+Defect:: After "View" the world map shows no intel pin and no popup: the target has vanished,
+because the map scrolled or for another reason. Waiting for `WORLD_TARGET` times out and counts
+as a failure. Screenshot: `failure-0118-WORLD.png`.
+
+.Acceptance criteria
+. If `WORLD_TARGET` does not appear and no pin of the expected type is shown, the mission is
+  skipped for this run: the run returns to the Intel screen and selects the next mission.
+. This costs no failure; the target is not tapped again in this run.
+
+.Test criteria
+* Component test (`tests/test_flow.py`): a target that leads to `ref/world-target-vanished.png`
+  is skipped, the other missions are started, the run ends regularly.

@@ -17,6 +17,8 @@ expect_timeout = 8.0        # default wait for an expected screen
 fight_timeout = 60.0        # wait for Victory/Defeat after "Fight"
 completion_timeout = 900.0  # wait for running missions to finish before the run ends
 completion_poll = 10.0      # screenshot interval while waiting for running missions
+reconnect_delay = 60.0      # after a login on another device: wait, then tap "Reconnect"
+reconnect_timeout = 120.0   # wait for the Intel screen or world map after "Reconnect"
 
 [limits]
 max_missions = 30           # per run
@@ -60,6 +62,10 @@ lock_radius = 12
 dialog_pin_region = [300, 320, 420, 500]
 dialog_pin_scales = [0.60, 0.70, 0.75, 0.80]
 dialog_pin_threshold = 0.75
+world_pin_region = [280, 580, 440, 740]  # intel pin above the target the map centres on
+world_pin_scales = [0.55, 0.60, 0.65, 0.70]
+world_pin_threshold = 0.75
+world_pin_tap_offset = 70   # the target lies this far below the pin
 
 [buttons]
 threshold = 0.9
@@ -107,3 +113,8 @@ text_tap_anywhere = [150, 1080, 570, 1220]
 text_likely_prevail = [120, 570, 600, 640]
 intel_button = [600, 700, 720, 1000]
 intel_button_badge = [600, 700, 720, 1000]
+text_simple_battle_mode = [0, 640, 720, 1160]
+text_quit_game = [200, 540, 520, 680]
+btn_cancel = [40, 720, 360, 860]
+text_logged_in_elsewhere = [0, 520, 720, 700]
+btn_reconnect = [360, 720, 720, 880]

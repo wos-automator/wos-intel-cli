@@ -1,0 +1,28 @@
+[#US-5.3]
+=== US-5.3 BUG-0028 World target without popup
+
+Status:: Done (0.1.1) +
+Effort:: 3 h +
+Traces to:: <<TS-3.2>>, <<FR-3.4>>, <<FR-4.1>>
+
+As the operator, I want the run to tap the target again when its popup does not open, so that
+a mission is not lost to a tap the game swallowed.
+
+Defect:: After "View" in the hunt dialog the world map is centred on the target beast with its
+orange paw pin, but the popup with the "Attack" button is not shown. The screen stays `WORLD`
+and waiting for `WORLD_TARGET` times out. A march queue is free (Marching 5/6), so full queues
+are not the cause. The same happens for BUG-0095b (boss, Marching 4/6) and BUG-0141 (boss, a
+march has just returned). Screenshot: `failure-0028-WORLD.png`.
+
+.Acceptance criteria
+. On `WORLD` the intel pin in the centre of the map is detected with its mission type on
+  `ref/hunt-2-world-no-popup.png`; no pin is reported on the other world screenshots.
+. If `WORLD_TARGET` does not appear after "View" and the pin of the expected type is shown, the
+  target below the pin is tapped once more and `WORLD_TARGET` is awaited again.
+. A pin of another type, or none, is not tapped.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): pin type and position on the reference screenshot, no
+  pin on the popup and plain world screenshots.
+* Component test (`tests/test_flow.py`): a target whose first tap is swallowed is started after
+  one more tap; no stray taps.

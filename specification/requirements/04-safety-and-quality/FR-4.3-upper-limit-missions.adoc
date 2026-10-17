@@ -1,0 +1,8 @@
+[#FR-4.3]
+=== FR-4.3 Upper limit of missions
+
+.Acceptance criteria
+. A run starts at most 30 missions (configurable) and then ends regularly.
+
+Stakeholder need:: SPEC.md §6 +
+Effort:: 0.5 h

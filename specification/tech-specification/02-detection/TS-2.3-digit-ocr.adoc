@@ -1,0 +1,25 @@
+[#TS-2.3]
+=== TS-2.3 Digit OCR
+
+Implements <<FR-2.5>>.
+
+* `segment_glyphs(image, lo, hi, min_height_ratio, min_height, max_aspect)`: white mask of the
+  region, connected components, components lower than `min_height` or lower than
+  `min_height_ratio` × the tallest one are dropped (comma, colon dots), the rest is returned
+  left to right. A component wider than `glyph_max_aspect` (1.3) × its height consists of
+  touching digits (the bold "46" of 02:46:03 is one 35x21 component); it is cut into
+  `round(width / typical width)` parts at the thinnest column near each even division.
+* `normalize_glyph(glyph)`: scaled to 16 px height keeping the aspect ratio, centred on a
+  16x16 canvas. A "1" therefore stays narrow.
+* Classification: best `TM_CCOEFF_NORMED` score against all digit templates in
+  `templates/digits/<digit>_<source>.png`; below `glyph_threshold` (0.6) the whole reading is
+  `None`.
+* `read_stamina(image)`: all glyphs of `stamina_region`, at most `max_stamina_digits`.
+* `read_refresh_seconds(image)`: the six rightmost glyphs of `timer_region` as HHMMSS; minutes
+  and seconds above 59 give `None`. The letters of "Refreshes In" left of them are ignored.
+
+`tools/cut_templates.py` generates the digit templates from `ref/`: stamina (0, 2, 3, 4, 5, 7),
+refresh timer (0, 1, 2, 5, 6, 7, 9) and the troop and power numbers of the Deploy screen
+(0, 1, 3, 4, 5, 6, 8, 9). `ref/intel-boss-running.png` adds 1, 5, 7, 9 in the stamina size and
+0, 2, 3, 4, 6 in the timer size. The glyphs for 6 and 8 in the stamina size and for 8 in the
+timer size still come from another font size; normalising the height makes them usable.

@@ -1,0 +1,10 @@
+[#FR-3.2]
+=== FR-3.2 Claiming rewards
+
+.Acceptance criteria
+. On `INTEL_CLAIMABLE` "Claim All" is tapped at its detected position and `REWARDS` awaited.
+. `REWARDS` is left by a tap at 360,180 (above the rewards); then `INTEL` is awaited.
+. Rewards are claimed before the next mission is selected.
+
+Stakeholder need:: SPEC.md §5 (loop), acceptance criterion 3 in §8 +
+Effort:: 1 h

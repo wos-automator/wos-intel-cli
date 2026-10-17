@@ -6,10 +6,12 @@
 User stories with acceptance and test criteria. Test levels: unit, component, integration and
 blackbox (pytest markers of the same name).
 
-include::docs/backlog/01-platform.adoc[]
+include::specification/backlog/01-platform/index.adoc[]
 
-include::docs/backlog/02-detection.adoc[]
+include::specification/backlog/02-detection/index.adoc[]
 
-include::docs/backlog/03-mission-flow.adoc[]
+include::specification/backlog/03-mission-flow/index.adoc[]
 
-include::docs/backlog/04-safety-and-quality.adoc[]
+include::specification/backlog/04-safety-and-quality/index.adoc[]
+
+include::specification/backlog/05-defects/index.adoc[]

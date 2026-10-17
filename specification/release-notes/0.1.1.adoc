@@ -1,0 +1,44 @@
+== 0.1.1 (unreleased)
+
+=== Fixes
+
+* BUG-0002: the hint bubble "You have enabled Simple Battle Mode …" over the world map is
+  recognised as the new state `HINT` and tapped away; the running step continues. Before, the
+  screen was `UNKNOWN` and the recovery pressed BACK on it (<<US-5.1>>, <<FR-2.1>>, <<FR-3.6>>).
+* BUG-0006: the "Quit game?" confirmation that a BACK on a screen with nothing open brings up
+  is recognised as `QUIT_CONFIRMATION`; the recovery taps "Cancel" and presses no further BACK
+  (<<US-5.2>>, <<FR-3.6>>, <<FR-4.1>>).
+* BUG-0028 (also BUG-0095b, BUG-0141): when the popup of the world target does not open after
+  "View", the intel pin above the target is detected and the target is tapped once more,
+  only if the pin shows the expected mission type. New settings `world_pin_*` in `[symbols]`
+  (<<US-5.3>>, <<FR-2.6>>, <<FR-3.4>>).
+* BUG-0098: the retry also applies to the boss; its skull pin is recognised on the world map,
+  and the boss is locked for the refresh cycle only after it has been deployed (<<US-5.5>>,
+  <<FR-3.5>>).
+* BUG-0118: a target that is no longer on the world map after "View" (no popup, no pin of
+  its type) is skipped for the run without counting as a failure; the run returns to the Intel
+  screen and selects the next mission. Before, three such targets in a row ended the run
+  (<<US-5.6>>, <<FR-3.4>>).
+* BUG-0095a: the dialog "The account has been logged in on another device." is recognised as
+  `SESSION_LOST`. The run waits 60 s, taps "Reconnect", waits up to 120 s for the Intel screen
+  or the world map and starts over without counting a failure. New settings
+  `reconnect_delay` and `reconnect_timeout` in `[timing]` (<<US-5.4>>, <<FR-3.6>>, <<FR-4.1>>).
+
+=== Documentation
+
+* `SPEC.md §5` states what the run has to do when all march queues are busy: work only on
+  targets that are neither hunt nor boss (BUG-0014; not implemented yet).
+* The specification moved from `docs/` to `specification/`, with one subdirectory per master
+  file (`requirements/`, `tech-specification/`, `backlog/`, `release-notes/`) and
+  `stakeholder/` for the chapters of `SPEC.md`. Each chapter is a folder whose `index.adoc`
+  includes one file per requirement, technical specification or user story, so a single item
+  can be read without its whole chapter. The rendered documents are unchanged (<<NFR-2>>).
+* `SPEC.md` is now an index; its sections live in `specification/stakeholder/<NN>-<topic>.md`
+  and keep their numbers, so references like `SPEC.md §3.5` stay valid.
+* `scripts/validate_specs.py` follows nested includes relative to the including file and
+  reports every item file that no master reaches (<<US-4.2>>, <<NFR-2>>).
+
+=== Breaking changes
+
+* Paths below `docs/specifications/`, `docs/tech-specifications/`, `docs/backlog/` and
+  `docs/release-notes/` no longer exist.

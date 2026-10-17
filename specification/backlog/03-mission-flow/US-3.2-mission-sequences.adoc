@@ -1,0 +1,28 @@
+[#US-3.2]
+=== US-3.2 Mission sequences
+
+Status:: Done (0.1.0) – rescue verified on synthetic screens only, see <<US-4.3>> +
+Effort:: 8 h +
+Traces to:: <<TS-3.2>>, <<FR-3.4>>
+
+As the operator, I want each mission type started by its own sequence with plausibility checks,
+so that only the intended mission is started.
+
+.Acceptance criteria
+. A full run on `intel-x.png` starts two combat missions and three hunts with exactly the taps
+  View → Explore → Fight → exit → Intel button, resp. View → Attack → Deploy → Intel button,
+  and no stray tap.
+. A dialog of another type is closed with BACK, "View" is not tapped, the symbol is not retried.
+. Hunt and rescue dialogs that open under a notification banner (the screenshots of the device
+  run, banner gone after 3 s) are neither tapped nor closed while the pin is hidden; all
+  regular missions are started and the boss is tapped last and once.
+. A dialog whose pin stays hidden is closed with BACK after the timeout.
+. A popup with another action than expected is not tapped.
+. A hunt without the prevail hint is not deployed; the run backs out to the world map.
+. The boss (`boss-1-dialog.png` → `boss-2-world-attack.png` → `boss-3-deploy.png`) is deployed
+  although the screen says "not likely to prevail"; a warning is logged.
+. A lost fight is dismissed by the exit tap and the run continues.
+. Rescue: View → Rescue → `WORLD`, no deploy step.
+
+.Test criteria
+* Component test (pytest + fake game, `tests/test_flow.py`): one test per criterion.

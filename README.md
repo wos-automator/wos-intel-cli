@@ -145,7 +145,7 @@ lists the built-in defaults. The device is taken from `ANDROID_SERIAL` if set, o
 |---|---|
 | [BlueStacks and ADB setup](docs/guides/bluestacks-setup.md) | Display settings, debugging port, connection check |
 | [Usage guide](docs/guides/usage.md) | Running, outcomes, configuration, troubleshooting |
-| [`SPEC.md`](SPEC.md) | Screens, detection method and the run loop in detail |
+| [`SPEC.md`](SPEC.md) | Screens, detection method and the run loop in detail (index of `specification/stakeholder/`) |
 | [Requirements](specification-web.adoc), [technical specification](tech-specification-web.adoc), [backlog](backlog-web.adoc) | Traceable specification in AsciiDoc |
 | [Release notes](release-notes.adoc) | Features and known limitations per version |
 
@@ -157,7 +157,8 @@ templates/     symbol masks, button and title cut-outs, digit glyphs
 ref/           reference screenshots the tests run against
 tests/         unit, component, integration and blackbox tests
 tools/         template cutter and the detection prototype
-docs/          guides, specifications, backlog, release notes
+docs/          guides and images
+specification/ requirements, technical specification, backlog, release notes, stakeholder input
 ```
 
 ## Development
@@ -172,7 +173,7 @@ game. Conventions are in [`AGENTS.md`](AGENTS.md).
 ## Status and limitations
 
 Version 0.1.0. The known limitations are listed in the
-[release notes](docs/release-notes/0.1.0.adoc); the most relevant ones:
+[release notes](specification/release-notes/0.1.0.adoc); the most relevant ones:
 
 - Rescue, defeat and the dialogs for missing stamina or troops have no reference screenshot yet
   and are tested on synthetic screens only.

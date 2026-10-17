@@ -7,6 +7,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import numpy as np
 import pytest
 from pytest_mock import MockerFixture
 
@@ -16,18 +17,22 @@ from tests.conftest import (
     AXE_PURPLE,
     BOSS,
     BOSS_VIEW,
+    CANCEL,
     CLAIM_ALL,
     DEPLOY,
     EXPERT,
     FIGHT,
+    HINT,
     INTEL_BUTTON,
     PAW_BLUE_LEFT,
     PAW_BLUE_RIGHT,
     PAW_PURPLE,
+    RECONNECT,
     RESULT_EXIT,
     REWARDS_EXIT,
     TENT,
     VIEW,
+    WORLD_TARGET,
     FakeClock,
     FakeGame,
     near,
@@ -152,6 +157,37 @@ def test_run_starting_on_the_world_map_opens_intel_first(
     assert outcome is Outcome.NOTHING_TO_DO
     assert game.taps[0][0] == "world"
     assert near(game.taps[0][1], INTEL_BUTTON, 8)
+
+
+def test_simple_battle_mode_hint_at_the_start_is_tapped_away(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0002: the hint covers the world map the run starts on."""
+    game = game_factory(start="world-simple-battle-mode")
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps[0] == ("world-simple-battle-mode", HINT)
+    assert near(game.taps[1][1], INTEL_BUTTON, 8)
+    assert "world-simple-battle-mode" not in game.backs
+    assert game.stray_taps == []
+
+
+def test_simple_battle_mode_hint_during_a_mission_costs_no_failure(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0002: the hint appears on the world map a hunt returns to."""
+    game = game_factory(overrides={"hunt-3-deploy": [(DEPLOY, "world-simple-battle-mode")]})
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert runner.missions_started == 5
+    assert game.taps_on("world-simple-battle-mode") == [HINT, HINT, HINT]
+    assert "world-simple-battle-mode" not in game.backs
+    assert game.stray_taps == []
 
 
 @pytest.mark.parametrize("start", ["hunt-3-deploy", "combat-1-dialog", "intel-xxxx"])
@@ -371,6 +407,101 @@ def test_popup_with_unexpected_action_is_rejected(
     # hunts end up on an "Explore" popup: never tapped; only the 2 real combat missions run
     assert len(game.taps_on("combat-2-world-explore")) == 2
     assert runner.missions_started == 2
+
+
+def test_target_whose_popup_did_not_open_is_tapped_again(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0028: the game swallowed the tap that opens the popup of the hunt target."""
+    game = game_factory(
+        overrides={
+            "hunt-1-dialog": [(VIEW, "hunt-2-world-no-popup")],
+            "hunt-2-world-no-popup": [(WORLD_TARGET, "hunt-2-world-attack")],
+        }
+    )
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert runner.missions_started == 5
+    assert game.taps_on("hunt-2-world-no-popup") == [WORLD_TARGET] * 3
+    assert len(game.taps_on("hunt-3-deploy")) == 3
+    assert game.stray_taps == []
+
+
+def test_pin_of_another_type_is_not_tapped(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """A combat target that ends on a map showing a hunt pin is not tapped there."""
+    game = game_factory(overrides={"combat-1-dialog": [(VIEW, "hunt-2-world-no-popup")]})
+
+    make_runner(game, detector, state_file).run()
+
+    taps = game.taps_on("hunt-2-world-no-popup")
+    assert len(taps) == 2  # one Intel button tap per combat target, never the hunt pin
+    assert all(near(tap, INTEL_BUTTON, 8) for tap in taps)
+    assert game.taps_on("combat-3-squad-fight") == []
+    assert game.stray_taps == []
+
+
+def test_vanished_target_is_skipped_without_a_failure(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0118: after "View" the map shows neither the target nor its popup."""
+    game = game_factory(overrides={"hunt-1-dialog": [(VIEW, "world-target-vanished")]})
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    # the three hunts in a row would have been three failures
+    assert outcome is Outcome.NOTHING_TO_DO
+    taps = game.taps_on("world-target-vanished")
+    assert len(taps) == 3
+    assert all(near(tap, INTEL_BUTTON, 8) for tap in taps)
+    assert runner.missions_started == 2  # the combats
+    assert len(game.taps_on("hunt-1-dialog")) == 3  # each hunt once, none retried
+    assert game.stray_taps == []
+
+
+def test_boss_whose_popup_did_not_open_is_tapped_again_and_locked(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0098: the game swallowed the tap that opens the popup of the boss."""
+    game = game_factory(
+        overrides={
+            "intel-x": [(BOSS, "boss-1-dialog")],
+            "boss-1-dialog": [(BOSS_VIEW, "boss-2-world-no-popup")],
+            "boss-2-world-no-popup": [(WORLD_TARGET, "boss-2-world-attack")],
+        }
+    )
+    runner = make_runner(game, detector, state_file)
+
+    assert runner.run() is Outcome.NOTHING_TO_DO
+
+    taps = game.taps_on("boss-2-world-no-popup")
+    assert len(taps) == 1 and near(taps[0], WORLD_TARGET, 8)
+    assert len(game.taps_on("boss-3-deploy")) == 1
+    assert runner.missions_started == 6
+    assert StateStore(state_file).boss_locked_until() is not None
+    assert game.stray_taps == []
+
+
+def test_boss_is_not_locked_when_its_popup_never_opens(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = game_factory(
+        overrides={
+            "intel-x": [(BOSS, "boss-1-dialog")],
+            "boss-1-dialog": [(BOSS_VIEW, "boss-2-world-no-popup")],
+        }
+    )
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert game.taps_on("boss-3-deploy") == []
+    assert StateStore(state_file).boss_locked_until() is None
 
 
 def test_boss_is_locked_for_the_refresh_cycle(
@@ -696,6 +827,70 @@ def test_unknown_screen_is_left_with_back(
     assert outcome is Outcome.NOTHING_TO_DO
     assert game.backs.count("intel-xxxx-stuck") == 1
     assert game.taps_on("intel-xxxx-stuck") == []
+
+
+def test_quit_confirmation_after_back_is_cancelled(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0006: BACK on a screen with nothing open asks "Quit game?"."""
+    game = game_factory(overrides={"intel-x": [(BOSS, "city")]})
+    game._images["city"] = np.zeros((1280, 720, 3), dtype=np.uint8)  # UNKNOWN
+    game.back_transitions["city"] = "dialog-quit-game"
+    game.transitions["dialog-quit-game"] = [(CANCEL, "world")]
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.backs.count("city") == 1
+    assert "dialog-quit-game" not in game.backs
+    assert game.taps_on("dialog-quit-game") == [CANCEL]
+    assert game.stray_taps == []
+
+
+def record_tap_times(game: FakeGame, monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, float]]:
+    """(screen, fake time) of every tap."""
+    times: list[tuple[str, float]] = []
+    original = game.tap
+
+    def tap(x: int, y: int) -> None:
+        assert game.clock is not None
+        times.append((game.screen, game.clock.now))
+        original(x, y)
+
+    monkeypatch.setattr(game, "tap", tap)
+    return times
+
+
+def test_session_is_reclaimed_a_minute_after_a_login_elsewhere(
+    game_factory: GameFactory, detector: Detector, state_file: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """BUG-0095a: the player logged in on another device before the run started."""
+    game = game_factory(start="dialog-logged-in-elsewhere")
+    runner = make_runner(game, detector, state_file)
+    times = record_tap_times(game, monkeypatch)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps[0] == ("dialog-logged-in-elsewhere", RECONNECT)
+    assert times[0][1] >= 60.0
+    assert near(game.taps[1][1], INTEL_BUTTON, 8)
+    assert game.backs.count("dialog-logged-in-elsewhere") == 0
+    assert game.stray_taps == []
+
+
+def test_login_elsewhere_during_a_mission_costs_no_failure(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0095a: the session is taken over while the hunts are deployed."""
+    game = game_factory(overrides={"hunt-3-deploy": [(DEPLOY, "dialog-logged-in-elsewhere")]})
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps_on("dialog-logged-in-elsewhere") == [RECONNECT] * 3
+    assert len(game.taps_on("combat-3-squad-fight")) == 2
+    assert game.stray_taps == []
 
 
 def test_expect_polls_until_the_timeout(

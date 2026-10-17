@@ -73,6 +73,10 @@ class MissionRejected(Exception):
     """A plausibility or safety check failed; the mission is skipped for this run."""
 
 
+class Reconnected(Exception):
+    """The session was taken over by another device and has been reclaimed; start over."""
+
+
 class RunEnded(Exception):
     """The run has to end regularly from within a mission."""
 
@@ -168,11 +172,46 @@ class Runner:
         self._attempted: list[Symbol] = []
         self._unclaimed = 0
         self._expert_used = False
+        self._reconnecting = False
         self.missions_started = 0
 
     # ------------------------------------------------------------------ primitives
 
     def _observe(self) -> tuple[Screen, Image]:
+        """Fresh screenshot and its state; a hint bubble over it is tapped away first.
+
+        A login on another device is answered with a reconnect, which raises ``Reconnected``.
+        """
+        screen, image = self._look()
+        for _ in range(self._config.limits.max_back):
+            if self._dry_run:
+                break
+            if screen.state is State.SESSION_LOST and not self._reconnecting:
+                self._reconnect()
+            if screen.state is not State.HINT:
+                break
+            self._tap_match(screen.matches["hint"])
+            screen, image = self._look()
+        return screen, image
+
+    def _reconnect(self) -> None:
+        """Leave the player a minute on the other device, then reclaim the session (BUG-0095a)."""
+        timing = self._config.timing
+        log.warning(
+            "account logged in on another device, reconnecting in %.0f s", timing.reconnect_delay
+        )
+        self._sleep(timing.reconnect_delay)
+        self._reconnecting = True
+        try:
+            screen, _ = self._look()
+            if screen.state is State.SESSION_LOST:
+                self._tap_match(screen.matches["btn_reconnect"])
+            self._expect(INTEL_STATES | {State.WORLD}, timing.reconnect_timeout)
+        finally:
+            self._reconnecting = False
+        raise Reconnected
+
+    def _look(self) -> tuple[Screen, Image]:
         image = self._device.screenshot()
         screen = self._detector.detect_state(image)
         self._step += 1
@@ -225,6 +264,14 @@ class Runner:
 
     def _recover(self) -> None:
         """Leave an unexpected screen: BACK up to ``max_back`` times, never on INTEL/WORLD."""
+        try:
+            self._leave_screen()
+        except Reconnected:
+            log.info("session reclaimed while recovering")
+        except StepFailed as failed:
+            log.warning("recovery failed: %s", failed)
+
+    def _leave_screen(self) -> None:
         for _ in range(self._config.limits.max_back):
             screen, _ = self._observe()
             if screen.state in INTEL_STATES or screen.state is State.WORLD:
@@ -233,6 +280,10 @@ class Runner:
                 self._tap(self._config.buttons.rewards_exit, "rewards exit")
             elif screen.state in RESULT_STATES:
                 self._tap_match(screen.matches["exit"])
+            elif screen.state is State.QUIT_CONFIRMATION:
+                # The last BACK hit a screen with nothing open: one more would quit the game.
+                self._tap_match(screen.matches["btn_cancel"])
+                return
             else:
                 self._back(f"leaving {screen.state}")
 
@@ -250,7 +301,15 @@ class Runner:
 
     def run(self) -> Outcome:
         self._device.check()
-        screen, _ = self._observe()
+        while True:
+            try:
+                screen, _ = self._observe()
+                break
+            except Reconnected:
+                continue
+            except StepFailed as failed:
+                log.error("%s (%s)", Outcome.WRONG_SCREEN.value, failed)
+                return Outcome.WRONG_SCREEN
         if screen.state is State.WORLD:
             if self._dry_run:
                 match = screen.matches["intel_button"]
@@ -266,6 +325,9 @@ class Runner:
                 outcome = self._iteration()
             except RunEnded as ended:
                 return ended.outcome
+            except Reconnected:
+                log.info("session reclaimed, starting over on the Intel screen")
+                continue
             except MissionRejected as rejected:
                 log.warning("mission skipped for this run: %s", rejected)
                 self._save_failure()
@@ -420,7 +482,7 @@ class Runner:
             raise MissionRejected(f"dialog shows {found}, expected {target.type}")
         self._tap_match(screen.matches["btn_view"])
 
-        screen, _ = self._expect({State.WORLD_TARGET})
+        screen = self._await_popup(target)
         expected = ACTION_FOR[target.type]
         if screen.action is not expected:
             raise MissionRejected(f"popup offers {screen.action}, expected {expected}")
@@ -446,6 +508,27 @@ class Runner:
             )
             until = self._store.lock_boss(self._now(), cycle)
             log.info("boss locked until %s", until.isoformat(timespec="seconds"))
+
+    def _await_popup(self, target: Symbol) -> Screen:
+        """``WORLD_TARGET`` after "View"; a tap the game swallowed is repeated once (BUG-0028).
+
+        Without the popup the map still shows the intel pin above the target. Only a pin of
+        the expected type is tapped, at the target below it.
+        """
+        try:
+            return self._expect({State.WORLD_TARGET})[0]
+        except StepFailed:
+            if self._last is None or self._last[0].state is not State.WORLD:
+                raise
+            pin = self._detector.world_pin(self._last[1])
+            if pin is None or pin[0] is not target.type:
+                # The target has gone, e.g. the map scrolled (BUG-0118): select the next one.
+                raise MissionRejected("the target is no longer on the world map") from None
+            match = pin[1]
+            offset = self._config.symbols.world_pin_tap_offset
+            log.info("popup did not open, tapping the target again")
+            self._tap((match.x, match.y + offset), f"{target.type} target below its pin")
+            return self._expect({State.WORLD_TARGET})[0]
 
     def _end_if_blocked(self, screen: Screen) -> None:
         """End the run on a "not enough stamina" or "no troops / march slots" dialog."""

@@ -1,0 +1,16 @@
+[#FR-1.3]
+=== FR-1.3 Command line interface
+
+The program is started as `python -m wos_intel <command>`.
+
+.Acceptance criteria
+. `run` performs a normal run; `run --dry-run` detects and logs but never taps or presses BACK.
+. `detect <image>` runs the detection on a 720x1280 image file, logs state, stamina and symbols
+  and writes `<image>.debug.png` next to it.
+. `snap <name>` stores an ADB screenshot as `ref/<name>.png` and refuses to overwrite an
+  existing file unless `--force` is given.
+. Exit code 0 for a regular end, 1 for an aborted run or a device/configuration error,
+  2 for a usage error.
+
+Stakeholder need:: SPEC.md §7 +
+Effort:: 3 h

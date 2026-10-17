@@ -163,6 +163,9 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("world", State.WORLD),
         ("rescue-popup", State.WORLD_TARGET),
         ("defeat", State.DEFEAT),
+        ("world-simple-battle-mode", State.HINT),
+        ("dialog-quit-game", State.QUIT_CONFIRMATION),
+        ("dialog-logged-in-elsewhere", State.SESSION_LOST),
     ],
 )
 def test_states(detector: Detector, images: dict[str, Image], name: str, state: State) -> None:
@@ -187,6 +190,9 @@ def test_unknown_state_for_a_blank_screen(detector: Detector) -> None:
         ("combat-4-victory", "exit", (360, 1140)),
         ("hunt-3-deploy", "btn_deploy", (548, 1215)),
         ("world", "intel_button", (663, 862)),
+        ("world-simple-battle-mode", "hint", (341, 856)),
+        ("dialog-quit-game", "btn_cancel", (210, 787)),
+        ("dialog-logged-in-elsewhere", "btn_reconnect", (520, 802)),
     ],
 )
 def test_tap_targets(
@@ -257,6 +263,37 @@ def test_dialog_type_is_unknown_while_a_banner_covers_the_pin(
 
 def test_dialog_type_is_none_without_a_pin(detector: Detector) -> None:
     assert detector.dialog_type(load_ref("hunt-3-deploy")) is None
+
+
+def test_world_pin_of_a_target_without_popup(detector: Detector) -> None:
+    """BUG-0028: the map is centred on the target, its popup did not open."""
+    pin = detector.world_pin(load_ref("hunt-2-world-no-popup"))
+
+    assert pin is not None
+    kind, match = pin
+    assert kind is HUNT
+    assert abs(match.x - 360) <= POSITION_TOLERANCE
+    assert abs(match.y - 661) <= POSITION_TOLERANCE
+
+
+def test_world_pin_of_a_boss_without_popup(detector: Detector) -> None:
+    """BUG-0098: the map is centred on the boss, its popup did not open."""
+    pin = detector.world_pin(load_ref("boss-2-world-no-popup"))
+
+    assert pin is not None
+    kind, match = pin
+    assert kind is BOSS
+    assert abs(match.x - 356) <= POSITION_TOLERANCE
+    assert abs(match.y - 661) <= POSITION_TOLERANCE
+
+
+@pytest.mark.parametrize(
+    "name", ["hunt-2-world-attack", "boss-2-world-attack", "combat-2-world-explore", "world"]
+)
+def test_no_world_pin_under_a_popup_or_on_the_plain_map(
+    detector: Detector, images: dict[str, Image], name: str
+) -> None:
+    assert detector.world_pin(images[name]) is None
 
 
 def test_expert_sign_is_found_top_left(detector: Detector, images: dict[str, Image]) -> None:

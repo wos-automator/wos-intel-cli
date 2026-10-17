@@ -1,0 +1,21 @@
+[#US-1.3]
+=== US-1.3 Configuration file
+
+Status:: Done (0.1.0) +
+Effort:: 3 h +
+Traces to:: <<TS-1.3>>, <<FR-1.5>>
+
+As the operator, I want thresholds, wait times and coordinates in `config.toml`, so that I can
+tune the tool without changing code.
+
+.Acceptance criteria
+. The built-in defaults equal the values of SPEC.md.
+. The shipped `config.toml` contains every setting and loads to exactly the defaults.
+. Single keys can be overridden; lists become tuples; `ANDROID_SERIAL` overrides the serial.
+. Unknown sections/keys and wrong types raise `ConfigError` naming the entry.
+. Relative paths resolve against the directory of the configuration file.
+
+.Test criteria
+* Unit test (pytest, `tests/test_config_state.py`): defaults.
+* Integration test (pytest, `tests/test_config_state.py`): shipped file, overrides, environment
+  variable, ten invalid files.

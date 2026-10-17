@@ -1,4 +1,4 @@
-"""Cuts the templates that are derived from ref/ screenshots: digit glyphs and title_rewards.
+"""Cuts the templates that are derived from ref/ screenshots: digit glyphs and the CUTS below.
 
 Usage: python tools/cut_templates.py
 
@@ -39,6 +39,14 @@ CUTS: tuple[tuple[str, str, Region], ...] = (
     ("title_rewards", "intel-xxxx", (268, 300, 454, 342)),
     # inside of the white sign, without the map behind its rounded corners
     ("expert_sign", "intel-expert-available", (26, 178, 92, 242)),
+    # first line of the hint bubble, BUG-0002
+    ("text_simple_battle_mode", "world-simple-battle-mode", (98, 840, 585, 872)),
+    # "Quit game?" confirmation after BACK, BUG-0006
+    ("text_quit_game", "dialog-quit-game", (280, 588, 440, 628)),
+    ("btn_cancel", "dialog-quit-game", (150, 765, 270, 810)),
+    # "The account has been logged in on another device.", BUG-0095a
+    ("text_logged_in_elsewhere", "dialog-logged-in-elsewhere", (60, 588, 660, 620)),
+    ("btn_reconnect", "dialog-logged-in-elsewhere", (435, 782, 605, 822)),
 )
 
 

@@ -40,6 +40,8 @@ class TimingConfig:
     fight_timeout: float = 60.0
     completion_timeout: float = 900.0
     completion_poll: float = 10.0
+    reconnect_delay: float = 60.0
+    reconnect_timeout: float = 120.0
 
 
 @dataclass(frozen=True)
@@ -89,6 +91,10 @@ class SymbolConfig:
     dialog_pin_region: Region = (300, 320, 420, 500)
     dialog_pin_scales: tuple[float, ...] = (0.60, 0.70, 0.75, 0.80)
     dialog_pin_threshold: float = 0.75
+    world_pin_region: Region = (280, 580, 440, 740)
+    world_pin_scales: tuple[float, ...] = (0.55, 0.60, 0.65, 0.70)
+    world_pin_threshold: float = 0.75
+    world_pin_tap_offset: int = 70
 
 
 @dataclass(frozen=True)
@@ -146,6 +152,11 @@ def _default_regions() -> dict[str, Region]:
         "text_likely_prevail": (120, 570, 600, 640),
         "intel_button": (600, 700, 720, 1000),
         "intel_button_badge": (600, 700, 720, 1000),
+        "text_simple_battle_mode": (0, 640, 720, 1160),
+        "text_quit_game": (200, 540, 520, 680),
+        "btn_cancel": (40, 720, 360, 860),
+        "text_logged_in_elsewhere": (0, 520, 720, 700),
+        "btn_reconnect": (360, 720, 720, 880),
     }
 
 

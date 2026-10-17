@@ -1,29 +1,30 @@
 ---
 name: create-requirement
 description: >-
-  Break down a feature description into SMART requirements with measurable acceptance criteria and write them to modular chapter files in docs/specifications/.
+  Break down a feature description into SMART requirements with measurable acceptance criteria and write them to modular item files in specification/requirements/<chapter>/.
 ---
 
 # Skill: Create Requirement
 
-Break down a feature into formal requirements meeting quality and traceability standards in modular chapter files.
+Break down a feature into formal requirements meeting quality and traceability standards in modular item files.
 
 ## Files Modified
 
-- `docs/specifications/<chapter>.adoc`
-- `specification-web.adoc` (if new chapter needs `include::` registration)
+- `specification/requirements/<NN-chapter>/<ID>-<slug>.adoc` (one new file per requirement)
+- `specification/requirements/<NN-chapter>/index.adoc` (`include::` line for the new item)
+- `specification-web.adoc` (if a new chapter needs `include::` registration)
 
 ## Execution Steps
 
-1. **Target Chapter**: Identify existing chapter file in `docs/specifications/` or create a new chapter file (e.g. `docs/specifications/02-combat.adoc`).
-2. **Include Registration**: If a new chapter file is created, add `include::docs/specifications/<chapter>.adoc[]` to `specification-web.adoc`.
+1. **Target Chapter**: Identify the existing chapter folder in `specification/requirements/` or create a new one (e.g. `specification/requirements/02-combat/`) with an `index.adoc` holding the `==` heading.
+2. **Include Registration**: Create the item file `<ID>-<slug>.adoc` (e.g. `FR-2.1-attack-order.adoc`) and add `include::<ID>-<slug>.adoc[]` to the chapter `index.adoc`. For a new chapter, add `include::specification/requirements/<NN-chapter>/index.adoc[]` to `specification-web.adoc`.
 3. **SMART Criteria Check**:
    - **S**pecific: Unambiguously stated.
    - **M**easurable: Verifiable acceptance criteria.
    - **A**chievable: Implementable with current stack.
    - **R**elevant: Traceable to stakeholder need or constraint.
    - **T**ime-bound: Effort estimate included.
-4. **Draft Section**: In the chapter file, add the requirement section:
+4. **Draft Section**: In the item file, add the requirement section:
    - Unique anchor (e.g., `[#FR-2.1]`)
    - Title
    - Description
