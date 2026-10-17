@@ -11,7 +11,8 @@ Implements <<FR-3.6>>.
 * `_expect(states, timeout=expect_timeout)`: observe; return on a wanted state; raise
   `StepFailed` once the deadline has passed; otherwise `sleep(poll_interval)` and repeat.
 * `_recover`: up to `max_back` times: observe; stop on `INTEL*` or `WORLD`; `REWARDS` → tap the
-  rewards exit; `VICTORY`/`DEFEAT` → tap the exit text; anything else → BACK.
+  rewards exit; `VICTORY`/`DEFEAT` → tap the exit text; `QUIT_CONFIRMATION` → tap `btn_cancel` and stop
+  (<<US-5.2>>); anything else → BACK.
 
 * `_save_failure`: on `MissionRejected` and `StepFailed` the last observed screenshot is written
   unannotated to `debug/failure-<step>-<STATE>.png` (`failure_dir`, always set by the CLI), so

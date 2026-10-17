@@ -12,6 +12,7 @@ Implements <<FR-2.1>>.
 |State |Condition |Matches (tap targets)
 
 |`HINT` |`text_simple_battle_mode` |`hint`
+|`QUIT_CONFIRMATION` |`text_quit_game` and `btn_cancel` |`btn_cancel`
 |`NO_STAMINA`, `NO_TROOPS` |optional dialog template |–
 |`REWARDS` |`title_rewards` |–
 |`VICTORY` |`text_tap_anywhere` and `title_victory` |`exit`
@@ -30,5 +31,6 @@ The order resolves overlaps: the popup of `WORLD_TARGET` is checked before the I
 that is visible behind it, and the dialog before the Intel title. `title_rewards` is cut from
 `ref/intel-xxxx.png` by `tools/cut_templates.py` because `text_tap_anywhere` (cut from the
 victory screen) does not match the rewards screen. `text_simple_battle_mode` (first line of the
-hint bubble) is cut from `ref/world-simple-battle-mode.png` the same way. `title_deploy` and `title_squad_settings`
+hint bubble) is cut from `ref/world-simple-battle-mode.png` the same way, `text_quit_game` and
+`btn_cancel` from `ref/dialog-quit-game.png`. `title_deploy` and `title_squad_settings`
 are not used (0.77 against each other's screen).

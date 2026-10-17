@@ -28,6 +28,7 @@ REWARDS_EXIT: Point = (360, 180)
 INTEL_BUTTON: Point = (663, 862)
 EXPERT: Point = (59, 210)
 HINT: Point = (341, 856)
+CANCEL: Point = (210, 787)
 EXPERT_AREA = (10, 165, 105, 255)
 
 BOSS: Point = (518, 700)

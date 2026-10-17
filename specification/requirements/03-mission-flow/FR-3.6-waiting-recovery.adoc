@@ -10,6 +10,8 @@
   it (<<US-5.1>>).
 . After a timeout BACK is pressed up to 3 times, re-detecting before each press; BACK is never
   pressed on `INTEL` or `WORLD`. `REWARDS`, `VICTORY` and `DEFEAT` are left by their exit tap.
+. If a BACK opens the "Quit game?" confirmation, "Cancel" is tapped and the recovery ends:
+  nothing was open any more, so no further BACK is pressed (<<US-5.2>>).
 . After 3 failed steps in a row the run ends with exit code 1.
 . The screenshot on which a mission was skipped or a step failed is saved under `debug/`.
 

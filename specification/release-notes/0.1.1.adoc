@@ -5,6 +5,9 @@
 * BUG-0002: the hint bubble "You have enabled Simple Battle Mode …" over the world map is
   recognised as the new state `HINT` and tapped away; the running step continues. Before, the
   screen was `UNKNOWN` and the recovery pressed BACK on it (<<US-5.1>>, <<FR-2.1>>, <<FR-3.6>>).
+* BUG-0006: the "Quit game?" confirmation that a BACK on a screen with nothing open brings up
+  is recognised as `QUIT_CONFIRMATION`; the recovery taps "Cancel" and presses no further BACK
+  (<<US-5.2>>, <<FR-3.6>>, <<FR-4.1>>).
 
 === Documentation
 

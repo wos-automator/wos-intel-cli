@@ -41,6 +41,9 @@ CUTS: tuple[tuple[str, str, Region], ...] = (
     ("expert_sign", "intel-expert-available", (26, 178, 92, 242)),
     # first line of the hint bubble, BUG-0002
     ("text_simple_battle_mode", "world-simple-battle-mode", (98, 840, 585, 872)),
+    # "Quit game?" confirmation after BACK, BUG-0006
+    ("text_quit_game", "dialog-quit-game", (280, 588, 440, 628)),
+    ("btn_cancel", "dialog-quit-game", (150, 765, 270, 810)),
 )
 
 

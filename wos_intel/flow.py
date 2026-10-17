@@ -243,6 +243,10 @@ class Runner:
                 self._tap(self._config.buttons.rewards_exit, "rewards exit")
             elif screen.state in RESULT_STATES:
                 self._tap_match(screen.matches["exit"])
+            elif screen.state is State.QUIT_CONFIRMATION:
+                # The last BACK hit a screen with nothing open: one more would quit the game.
+                self._tap_match(screen.matches["btn_cancel"])
+                return
             else:
                 self._back(f"leaving {screen.state}")
 

@@ -44,6 +44,7 @@ class State(StrEnum):
     NO_STAMINA = "NO_STAMINA"
     NO_TROOPS = "NO_TROOPS"
     HINT = "HINT"
+    QUIT_CONFIRMATION = "QUIT_CONFIRMATION"
     UNKNOWN = "UNKNOWN"
 
 
@@ -101,6 +102,8 @@ REQUIRED_TEMPLATES: tuple[str, ...] = (
     "text_tap_anywhere",
     "text_likely_prevail",
     "text_simple_battle_mode",
+    "text_quit_game",
+    "btn_cancel",
 )
 
 # Screens without a reference screenshot yet (SPEC §2 "Noch offen"). As soon as the file
@@ -325,6 +328,12 @@ class Detector:
         hint = self.find(image, "text_simple_battle_mode")
         if hint is not None:
             return Screen(State.HINT, {"hint": hint})
+
+        # BACK with nothing open asks "Quit game?" (BUG-0006); only "Cancel" is a target.
+        if self.find(image, "text_quit_game") is not None:
+            cancel = self.find(image, "btn_cancel")
+            if cancel is not None:
+                return Screen(State.QUIT_CONFIRMATION, {"btn_cancel": cancel})
 
         for name, state in (
             ("dialog_no_stamina", State.NO_STAMINA),

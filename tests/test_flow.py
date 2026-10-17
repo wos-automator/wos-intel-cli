@@ -7,6 +7,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import numpy as np
 import pytest
 from pytest_mock import MockerFixture
 
@@ -16,6 +17,7 @@ from tests.conftest import (
     AXE_PURPLE,
     BOSS,
     BOSS_VIEW,
+    CANCEL,
     CLAIM_ALL,
     DEPLOY,
     EXPERT,
@@ -728,6 +730,24 @@ def test_unknown_screen_is_left_with_back(
     assert outcome is Outcome.NOTHING_TO_DO
     assert game.backs.count("intel-xxxx-stuck") == 1
     assert game.taps_on("intel-xxxx-stuck") == []
+
+
+def test_quit_confirmation_after_back_is_cancelled(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0006: BACK on a screen with nothing open asks "Quit game?"."""
+    game = game_factory(overrides={"intel-x": [(BOSS, "city")]})
+    game._images["city"] = np.zeros((1280, 720, 3), dtype=np.uint8)  # UNKNOWN
+    game.back_transitions["city"] = "dialog-quit-game"
+    game.transitions["dialog-quit-game"] = [(CANCEL, "world")]
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.backs.count("city") == 1
+    assert "dialog-quit-game" not in game.backs
+    assert game.taps_on("dialog-quit-game") == [CANCEL]
+    assert game.stray_taps == []
 
 
 def test_expect_polls_until_the_timeout(
