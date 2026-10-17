@@ -276,6 +276,17 @@ def test_world_pin_of_a_target_without_popup(detector: Detector) -> None:
     assert abs(match.y - 661) <= POSITION_TOLERANCE
 
 
+def test_world_pin_of_a_boss_without_popup(detector: Detector) -> None:
+    """BUG-0098: the map is centred on the boss, its popup did not open."""
+    pin = detector.world_pin(load_ref("boss-2-world-no-popup"))
+
+    assert pin is not None
+    kind, match = pin
+    assert kind is BOSS
+    assert abs(match.x - 356) <= POSITION_TOLERANCE
+    assert abs(match.y - 661) <= POSITION_TOLERANCE
+
+
 @pytest.mark.parametrize(
     "name", ["hunt-2-world-attack", "boss-2-world-attack", "combat-2-world-explore", "world"]
 )

@@ -1,7 +1,7 @@
 [#US-5.5]
 === US-5.5 BUG-0098 Boss target without popup
 
-Status:: Open +
+Status:: Done (0.1.1) +
 Effort:: 1 h +
 Traces to:: <<TS-3.2>>, <<TS-3.4>>, <<FR-3.4>>, <<FR-3.5>>
 

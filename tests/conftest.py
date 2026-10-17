@@ -192,6 +192,7 @@ class FakeGame:
             "world": [(INTEL_BUTTON, intel)],
             "world-simple-battle-mode": [(HINT, "world")],
             "hunt-2-world-no-popup": [(INTEL_BUTTON, intel)],
+            "boss-2-world-no-popup": [(INTEL_BUTTON, intel)],
             "dialog-logged-in-elsewhere": [(RECONNECT, "world")],
         }
         self.back_transitions: dict[str, str] = {

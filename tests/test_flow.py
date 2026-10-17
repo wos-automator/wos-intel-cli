@@ -445,6 +445,46 @@ def test_pin_of_another_type_is_not_tapped(
     assert game.stray_taps == []
 
 
+def test_boss_whose_popup_did_not_open_is_tapped_again_and_locked(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0098: the game swallowed the tap that opens the popup of the boss."""
+    game = game_factory(
+        overrides={
+            "intel-x": [(BOSS, "boss-1-dialog")],
+            "boss-1-dialog": [(BOSS_VIEW, "boss-2-world-no-popup")],
+            "boss-2-world-no-popup": [(WORLD_TARGET, "boss-2-world-attack")],
+        }
+    )
+    runner = make_runner(game, detector, state_file)
+
+    assert runner.run() is Outcome.NOTHING_TO_DO
+
+    taps = game.taps_on("boss-2-world-no-popup")
+    assert len(taps) == 1 and near(taps[0], WORLD_TARGET, 8)
+    assert len(game.taps_on("boss-3-deploy")) == 1
+    assert runner.missions_started == 6
+    assert StateStore(state_file).boss_locked_until() is not None
+    assert game.stray_taps == []
+
+
+def test_boss_is_not_locked_when_its_popup_never_opens(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = game_factory(
+        overrides={
+            "intel-x": [(BOSS, "boss-1-dialog")],
+            "boss-1-dialog": [(BOSS_VIEW, "boss-2-world-no-popup")],
+        }
+    )
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert game.taps_on("boss-3-deploy") == []
+    assert StateStore(state_file).boss_locked_until() is None
+
+
 def test_boss_is_locked_for_the_refresh_cycle(
     game_factory: GameFactory, detector: Detector, state_file: Path
 ) -> None:

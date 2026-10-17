@@ -7,6 +7,9 @@
 . If the timer is unreadable the lock lasts a configurable time (default 8 h).
 . The lock is stored in `state.json` and survives a restart.
 . A locked boss is not a candidate; an expired lock has no effect.
+. The boss is locked only once it has been deployed: a boss whose popup does not open is
+  tapped again like any other target (<<FR-3.4>>) and stays unlocked if that fails too
+  (<<US-5.5>>, BUG-0098).
 
 Stakeholder need:: SPEC.md §3.2 (BOSS), §5 (BOSS, state.json) +
 Effort:: 3 h
