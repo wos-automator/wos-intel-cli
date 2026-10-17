@@ -11,3 +11,5 @@ include::FR-2.4-symbol-tier.adoc[]
 include::FR-2.5-stamina-refresh-timer.adoc[]
 
 include::FR-2.6-mission-type-dialog-action.adoc[]
+
+include::FR-2.7-march-queue-counter.adoc[]

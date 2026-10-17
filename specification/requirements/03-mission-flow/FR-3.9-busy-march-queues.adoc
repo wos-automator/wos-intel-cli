@@ -1,0 +1,29 @@
+[#FR-3.9]
+=== FR-3.9 Busy march queues
+
+A hunt or boss target sends troops and needs a free march queue; combat and rescue do not.
+With all march queues busy the game opens no popup for a hunt or boss target (BUG-0014). The
+run then works on the other targets and leaves hunt and boss for later instead of failing or
+ending.
+
+.Acceptance criteria
+. Every screenshot of the world map with a readable counter (<<FR-2.7>>) updates what the run
+  knows about the queues: N ≥ M means busy, N < M means free. An unreadable counter changes
+  nothing.
+. While the queues are busy, hunt and boss targets are deferred: they are not tapped and do not
+  count as attempted. Combat and rescue targets are started in the order of <<FR-3.3>>.
+. If the popup of a hunt or boss target does not open after "View" and the counter shows all
+  queues busy, the target is not tapped again (no retry of <<FR-3.4>>). The target is deferred,
+  the run returns to the Intel screen, and no failure is counted.
+. If only deferred targets are left, the run does not end. It waits on the Intel screen for
+  60 s (configurable) and then tries the first deferred target again; its world map shows the
+  counter once more. Rewards that become claimable meanwhile are claimed (<<FR-3.2>>).
+. If the queues are still busy 15 min (configurable) after they were first seen busy, the run
+  ends regularly with "all march queues busy", after running missions have been waited for
+  (<<FR-3.7>>). A counter that shows a free queue restarts this period.
+. The boss is locked for the refresh cycle only when it has been deployed, never when it was
+  deferred (<<FR-3.5>>).
+. A dry run never waits.
+
+Stakeholder need:: SPEC.md §5 (Busy march queues) +
+Effort:: 5 h

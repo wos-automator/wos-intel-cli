@@ -16,7 +16,7 @@ Every screenshot is classified as exactly one state.
 |`SQUAD` |green "Fight" button |`ref/combat-3-squad-fight.png`
 |`VICTORY` |"Victory!" and "Tap anywhere to exit" |`ref/combat-4-victory.png`
 |`DEFEAT` |"Tap anywhere to exit" without "Victory!" |none yet
-|`WORLD` |round Intel button on the right, no popup |visible in `ref/combat-2-world-explore.png`
+|`WORLD` |round Intel button on the right, no popup |visible in `ref/combat-2-world-explore.png`; without popup `ref/hunt-2-world-queues-busy.png`
 |`NO_STAMINA`, `NO_TROOPS` |blocking dialogs |none yet
 |`HINT` |hint bubble "You have enabled Simple Battle Mode …" over any screen |`ref/world-simple-battle-mode.png`
 |`QUIT_CONFIRMATION` |dialog "Quit game?" with "Cancel" and "Confirm" |`ref/dialog-quit-game.png`
@@ -25,7 +25,7 @@ Every screenshot is classified as exactly one state.
 |===
 
 .Acceptance criteria
-. Each of the twenty-one reference screenshots yields the state listed for it.
+. Each of the twenty-two reference screenshots yields the state listed for it.
 . Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
   the Intel button with 0.85, with and without the red badge.
 . `DEPLOY` is recognised by the Deploy button, never by the title alone.

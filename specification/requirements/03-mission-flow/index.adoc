@@ -15,3 +15,5 @@ include::FR-3.6-waiting-recovery.adoc[]
 include::FR-3.8-expert-more-missions-once.adoc[]
 
 include::FR-3.7-waiting-running-missions-claiming.adoc[]
+
+include::FR-3.9-busy-march-queues.adoc[]
