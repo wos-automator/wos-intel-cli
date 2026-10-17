@@ -27,6 +27,7 @@ from tests.conftest import (
     PAW_BLUE_LEFT,
     PAW_BLUE_RIGHT,
     PAW_PURPLE,
+    RECONNECT,
     RESULT_EXIT,
     REWARDS_EXIT,
     TENT,
@@ -784,6 +785,52 @@ def test_quit_confirmation_after_back_is_cancelled(
     assert game.backs.count("city") == 1
     assert "dialog-quit-game" not in game.backs
     assert game.taps_on("dialog-quit-game") == [CANCEL]
+    assert game.stray_taps == []
+
+
+def record_tap_times(game: FakeGame, monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, float]]:
+    """(screen, fake time) of every tap."""
+    times: list[tuple[str, float]] = []
+    original = game.tap
+
+    def tap(x: int, y: int) -> None:
+        assert game.clock is not None
+        times.append((game.screen, game.clock.now))
+        original(x, y)
+
+    monkeypatch.setattr(game, "tap", tap)
+    return times
+
+
+def test_session_is_reclaimed_a_minute_after_a_login_elsewhere(
+    game_factory: GameFactory, detector: Detector, state_file: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """BUG-0095a: the player logged in on another device before the run started."""
+    game = game_factory(start="dialog-logged-in-elsewhere")
+    runner = make_runner(game, detector, state_file)
+    times = record_tap_times(game, monkeypatch)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps[0] == ("dialog-logged-in-elsewhere", RECONNECT)
+    assert times[0][1] >= 60.0
+    assert near(game.taps[1][1], INTEL_BUTTON, 8)
+    assert game.backs.count("dialog-logged-in-elsewhere") == 0
+    assert game.stray_taps == []
+
+
+def test_login_elsewhere_during_a_mission_costs_no_failure(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0095a: the session is taken over while the hunts are deployed."""
+    game = game_factory(overrides={"hunt-3-deploy": [(DEPLOY, "dialog-logged-in-elsewhere")]})
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps_on("dialog-logged-in-elsewhere") == [RECONNECT] * 3
+    assert len(game.taps_on("combat-3-squad-fight")) == 2
     assert game.stray_taps == []
 
 

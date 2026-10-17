@@ -12,6 +12,10 @@
   "View", the intel pin above the target is detected and the target is tapped once more,
   only if the pin shows the expected mission type. New settings `world_pin_*` in `[symbols]`
   (<<US-5.3>>, <<FR-2.6>>, <<FR-3.4>>).
+* BUG-0095a: the dialog "The account has been logged in on another device." is recognised as
+  `SESSION_LOST`. The run waits 60 s, taps "Reconnect", waits up to 120 s for the Intel screen
+  or the world map and starts over without counting a failure. New settings
+  `reconnect_delay` and `reconnect_timeout` in `[timing]` (<<US-5.4>>, <<FR-3.6>>, <<FR-4.1>>).
 
 === Documentation
 

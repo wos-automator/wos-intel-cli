@@ -7,7 +7,9 @@
 . The only fixed tap is the documented exit of `REWARDS` at 360,180.
 . Shop, purchase, offer and diamond dialogs are never confirmed: a screen that is not one of
   the known states is answered with BACK only.
-. The "Quit game?" confirmation is only ever answered with its detected "Cancel" button.
+. The "Quit game?" confirmation is only ever answered with its detected "Cancel" button, the
+  "logged in on another device" dialog with its detected "Reconnect" button; "Confirm" and
+  "Contact Us" are never tapped.
 
 Stakeholder need:: SPEC.md §6 +
 Effort:: 1 h

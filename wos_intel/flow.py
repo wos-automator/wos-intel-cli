@@ -73,6 +73,10 @@ class MissionRejected(Exception):
     """A plausibility or safety check failed; the mission is skipped for this run."""
 
 
+class Reconnected(Exception):
+    """The session was taken over by another device and has been reclaimed; start over."""
+
+
 class RunEnded(Exception):
     """The run has to end regularly from within a mission."""
 
@@ -168,19 +172,44 @@ class Runner:
         self._attempted: list[Symbol] = []
         self._unclaimed = 0
         self._expert_used = False
+        self._reconnecting = False
         self.missions_started = 0
 
     # ------------------------------------------------------------------ primitives
 
     def _observe(self) -> tuple[Screen, Image]:
-        """Fresh screenshot and its state; a hint bubble over it is tapped away first."""
+        """Fresh screenshot and its state; a hint bubble over it is tapped away first.
+
+        A login on another device is answered with a reconnect, which raises ``Reconnected``.
+        """
         screen, image = self._look()
         for _ in range(self._config.limits.max_back):
-            if screen.state is not State.HINT or self._dry_run:
+            if self._dry_run:
+                break
+            if screen.state is State.SESSION_LOST and not self._reconnecting:
+                self._reconnect()
+            if screen.state is not State.HINT:
                 break
             self._tap_match(screen.matches["hint"])
             screen, image = self._look()
         return screen, image
+
+    def _reconnect(self) -> None:
+        """Leave the player a minute on the other device, then reclaim the session (BUG-0095a)."""
+        timing = self._config.timing
+        log.warning(
+            "account logged in on another device, reconnecting in %.0f s", timing.reconnect_delay
+        )
+        self._sleep(timing.reconnect_delay)
+        self._reconnecting = True
+        try:
+            screen, _ = self._look()
+            if screen.state is State.SESSION_LOST:
+                self._tap_match(screen.matches["btn_reconnect"])
+            self._expect(INTEL_STATES | {State.WORLD}, timing.reconnect_timeout)
+        finally:
+            self._reconnecting = False
+        raise Reconnected
 
     def _look(self) -> tuple[Screen, Image]:
         image = self._device.screenshot()
@@ -235,6 +264,14 @@ class Runner:
 
     def _recover(self) -> None:
         """Leave an unexpected screen: BACK up to ``max_back`` times, never on INTEL/WORLD."""
+        try:
+            self._leave_screen()
+        except Reconnected:
+            log.info("session reclaimed while recovering")
+        except StepFailed as failed:
+            log.warning("recovery failed: %s", failed)
+
+    def _leave_screen(self) -> None:
         for _ in range(self._config.limits.max_back):
             screen, _ = self._observe()
             if screen.state in INTEL_STATES or screen.state is State.WORLD:
@@ -264,7 +301,15 @@ class Runner:
 
     def run(self) -> Outcome:
         self._device.check()
-        screen, _ = self._observe()
+        while True:
+            try:
+                screen, _ = self._observe()
+                break
+            except Reconnected:
+                continue
+            except StepFailed as failed:
+                log.error("%s (%s)", Outcome.WRONG_SCREEN.value, failed)
+                return Outcome.WRONG_SCREEN
         if screen.state is State.WORLD:
             if self._dry_run:
                 match = screen.matches["intel_button"]
@@ -280,6 +325,9 @@ class Runner:
                 outcome = self._iteration()
             except RunEnded as ended:
                 return ended.outcome
+            except Reconnected:
+                log.info("session reclaimed, starting over on the Intel screen")
+                continue
             except MissionRejected as rejected:
                 log.warning("mission skipped for this run: %s", rejected)
                 self._save_failure()

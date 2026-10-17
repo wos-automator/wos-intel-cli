@@ -44,6 +44,9 @@ CUTS: tuple[tuple[str, str, Region], ...] = (
     # "Quit game?" confirmation after BACK, BUG-0006
     ("text_quit_game", "dialog-quit-game", (280, 588, 440, 628)),
     ("btn_cancel", "dialog-quit-game", (150, 765, 270, 810)),
+    # "The account has been logged in on another device.", BUG-0095a
+    ("text_logged_in_elsewhere", "dialog-logged-in-elsewhere", (60, 588, 660, 620)),
+    ("btn_reconnect", "dialog-logged-in-elsewhere", (435, 782, 605, 822)),
 )
 
 

@@ -1,7 +1,7 @@
 [#US-5.4]
 === US-5.4 BUG-0095a Account logged in on another device
 
-Status:: Open +
+Status:: Done (0.1.1) +
 Effort:: 3 h +
 Traces to:: <<TS-3.5>>, <<FR-3.6>>, <<FR-4.1>>
 

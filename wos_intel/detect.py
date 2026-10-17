@@ -45,6 +45,7 @@ class State(StrEnum):
     NO_TROOPS = "NO_TROOPS"
     HINT = "HINT"
     QUIT_CONFIRMATION = "QUIT_CONFIRMATION"
+    SESSION_LOST = "SESSION_LOST"
     UNKNOWN = "UNKNOWN"
 
 
@@ -104,6 +105,8 @@ REQUIRED_TEMPLATES: tuple[str, ...] = (
     "text_simple_battle_mode",
     "text_quit_game",
     "btn_cancel",
+    "text_logged_in_elsewhere",
+    "btn_reconnect",
 )
 
 # Screens without a reference screenshot yet (SPEC §2 "Noch offen"). As soon as the file
@@ -334,6 +337,12 @@ class Detector:
             cancel = self.find(image, "btn_cancel")
             if cancel is not None:
                 return Screen(State.QUIT_CONFIRMATION, {"btn_cancel": cancel})
+
+        # The account was logged in on another device (BUG-0095a); "Reconnect" reclaims it.
+        if self.find(image, "text_logged_in_elsewhere") is not None:
+            reconnect = self.find(image, "btn_reconnect")
+            if reconnect is not None:
+                return Screen(State.SESSION_LOST, {"btn_reconnect": reconnect})
 
         for name, state in (
             ("dialog_no_stamina", State.NO_STAMINA),

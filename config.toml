@@ -17,6 +17,8 @@ expect_timeout = 8.0        # default wait for an expected screen
 fight_timeout = 60.0        # wait for Victory/Defeat after "Fight"
 completion_timeout = 900.0  # wait for running missions to finish before the run ends
 completion_poll = 10.0      # screenshot interval while waiting for running missions
+reconnect_delay = 60.0      # after a login on another device: wait, then tap "Reconnect"
+reconnect_timeout = 120.0   # wait for the Intel screen or world map after "Reconnect"
 
 [limits]
 max_missions = 30           # per run
@@ -114,3 +116,5 @@ intel_button_badge = [600, 700, 720, 1000]
 text_simple_battle_mode = [0, 640, 720, 1160]
 text_quit_game = [200, 540, 520, 680]
 btn_cancel = [40, 720, 360, 860]
+text_logged_in_elsewhere = [0, 520, 720, 700]
+btn_reconnect = [360, 720, 720, 880]

@@ -21,7 +21,7 @@ WORLD --> INTEL : tap Intel button
 @enduml
 ----
 
-Control flow uses three exceptions, handled in `Runner.run`:
+Control flow uses four exceptions, handled in `Runner.run`:
 
 [cols="1,3"]
 |===
@@ -29,6 +29,7 @@ Control flow uses three exceptions, handled in `Runner.run`:
 
 |`MissionRejected` |Plausibility or safety check failed. Recovery (<<TS-3.5>>), next symbol; not counted as a failure.
 |`StepFailed` |Expected state did not appear. Counted; recovery; after `max_failures` in a row `TOO_MANY_FAILURES`.
+|`Reconnected` |The session was reclaimed after a login on another device (<<TS-3.5>>). Next iteration; not counted. On the start screen the detection is repeated.
 |`RunEnded(outcome)` |`NO_STAMINA` or `NO_TROOPS` dialog: one BACK, the run ends with that outcome.
 |===
 

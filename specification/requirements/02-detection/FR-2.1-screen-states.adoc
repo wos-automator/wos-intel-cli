@@ -20,11 +20,12 @@ Every screenshot is classified as exactly one state.
 |`NO_STAMINA`, `NO_TROOPS` |blocking dialogs |none yet
 |`HINT` |hint bubble "You have enabled Simple Battle Mode …" over any screen |`ref/world-simple-battle-mode.png`
 |`QUIT_CONFIRMATION` |dialog "Quit game?" with "Cancel" and "Confirm" |`ref/dialog-quit-game.png`
+|`SESSION_LOST` |dialog "The account has been logged in on another device." with "Reconnect" |`ref/dialog-logged-in-elsewhere.png`
 |`UNKNOWN` |none of the above |–
 |===
 
 .Acceptance criteria
-. Each of the twenty reference screenshots yields the state listed for it.
+. Each of the twenty-one reference screenshots yields the state listed for it.
 . Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
   the Intel button with 0.85, with and without the red badge.
 . `DEPLOY` is recognised by the Deploy button, never by the title alone.
