@@ -434,7 +434,7 @@ class Runner:
             raise MissionRejected(f"dialog shows {found}, expected {target.type}")
         self._tap_match(screen.matches["btn_view"])
 
-        screen, _ = self._expect({State.WORLD_TARGET})
+        screen = self._await_popup(target)
         expected = ACTION_FOR[target.type]
         if screen.action is not expected:
             raise MissionRejected(f"popup offers {screen.action}, expected {expected}")
@@ -460,6 +460,26 @@ class Runner:
             )
             until = self._store.lock_boss(self._now(), cycle)
             log.info("boss locked until %s", until.isoformat(timespec="seconds"))
+
+    def _await_popup(self, target: Symbol) -> Screen:
+        """``WORLD_TARGET`` after "View"; a tap the game swallowed is repeated once (BUG-0028).
+
+        Without the popup the map still shows the intel pin above the target. Only a pin of
+        the expected type is tapped, at the target below it.
+        """
+        try:
+            return self._expect({State.WORLD_TARGET})[0]
+        except StepFailed:
+            if self._last is None or self._last[0].state is not State.WORLD:
+                raise
+            pin = self._detector.world_pin(self._last[1])
+            if pin is None or pin[0] is not target.type:
+                raise
+            match = pin[1]
+            offset = self._config.symbols.world_pin_tap_offset
+            log.info("popup did not open, tapping the target again")
+            self._tap((match.x, match.y + offset), f"{target.type} target below its pin")
+            return self._expect({State.WORLD_TARGET})[0]
 
     def _end_if_blocked(self, screen: Screen) -> None:
         """End the run on a "not enough stamina" or "no troops / march slots" dialog."""

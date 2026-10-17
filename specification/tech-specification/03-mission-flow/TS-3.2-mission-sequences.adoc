@@ -40,5 +40,12 @@ opened under a notification banner (`ref/hunt-1-dialog-banner.png`,
 `ref/rescue-1-dialog-banner.png`), were rejected immediately and their missions were then
 passed over in favour of the boss.
 
+Popup that did not open: `_await_popup(target)` waits for `WORLD_TARGET`; on `StepFailed`
+with the last screen `WORLD` it asks `world_pin` on that screenshot. A pin of `target.type` is
+tapped `world_pin_tap_offset` (70 px) below its centre – the target the map is centred on,
+≈ 360,731 – and `WORLD_TARGET` is awaited once more; otherwise the `StepFailed` is re-raised.
+Found on the device run of 2026-10-17 (`ref/hunt-2-world-no-popup.png`, Marching 5/6), also
+for the boss right after a march returned (BUG-0095b, BUG-0141).
+
 `ACTION_FOR` maps COMBAT → EXPLORE, HUNT/BOSS → ATTACK, RESCUE → RESCUE. The target is added
 to the attempted list before the first tap, so no symbol is tapped twice in a run.

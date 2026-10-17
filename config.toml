@@ -60,6 +60,10 @@ lock_radius = 12
 dialog_pin_region = [300, 320, 420, 500]
 dialog_pin_scales = [0.60, 0.70, 0.75, 0.80]
 dialog_pin_threshold = 0.75
+world_pin_region = [280, 580, 440, 740]  # intel pin above the target the map centres on
+world_pin_scales = [0.55, 0.60, 0.65, 0.70]
+world_pin_threshold = 0.75
+world_pin_tap_offset = 70   # the target lies this far below the pin
 
 [buttons]
 threshold = 0.9

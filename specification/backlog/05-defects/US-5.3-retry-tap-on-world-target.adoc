@@ -1,7 +1,7 @@
 [#US-5.3]
 === US-5.3 BUG-0028 World target without popup
 
-Status:: Open +
+Status:: Done (0.1.1) +
 Effort:: 3 h +
 Traces to:: <<TS-3.2>>, <<FR-3.4>>, <<FR-4.1>>
 
@@ -11,8 +11,8 @@ a mission is not lost to a tap the game swallowed.
 Defect:: After "View" in the hunt dialog the world map is centred on the target beast with its
 orange paw pin, but the popup with the "Attack" button is not shown. The screen stays `WORLD`
 and waiting for `WORLD_TARGET` times out. A march queue is free (Marching 5/6), so full queues
-are not the cause. The same happens for BUG-0141 (boss, a march has just returned).
-Screenshot: `failure-0028-WORLD.png`.
+are not the cause. The same happens for BUG-0095b (boss, Marching 4/6) and BUG-0141 (boss, a
+march has just returned). Screenshot: `failure-0028-WORLD.png`.
 
 .Acceptance criteria
 . On `WORLD` the intel pin in the centre of the map is detected with its mission type on

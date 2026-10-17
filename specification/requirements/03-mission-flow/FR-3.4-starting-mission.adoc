@@ -11,6 +11,9 @@
   boss is not attacked before it.
 . Tap "View" → `WORLD_TARGET`. The popup must offer the action of the mission type
   (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.
+. If the popup does not appear and the world map shows the intel pin of the expected type, the
+  game has swallowed the tap: the target below the pin is tapped once more and the popup
+  awaited again. A pin of another type is never tapped (<<US-5.3>>, BUG-0028).
 . Combat: tap the action → `SQUAD` → tap "Fight" (never "Quick Deploy") → `VICTORY` or `DEFEAT`
   within 60 s → tap "Tap anywhere to exit" → `WORLD`.
 . Hunt: tap the action → `DEPLOY`. Only if "You are quite likely to prevail" is shown:

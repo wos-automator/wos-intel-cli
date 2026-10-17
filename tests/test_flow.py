@@ -31,6 +31,7 @@ from tests.conftest import (
     REWARDS_EXIT,
     TENT,
     VIEW,
+    WORLD_TARGET,
     FakeClock,
     FakeGame,
     near,
@@ -405,6 +406,42 @@ def test_popup_with_unexpected_action_is_rejected(
     # hunts end up on an "Explore" popup: never tapped; only the 2 real combat missions run
     assert len(game.taps_on("combat-2-world-explore")) == 2
     assert runner.missions_started == 2
+
+
+def test_target_whose_popup_did_not_open_is_tapped_again(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0028: the game swallowed the tap that opens the popup of the hunt target."""
+    game = game_factory(
+        overrides={
+            "hunt-1-dialog": [(VIEW, "hunt-2-world-no-popup")],
+            "hunt-2-world-no-popup": [(WORLD_TARGET, "hunt-2-world-attack")],
+        }
+    )
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert runner.missions_started == 5
+    assert game.taps_on("hunt-2-world-no-popup") == [WORLD_TARGET] * 3
+    assert len(game.taps_on("hunt-3-deploy")) == 3
+    assert game.stray_taps == []
+
+
+def test_pin_of_another_type_is_not_tapped(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """A combat target that ends on a map showing a hunt pin is not tapped there."""
+    game = game_factory(overrides={"combat-1-dialog": [(VIEW, "hunt-2-world-no-popup")]})
+
+    make_runner(game, detector, state_file).run()
+
+    taps = game.taps_on("hunt-2-world-no-popup")
+    assert len(taps) == 2  # one Intel button tap per combat target, never the hunt pin
+    assert all(near(tap, INTEL_BUTTON, 8) for tap in taps)
+    assert game.taps_on("combat-3-squad-fight") == []
+    assert game.stray_taps == []
 
 
 def test_boss_is_locked_for_the_refresh_cycle(

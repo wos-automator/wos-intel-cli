@@ -392,22 +392,40 @@ class Detector:
         """True if the Deploy screen shows the green "You are quite likely to prevail"."""
         return self.find(image, "text_likely_prevail") is not None
 
+    def _pin(
+        self, image: Image, region: Region, scales: tuple[float, ...], threshold: float
+    ) -> tuple[MissionType, Match] | None:
+        """Best type mask on the white of a pin inside ``region``; ``None`` below threshold."""
+        hsv = _hsv(_crop(image, region))
+        white = _in_range(hsv, self._config.symbols.white_lo, self._config.symbols.white_hi)
+        best: tuple[MissionType, Match] | None = None
+        for kind, mask in self._masks.items():
+            for scale in scales:
+                scaled = cv2.resize(mask, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+                score, x, y = _best_match(white, np.asarray(scaled, dtype=np.uint8))
+                if best is None or score > best[1].score:
+                    best = (kind, Match(f"pin_{kind.lower()}", score, x + region[0], y + region[1]))
+        if best is None or best[1].score < threshold:
+            return None
+        return best
+
     def dialog_type(self, image: Image) -> tuple[MissionType, float] | None:
         """Mission type shown by the pin of the mission dialog, with its match score."""
         symbols = self._config.symbols
-        x0, y0, x1, y1 = symbols.dialog_pin_region
-        hsv = _hsv(_crop(image, (x0, y0, x1, y1)))
-        white = _in_range(hsv, symbols.white_lo, symbols.white_hi)
-        best: tuple[MissionType, float] | None = None
-        for kind, mask in self._masks.items():
-            for scale in symbols.dialog_pin_scales:
-                scaled = cv2.resize(mask, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
-                score, _, _ = _best_match(white, np.asarray(scaled, dtype=np.uint8))
-                if best is None or score > best[1]:
-                    best = (kind, score)
-        if best is None or best[1] < symbols.dialog_pin_threshold:
-            return None
-        return best
+        pin = self._pin(
+            image,
+            symbols.dialog_pin_region,
+            symbols.dialog_pin_scales,
+            symbols.dialog_pin_threshold,
+        )
+        return None if pin is None else (pin[0], pin[1].score)
+
+    def world_pin(self, image: Image) -> tuple[MissionType, Match] | None:
+        """Intel pin above the target in the centre of the world map, without its popup."""
+        symbols = self._config.symbols
+        return self._pin(
+            image, symbols.world_pin_region, symbols.world_pin_scales, symbols.world_pin_threshold
+        )
 
     # ------------------------------------------------------------------ symbols
 

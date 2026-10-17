@@ -29,6 +29,7 @@ INTEL_BUTTON: Point = (663, 862)
 EXPERT: Point = (59, 210)
 HINT: Point = (341, 856)
 CANCEL: Point = (210, 787)
+WORLD_TARGET: Point = (360, 731)  # below the intel pin at 360,661
 EXPERT_AREA = (10, 165, 105, 255)
 
 BOSS: Point = (518, 700)
@@ -189,6 +190,7 @@ class FakeGame:
             "deploy-unlikely": [(DEPLOY, "world")],
             "world": [(INTEL_BUTTON, intel)],
             "world-simple-battle-mode": [(HINT, "world")],
+            "hunt-2-world-no-popup": [(INTEL_BUTTON, intel)],
         }
         self.back_transitions: dict[str, str] = {
             "combat-1-dialog": intel,

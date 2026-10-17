@@ -89,6 +89,10 @@ class SymbolConfig:
     dialog_pin_region: Region = (300, 320, 420, 500)
     dialog_pin_scales: tuple[float, ...] = (0.60, 0.70, 0.75, 0.80)
     dialog_pin_threshold: float = 0.75
+    world_pin_region: Region = (280, 580, 440, 740)
+    world_pin_scales: tuple[float, ...] = (0.55, 0.60, 0.65, 0.70)
+    world_pin_threshold: float = 0.75
+    world_pin_tap_offset: int = 70
 
 
 @dataclass(frozen=True)
