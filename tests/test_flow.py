@@ -20,6 +20,7 @@ from tests.conftest import (
     DEPLOY,
     EXPERT,
     FIGHT,
+    HINT,
     INTEL_BUTTON,
     PAW_BLUE_LEFT,
     PAW_BLUE_RIGHT,
@@ -152,6 +153,37 @@ def test_run_starting_on_the_world_map_opens_intel_first(
     assert outcome is Outcome.NOTHING_TO_DO
     assert game.taps[0][0] == "world"
     assert near(game.taps[0][1], INTEL_BUTTON, 8)
+
+
+def test_simple_battle_mode_hint_at_the_start_is_tapped_away(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0002: the hint covers the world map the run starts on."""
+    game = game_factory(start="world-simple-battle-mode")
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps[0] == ("world-simple-battle-mode", HINT)
+    assert near(game.taps[1][1], INTEL_BUTTON, 8)
+    assert "world-simple-battle-mode" not in game.backs
+    assert game.stray_taps == []
+
+
+def test_simple_battle_mode_hint_during_a_mission_costs_no_failure(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0002: the hint appears on the world map a hunt returns to."""
+    game = game_factory(overrides={"hunt-3-deploy": [(DEPLOY, "world-simple-battle-mode")]})
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert runner.missions_started == 5
+    assert game.taps_on("world-simple-battle-mode") == [HINT, HINT, HINT]
+    assert "world-simple-battle-mode" not in game.backs
+    assert game.stray_taps == []
 
 
 @pytest.mark.parametrize("start", ["hunt-3-deploy", "combat-1-dialog", "intel-xxxx"])

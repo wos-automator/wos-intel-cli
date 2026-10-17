@@ -27,6 +27,7 @@ CLAIM_ALL: Point = (360, 1127)
 REWARDS_EXIT: Point = (360, 180)
 INTEL_BUTTON: Point = (663, 862)
 EXPERT: Point = (59, 210)
+HINT: Point = (341, 856)
 EXPERT_AREA = (10, 165, 105, 255)
 
 BOSS: Point = (518, 700)
@@ -186,6 +187,7 @@ class FakeGame:
             "hunt-3-deploy": [(DEPLOY, "world")],
             "deploy-unlikely": [(DEPLOY, "world")],
             "world": [(INTEL_BUTTON, intel)],
+            "world-simple-battle-mode": [(HINT, "world")],
         }
         self.back_transitions: dict[str, str] = {
             "combat-1-dialog": intel,

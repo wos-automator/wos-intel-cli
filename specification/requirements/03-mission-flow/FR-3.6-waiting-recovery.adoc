@@ -5,6 +5,9 @@
 . After every tap the program waits 1.0 s (configurable), then takes a fresh screenshot and
   determines the state.
 . Waiting for an expected state lasts at most 8 s (configurable) with a screenshot every 0.7 s.
+. A hint bubble (`HINT`) is dismissed by a tap on its detected text before the state is
+  evaluated, at most 3 times in a row; the running step continues and BACK is never pressed on
+  it (<<US-5.1>>).
 . After a timeout BACK is pressed up to 3 times, re-detecting before each press; BACK is never
   pressed on `INTEL` or `WORLD`. `REWARDS`, `VICTORY` and `DEFEAT` are left by their exit tap.
 . After 3 failed steps in a row the run ends with exit code 1.

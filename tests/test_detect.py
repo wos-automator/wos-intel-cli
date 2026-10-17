@@ -163,6 +163,7 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("world", State.WORLD),
         ("rescue-popup", State.WORLD_TARGET),
         ("defeat", State.DEFEAT),
+        ("world-simple-battle-mode", State.HINT),
     ],
 )
 def test_states(detector: Detector, images: dict[str, Image], name: str, state: State) -> None:
@@ -187,6 +188,7 @@ def test_unknown_state_for_a_blank_screen(detector: Detector) -> None:
         ("combat-4-victory", "exit", (360, 1140)),
         ("hunt-3-deploy", "btn_deploy", (548, 1215)),
         ("world", "intel_button", (663, 862)),
+        ("world-simple-battle-mode", "hint", (341, 856)),
     ],
 )
 def test_tap_targets(

@@ -146,6 +146,7 @@ def _default_regions() -> dict[str, Region]:
         "text_likely_prevail": (120, 570, 600, 640),
         "intel_button": (600, 700, 720, 1000),
         "intel_button_badge": (600, 700, 720, 1000),
+        "text_simple_battle_mode": (0, 640, 720, 1160),
     }
 
 

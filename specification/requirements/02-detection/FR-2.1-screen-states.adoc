@@ -18,15 +18,18 @@ Every screenshot is classified as exactly one state.
 |`DEFEAT` |"Tap anywhere to exit" without "Victory!" |none yet
 |`WORLD` |round Intel button on the right, no popup |visible in `ref/combat-2-world-explore.png`
 |`NO_STAMINA`, `NO_TROOPS` |blocking dialogs |none yet
+|`HINT` |hint bubble "You have enabled Simple Battle Mode …" over any screen |`ref/world-simple-battle-mode.png`
 |`UNKNOWN` |none of the above |–
 |===
 
 .Acceptance criteria
-. Each of the eighteen reference screenshots yields the state listed for it.
+. Each of the nineteen reference screenshots yields the state listed for it.
 . Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
   the Intel button with 0.85, with and without the red badge.
 . `DEPLOY` is recognised by the Deploy button, never by the title alone.
 . For every state with a tap target the position of that target is reported.
+. A hint bubble is recognised before every other state, because it can lie over any of them
+  (<<US-5.1>>, BUG-0002).
 . A screen that matches nothing is `UNKNOWN`.
 
 Stakeholder need:: SPEC.md §2, §8 (Templates, cross-check) +

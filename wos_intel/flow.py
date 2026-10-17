@@ -173,6 +173,16 @@ class Runner:
     # ------------------------------------------------------------------ primitives
 
     def _observe(self) -> tuple[Screen, Image]:
+        """Fresh screenshot and its state; a hint bubble over it is tapped away first."""
+        screen, image = self._look()
+        for _ in range(self._config.limits.max_back):
+            if screen.state is not State.HINT or self._dry_run:
+                break
+            self._tap_match(screen.matches["hint"])
+            screen, image = self._look()
+        return screen, image
+
+    def _look(self) -> tuple[Screen, Image]:
         image = self._device.screenshot()
         screen = self._detector.detect_state(image)
         self._step += 1

@@ -43,6 +43,7 @@ class State(StrEnum):
     WORLD = "WORLD"
     NO_STAMINA = "NO_STAMINA"
     NO_TROOPS = "NO_TROOPS"
+    HINT = "HINT"
     UNKNOWN = "UNKNOWN"
 
 
@@ -99,6 +100,7 @@ REQUIRED_TEMPLATES: tuple[str, ...] = (
     "title_victory",
     "text_tap_anywhere",
     "text_likely_prevail",
+    "text_simple_battle_mode",
 )
 
 # Screens without a reference screenshot yet (SPEC §2 "Noch offen"). As soon as the file
@@ -319,6 +321,11 @@ class Detector:
 
     def detect_state(self, image: Image) -> Screen:
         """Classify a screenshot; the returned matches are the tap targets of that screen."""
+        # A hint bubble lies over any screen and is dismissed by a tap on it (BUG-0002).
+        hint = self.find(image, "text_simple_battle_mode")
+        if hint is not None:
+            return Screen(State.HINT, {"hint": hint})
+
         for name, state in (
             ("dialog_no_stamina", State.NO_STAMINA),
             ("dialog_no_troops", State.NO_TROOPS),

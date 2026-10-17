@@ -1,5 +1,11 @@
 == 0.1.1 (unreleased)
 
+=== Fixes
+
+* BUG-0002: the hint bubble "You have enabled Simple Battle Mode …" over the world map is
+  recognised as the new state `HINT` and tapped away; the running step continues. Before, the
+  screen was `UNKNOWN` and the recovery pressed BACK on it (<<US-5.1>>, <<FR-2.1>>, <<FR-3.6>>).
+
 === Documentation
 
 * The specification moved from `docs/` to `specification/`, with one subdirectory per master

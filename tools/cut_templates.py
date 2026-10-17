@@ -1,4 +1,4 @@
-"""Cuts the templates that are derived from ref/ screenshots: digit glyphs and title_rewards.
+"""Cuts the templates that are derived from ref/ screenshots: digit glyphs and the CUTS below.
 
 Usage: python tools/cut_templates.py
 
@@ -39,6 +39,8 @@ CUTS: tuple[tuple[str, str, Region], ...] = (
     ("title_rewards", "intel-xxxx", (268, 300, 454, 342)),
     # inside of the white sign, without the map behind its rounded corners
     ("expert_sign", "intel-expert-available", (26, 178, 92, 242)),
+    # first line of the hint bubble, BUG-0002
+    ("text_simple_battle_mode", "world-simple-battle-mode", (98, 840, 585, 872)),
 )
 
 

@@ -1,7 +1,7 @@
 [#US-5.1]
 === US-5.1 BUG-0002 Simple Battle Mode hint covers the world map
 
-Status:: Open +
+Status:: Done (0.1.1) +
 Effort:: 2 h +
 Traces to:: <<TS-2.1>>, <<FR-2.1>>, <<TS-3.5>>, <<FR-3.6>>
 
