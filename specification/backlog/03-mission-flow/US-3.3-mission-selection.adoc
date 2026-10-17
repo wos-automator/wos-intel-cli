@@ -1,0 +1,25 @@
+[#US-3.3]
+=== US-3.3 Mission selection
+
+Status:: Done (0.1.0) +
+Effort:: 4 h +
+Traces to:: <<TS-3.3>>, <<FR-3.3>>
+
+As the operator, I want the most valuable affordable mission first and no tap on a covered
+symbol, so that stamina goes to the best rewards and the right pin is hit.
+
+.Acceptance criteria
+. Order on `intel-x.png`: tent, axe 340,378, paw 275,677, paw 336,289, paw 483,315,
+  axe 568,680, and the boss last and once.
+. With stamina 10 the rescue (12) is unaffordable and the boss is attacked after the others.
+. Stamina 9 → `OUT_OF_STAMINA` without a tap. Stamina 11 → the rescue (12) is never tapped,
+  everything else is, then `OUT_OF_STAMINA`. Unreadable stamina → the run continues.
+. A candidate in front of the target (closer than 30 px) is chosen instead.
+. With a non-candidate in front, the tap point is 20 px from the centre, opposite to it.
+. The boss ring offset (65 px) is used for the depth order.
+
+.Test criteria
+* Unit test (pytest, `tests/test_flow.py`): `choose_target`, `find_occluder`, `mission_cost` on
+  constructed symbols.
+* Component test (pytest + fake game + pytest-mock, `tests/test_flow.py`): order and stamina
+  cases.

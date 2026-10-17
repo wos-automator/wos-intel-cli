@@ -1,0 +1,21 @@
+[#US-3.1]
+=== US-3.1 Run loop, claiming rewards, dry run
+
+Status:: Done (0.1.0) +
+Effort:: 5 h +
+Traces to:: <<TS-3.1>>, <<FR-3.1>>, <<FR-3.2>>, <<FR-4.3>>
+
+As the operator, I want one command that claims the rewards and works off the missions until
+nothing is left, so that I do not have to do it by hand.
+
+.Acceptance criteria
+. Started on `WORLD`, the first tap is the Intel button; started on `INTEL*`, the run begins
+  directly; on any other screen the outcome is `WRONG_SCREEN` with no input.
+. On `INTEL_CLAIMABLE`: tap Claim All, then 360,180 on `REWARDS`, before any mission.
+. A dry run sends no tap and no BACK, writes no `state.json` and logs the state, the stamina,
+  all symbols and the tap it would send.
+. With `max_missions = 1` the run ends with `MISSION_LIMIT` after one mission.
+
+.Test criteria
+* Component test (pytest + fake game, `tests/test_flow.py`): start screens, claim sequence,
+  dry run on three start screens, mission limit.

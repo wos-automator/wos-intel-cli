@@ -1,0 +1,22 @@
+== Platform: Device Access, Command Line, Configuration
+
+.Module overview
+[source]
+----
+wos_intel/
+  __main__.py   CLI: run | detect | snap                      (TS-1.2)
+  config.py     defaults + config.toml                        (TS-1.3)
+  adb.py        screenshot, tap, back, device check           (TS-1.1)
+  detect.py     states, symbols, status, tier, digit OCR      (TS-2.x)
+  flow.py       run loop / state machine                      (TS-3.x)
+  state.py      state.json, boss lock                         (TS-3.4)
+----
+
+`flow.py` depends on `detect.py`, `state.py` and the `Device` protocol; `adb.py` is the only
+module that starts a process. `detect.py` is a pure function of screenshot and templates.
+
+include::TS-1.1-adb-wrapper.adoc[]
+
+include::TS-1.2-command-line.adoc[]
+
+include::TS-1.3-configuration.adoc[]

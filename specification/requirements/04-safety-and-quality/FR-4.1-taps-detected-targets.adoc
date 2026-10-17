@@ -1,0 +1,12 @@
+[#FR-4.1]
+=== FR-4.1 Taps only on detected targets
+
+.Acceptance criteria
+. Every tap goes to a position reported by the detection for the current screenshot: a
+  template match or a symbol click point.
+. The only fixed tap is the documented exit of `REWARDS` at 360,180.
+. Shop, purchase, offer and diamond dialogs are never confirmed: a screen that is not one of
+  the known states is answered with BACK only.
+
+Stakeholder need:: SPEC.md §6 +
+Effort:: 1 h

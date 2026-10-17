@@ -1,0 +1,21 @@
+[#TS-2.4]
+=== TS-2.4 Dialog type, action button, prevail hint
+
+Implements <<FR-2.6>>.
+
+* `dialog_type(image) -> (MissionType, score) | None`: white mask of `dialog_pin_region`
+  (300–420 / 320–500); each symbol mask scaled by `dialog_pin_scales` (0.60, 0.70, 0.75, 0.80 –
+  the pin in the dialog is smaller than on the Intel screen) and matched; best type if its
+  score is ≥ `dialog_pin_threshold` (0.75). Measured: paw and axe pins at ≈ 359,367 score
+  0.93–0.94 at scale 0.75; the boss shield of `ref/boss-1-dialog.png` sits lower at ≈ 356,430
+  and scores 0.85 at scale 0.60; other types ≤ 0.58.
+* The boss dialog is lower than the hunt and combat dialogs: its "View" button is at 360,870
+  instead of 360,932, so the region of `btn_view` spans y 780–1010.
+* `find_action_button(image) -> (Action, Match) | None`: `btn_explore_top`, `btn_attack` and
+  the optional `btn_rescue` in `action_region` (y 250–700), best score wins. Without a template
+  hit: in `color_region` the pixels with S > 120 and V > 120 must cover at least
+  `color_min_fraction` (0.6) and their median hue must lie in `hue_rescue` (50–75) → `RESCUE`
+  with the region centre as tap point. Measured hue: Explore 105, Attack 12.
+* `likely_to_prevail(image)`: `text_likely_prevail` (colour template, so a differently
+  coloured hint does not match).
+* `annotate(image, screen, symbols)`: copy of the screenshot with state, matches and symbols.

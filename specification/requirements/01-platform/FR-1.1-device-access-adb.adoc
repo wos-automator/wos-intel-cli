@@ -1,0 +1,17 @@
+[#FR-1.1]
+=== FR-1.1 Device access via ADB only
+
+The program reads the screen and sends input exclusively through ADB: `adb exec-out screencap -p`,
+`adb shell input tap` and `adb shell input keyevent KEYCODE_BACK`. The device is selected by
+`ANDROID_SERIAL` (default `127.0.0.1:5555`).
+
+.Acceptance criteria
+. Every ADB call carries `-s <serial>`, so a second attached device never causes
+  "more than one device".
+. `ANDROID_SERIAL` overrides the configured serial; without it `127.0.0.1:5555` is used.
+. A screenshot is returned as a 720x1280 BGR image; an undecodable or differently sized image
+  is an error.
+. A failing, missing or hanging `adb` ends the program with a message and exit code 1.
+
+Stakeholder need:: SPEC.md §1 (Device access, Device) +
+Effort:: 3 h

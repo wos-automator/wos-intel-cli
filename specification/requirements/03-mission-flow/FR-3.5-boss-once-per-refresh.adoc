@@ -1,0 +1,12 @@
+[#FR-3.5]
+=== FR-3.5 Boss only once per refresh cycle
+
+.Acceptance criteria
+. After a boss attack the boss is locked until the end of the refresh cycle: time of the
+  attack plus the remaining time of "Refreshes In" read before the attack.
+. If the timer is unreadable the lock lasts a configurable time (default 8 h).
+. The lock is stored in `state.json` and survives a restart.
+. A locked boss is not a candidate; an expired lock has no effect.
+
+Stakeholder need:: SPEC.md §3.2 (BOSS), §5 (BOSS, state.json) +
+Effort:: 3 h

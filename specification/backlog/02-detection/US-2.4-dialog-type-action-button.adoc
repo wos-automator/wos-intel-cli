@@ -1,0 +1,20 @@
+[#US-2.4]
+=== US-2.4 Dialog type, action button and prevail hint
+
+Status:: Done (0.1.0) +
+Effort:: 5 h +
+Traces to:: <<TS-2.4>>, <<FR-2.6>>
+
+As the run loop, I want to know which mission a dialog belongs to and which action a popup
+offers, so that a mis-tap on an overlapping symbol is noticed before a mission is started.
+
+.Acceptance criteria
+. `combat-1-dialog.png` → `COMBAT`, `hunt-1-dialog.png` → `HUNT`; a screen without pin → `None`.
+. `boss-1-dialog.png` → `BOSS`; a dialog with a tent pin (synthetic) → `RESCUE`.
+. `combat-2-world-explore.png` → Explore, `hunt-2-world-attack.png` → Attack, a popup with a
+  green button (synthetic) → Rescue.
+. The prevail hint is found on `hunt-3-deploy.png`, not on the same screen without it and not
+  on `boss-3-deploy.png` (red "not likely to prevail").
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): parametrised over reference and synthetic screens.

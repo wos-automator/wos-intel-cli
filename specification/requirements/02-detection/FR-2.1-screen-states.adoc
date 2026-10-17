@@ -1,0 +1,33 @@
+[#FR-2.1]
+=== FR-2.1 Screen states
+
+Every screenshot is classified as exactly one state.
+
+[cols="1,3,2"]
+|===
+|State |Feature |Reference
+
+|`INTEL` |title "Intel" top left |`ref/intel-x.png`, `ref/intel-xx.png`
+|`INTEL_CLAIMABLE` |as `INTEL` plus the green "Claim All" button |`ref/intel-xxx.png`
+|`REWARDS` |banner "Rewards" |`ref/intel-xxxx.png`
+|`MISSION_DIALOG` |blue "View" button |`ref/combat-1-dialog.png`, `ref/hunt-1-dialog.png`, `ref/boss-1-dialog.png`
+|`WORLD_TARGET` |popup with an Explore, Attack or Rescue button |`ref/combat-2-world-explore.png`, `ref/hunt-2-world-attack.png`
+|`DEPLOY` |"Deploy" button bottom right |`ref/hunt-3-deploy.png`
+|`SQUAD` |green "Fight" button |`ref/combat-3-squad-fight.png`
+|`VICTORY` |"Victory!" and "Tap anywhere to exit" |`ref/combat-4-victory.png`
+|`DEFEAT` |"Tap anywhere to exit" without "Victory!" |none yet
+|`WORLD` |round Intel button on the right, no popup |visible in `ref/combat-2-world-explore.png`
+|`NO_STAMINA`, `NO_TROOPS` |blocking dialogs |none yet
+|`UNKNOWN` |none of the above |–
+|===
+
+.Acceptance criteria
+. Each of the eighteen reference screenshots yields the state listed for it.
+. Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
+  the Intel button with 0.85, with and without the red badge.
+. `DEPLOY` is recognised by the Deploy button, never by the title alone.
+. For every state with a tap target the position of that target is reported.
+. A screen that matches nothing is `UNKNOWN`.
+
+Stakeholder need:: SPEC.md §2, §8 (Templates, cross-check) +
+Effort:: 6 h

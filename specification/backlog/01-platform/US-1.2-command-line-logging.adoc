@@ -1,0 +1,25 @@
+[#US-1.2]
+=== US-1.2 Command line and logging
+
+Status:: Done (0.1.0) +
+Effort:: 5 h +
+Traces to:: <<TS-1.2>>, <<FR-1.3>>, <<FR-1.4>>
+
+As the operator, I want the commands `run`, `detect` and `snap` with timestamped logs, so that
+I can run the automation, inspect a screenshot and collect reference images.
+
+.Acceptance criteria
+. `python -m wos_intel detect ref/intel-xxx.png` exits with 0, logs `state INTEL_CLAIMABLE`,
+  `stamina 2035` and eight symbols, and writes `intel-xxx.debug.png`.
+. Each log line starts with a timestamp.
+. `snap <name>` writes `ref/<name>.png`; an existing file needs `--force`; a name with a
+  directory is refused.
+. `run --dry-run --debug` sends no input and writes one annotated image per analysed
+  screenshot to `debug/`.
+. Exit codes: 0 regular end, 1 aborted run or device/configuration/template error, 2 usage.
+
+.Test criteria
+* Blackbox test (pytest + subprocess, `tests/test_cli.py`): `detect` and the usage error as a
+  separate process.
+* Integration test (pytest, `tests/test_cli.py`): `snap`, `run --dry-run --debug`, wrong
+  screen, error mapping – in-process with the `Adb` methods mocked and files in `tmp_path`.

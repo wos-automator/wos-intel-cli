@@ -1,22 +1,23 @@
 ---
 name: create-user-story
 description: >-
-  Break down a technical specification into atomic, SMART user stories with Acceptance Criteria and Test Pyramid levels in modular chapter files in docs/backlog/.
+  Break down a technical specification into atomic, SMART user stories with Acceptance Criteria and Test Pyramid levels in modular item files in specification/backlog/<chapter>/.
 ---
 
 # Skill: Create User Story
 
-Create implementable, atomic user stories with structured test pyramid criteria in modular chapter files.
+Create implementable, atomic user stories with structured test pyramid criteria in modular item files.
 
 ## Files Modified
 
-- `docs/backlog/<chapter>.adoc`
-- `backlog-web.adoc` (if new chapter needs `include::` registration)
+- `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc` (one new file per story)
+- `specification/backlog/<NN-chapter>/index.adoc` (`include::` line for the new item)
+- `backlog-web.adoc` (if a new chapter needs `include::` registration)
 
 ## Execution Steps
 
-1. **Target Chapter**: Locate existing chapter file in `docs/backlog/` or create a new chapter file (e.g. `docs/backlog/02-combat.adoc`).
-2. **Include Registration**: If creating a new chapter file, add `include::docs/backlog/<chapter>.adoc[]` to `backlog-web.adoc`.
+1. **Target Chapter**: Locate the existing chapter folder in `specification/backlog/` or create a new one (e.g. `specification/backlog/02-combat/`) with an `index.adoc` holding the `==` heading.
+2. **Include Registration**: Create the item file `<ID>-<slug>.adoc` (e.g. `US-2.1-attack-order.adoc`) and add `include::<ID>-<slug>.adoc[]` to the chapter `index.adoc`. For a new chapter, add `include::specification/backlog/<NN-chapter>/index.adoc[]` to `backlog-web.adoc`.
 3. **SMART Story Format**:
    - Story Anchor (e.g., `[#US-2.1]`)
    - Narrative: *As a... I want to... So that...*

@@ -1,0 +1,19 @@
+[#TS-1.1]
+=== TS-1.1 ADB wrapper (`wos_intel/adb.py`)
+
+Implements <<FR-1.1>>, <<FR-1.2>> and <<FR-4.2>>.
+
+[cols="1,3"]
+|===
+|Member |Contract
+
+|`Adb(config: DeviceConfig)` |Bound to one serial; every call runs `adb -s <serial> ...` with a timeout (`command_timeout`, default 15 s).
+|`check() -> None` |`get-state` = `device`; `shell wm size` = `Physical size: 720x1280`; a line with `mCurrentFocus` or `mFocusedApp` of `shell dumpsys window` contains the package. Raises `AdbError` otherwise.
+|`screenshot() -> Image` |`exec-out screencap -p`, decoded with `cv2.imdecode` to BGR `uint8`; `AdbError` if undecodable or not 720x1280.
+|`tap(x, y) -> None` |`shell input tap`; refuses coordinates outside the screen.
+|`back() -> None` |`shell input keyevent KEYCODE_BACK`.
+|===
+
+`AdbError` also covers a missing binary, a timeout and a non-zero exit code (stderr in the
+message). The class has no swipe, drag, zoom or text method, and nothing in the project talks
+to macOS input APIs.

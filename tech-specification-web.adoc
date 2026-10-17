@@ -6,10 +6,10 @@
 Architecture, data models and interfaces that implement the requirements in
 `specification-web.adoc`.
 
-include::docs/tech-specifications/01-platform.adoc[]
+include::specification/tech-specification/01-platform/index.adoc[]
 
-include::docs/tech-specifications/02-detection.adoc[]
+include::specification/tech-specification/02-detection/index.adoc[]
 
-include::docs/tech-specifications/03-mission-flow.adoc[]
+include::specification/tech-specification/03-mission-flow/index.adoc[]
 
-include::docs/tech-specifications/04-safety-and-quality.adoc[]
+include::specification/tech-specification/04-safety-and-quality/index.adoc[]

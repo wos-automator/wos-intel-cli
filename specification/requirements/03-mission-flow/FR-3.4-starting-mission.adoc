@@ -1,0 +1,27 @@
+[#FR-3.4]
+=== FR-3.4 Starting a mission
+
+.Acceptance criteria
+. Tap on the symbol → `MISSION_DIALOG`. The dialog must show the expected mission type
+  (<<FR-2.6>>); otherwise BACK and the symbol is skipped for this run.
+. If the type cannot be recognised – a notification banner such as "Troops have returned to the
+  city." covers the pin for a few seconds – the dialog is checked again every 0.7 s for up to
+  8 s. Nothing is tapped meanwhile. Only a pin that shows another type, or stays unreadable
+  until the timeout, causes the skip, so that a workable mission is not left behind and the
+  boss is not attacked before it.
+. Tap "View" → `WORLD_TARGET`. The popup must offer the action of the mission type
+  (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.
+. Combat: tap the action → `SQUAD` → tap "Fight" (never "Quick Deploy") → `VICTORY` or `DEFEAT`
+  within 60 s → tap "Tap anywhere to exit" → `WORLD`.
+. Hunt: tap the action → `DEPLOY`. Only if "You are quite likely to prevail" is shown:
+  tap "Deploy" → `WORLD`; otherwise BACK and skip. Troops and heroes are never changed.
+. Boss: tap the action → `DEPLOY` → tap "Deploy" → `WORLD`, also when the game shows "You are
+  not likely to prevail": the boss is attacked once per cycle whatever the odds, and the
+  missing hint is logged as a warning. Troops and heroes are never changed.
+. Rescue: tap the action → `WORLD`; there is no deploy step.
+. After each mission the Intel button on `WORLD` is tapped and `INTEL` awaited.
+. A "not enough stamina" dialog ends the run regularly; so does a "no troops / march slots"
+  dialog.
+
+Stakeholder need:: SPEC.md §3.2, §5 +
+Effort:: 6 h

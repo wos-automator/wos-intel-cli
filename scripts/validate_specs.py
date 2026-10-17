@@ -3,8 +3,9 @@
 Usage: python scripts/validate_specs.py [project-root]
 
 Checks
-- every master file exists and each ``include::`` target exists,
-- every chapter in ``docs/<folder>/`` is included by its master file,
+- every master file exists and each ``include::`` target exists; includes are followed
+  recursively and resolved relative to the including file, as Asciidoctor does,
+- every ``.adoc`` file below ``specification/<folder>/`` is reached from its master file,
 - anchors (``[#FR-1.1]``) are unique and live in the folder that owns their kind,
 - every reference (``<<FR-1.1>>``) points to an existing anchor,
 - traceability: each TS references a requirement, each US a TS and a requirement.
@@ -18,10 +19,10 @@ from pathlib import Path
 
 # master file -> (chapter folder, anchor kinds defined there)
 MASTERS: dict[str, tuple[str, tuple[str, ...]]] = {
-    "specification-web.adoc": ("docs/specifications", ("FR", "NFR")),
-    "tech-specification-web.adoc": ("docs/tech-specifications", ("TS",)),
-    "backlog-web.adoc": ("docs/backlog", ("US",)),
-    "release-notes.adoc": ("docs/release-notes", ()),
+    "specification-web.adoc": ("specification/requirements", ("FR", "NFR")),
+    "tech-specification-web.adoc": ("specification/tech-specification", ("TS",)),
+    "backlog-web.adoc": ("specification/backlog", ("US",)),
+    "release-notes.adoc": ("specification/release-notes", ()),
 }
 
 ID = r"(?:FR|NFR|TS|US)-\d+(?:\.\d+)*"
@@ -46,8 +47,22 @@ def _sections(text: str) -> list[tuple[str, str]]:
     ]
 
 
+def _includes(root: Path, document: Path, errors: list[str], seen: set[Path]) -> None:
+    """Add every file ``document`` includes, directly or nested, to ``seen``."""
+    for target in INCLUDE_RE.findall(document.read_text(encoding="utf-8")):
+        path = (document.parent / target.strip()).resolve()
+        if not path.is_file():
+            errors.append(
+                f"{document.relative_to(root)}: include target not found: {target.strip()}"
+            )
+        elif path not in seen:
+            seen.add(path)
+            _includes(root, path, errors, seen)
+
+
 def validate(root: Path) -> list[str]:
     """Return all problems found below ``root``; an empty list means the specs are valid."""
+    root = root.resolve()
     errors: list[str] = []
     anchors: dict[str, Path] = {}
     sections: dict[str, str] = {}
@@ -59,13 +74,8 @@ def validate(root: Path) -> list[str]:
             errors.append(f"{master_name}: master file is missing")
             continue
         included: set[Path] = set()
-        for target in INCLUDE_RE.findall(master.read_text(encoding="utf-8")):
-            path = root / target.strip()
-            if not path.is_file():
-                errors.append(f"{master_name}: include target not found: {target}")
-                continue
-            included.add(path.resolve())
-        for chapter in sorted((root / folder).glob("*.adoc")):
+        _includes(root, master, errors, included)
+        for chapter in sorted((root / folder).rglob("*.adoc")):
             relative = chapter.relative_to(root)
             if chapter.resolve() not in included:
                 errors.append(f"{relative}: not included by {master_name}")

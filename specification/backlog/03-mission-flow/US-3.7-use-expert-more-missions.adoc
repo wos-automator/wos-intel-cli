@@ -1,0 +1,28 @@
+[#US-3.7]
+=== US-3.7 Use the expert for more missions
+
+Status:: Done (0.1.0) – what follows the tap is not verified on the device, see <<US-4.3>> +
+Effort:: 3 h +
+Traces to:: <<TS-3.1>>, <<FR-3.8>>, <<FR-3.3>>
+
+As the operator, I want the daily expert offer used as soon as the regular missions are worked
+off, so that the additional missions are never lost.
+
+.Acceptance criteria
+. The sign is found on `intel-expert-available.png` at 59,210 (±6 px) and on no Intel
+  reference without it.
+. With only a running boss and the sign on the screen, the first tap is the sign.
+. With regular missions and the sign: all regular missions first, then the sign, and the boss
+  only afterwards.
+. On `intel-expert-available.png` itself (eight available missions) a dry run plans the golden
+  rescue, not the sign.
+. With stamina 9 the sign is still tapped; the run then ends with `OUT_OF_STAMINA`.
+. If the sign stays visible after the tap it is not tapped again in this run.
+. A dry run logs `would tap 59,210 (expert_sign)` and sends nothing.
+. A visible sign is always logged as `expert sign at 59,210`, also while missions are left.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): sign found / not found; the new reference reads
+  state, stamina 2165, timer 00:54:43 and eight symbols.
+* Component test (pytest + fake game, `tests/test_flow.py`): one test per flow criterion, on
+  Intel references with the sign pasted in.

@@ -1,0 +1,21 @@
+[#US-3.6]
+=== US-3.6 Wait for running missions and claim all
+
+Status:: Done (0.1.0) – waiting verified on the fake game only, see <<US-4.3>> +
+Effort:: 3 h +
+Traces to:: <<TS-3.1>>, <<FR-3.7>>, <<FR-3.2>>
+
+As the operator, I want the run to wait until the started missions are finished and to claim
+their rewards, so that I do not have to tap "Claim All" myself.
+
+.Acceptance criteria
+. With the tent `RUNNING` (`intel-xx.png`) and nothing else to start, the run waits; when the
+  screen turns into `intel-xxx.png` it taps Claim All and the rewards exit, with no stray tap.
+. If nothing finishes within the timeout the run ends with its regular outcome and logs that
+  rewards were not claimed; BACK is not pressed while waiting.
+. Without running missions the run ends without waiting.
+. A dry run logs "would wait" and neither waits nor taps.
+
+.Test criteria
+* Component test (pytest + fake game with a timed screen change, `tests/test_flow.py`): one
+  test per criterion.

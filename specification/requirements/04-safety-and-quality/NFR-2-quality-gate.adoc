@@ -1,0 +1,13 @@
+[#NFR-2]
+=== NFR-2 Quality gate
+
+.Acceptance criteria
+. One command (`uv run poe check`) runs lint, format check, type check, the tests and the
+  validation of the specification documents; it must pass before a change is done.
+. The specification validator checks includes, unique anchors, resolvable references and the
+  traceability of technical specifications and user stories.
+. The detection tests use the reference screenshots in `ref/` with the expected values of
+  SPEC.md §3.5.
+
+Stakeholder need:: AGENTS.md (Definition of Done, Reference Traceability), SPEC.md §8 +
+Effort:: 3 h

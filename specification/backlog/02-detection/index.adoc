@@ -1,0 +1,9 @@
+== Detection
+
+include::US-2.1-screen-states.adoc[]
+
+include::US-2.2-mission-symbols-with-status.adoc[]
+
+include::US-2.3-stamina-refresh-timer.adoc[]
+
+include::US-2.4-dialog-type-action-button.adoc[]

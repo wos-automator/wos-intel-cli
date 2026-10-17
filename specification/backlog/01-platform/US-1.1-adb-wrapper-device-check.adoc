@@ -1,0 +1,21 @@
+[#US-1.1]
+=== US-1.1 ADB wrapper and device check
+
+Status:: Done (0.1.0) +
+Effort:: 4 h +
+Traces to:: <<TS-1.1>>, <<FR-1.1>>, <<FR-1.2>>, <<FR-4.2>>
+
+As the operator, I want the tool to talk to exactly one BlueStacks instance through ADB and to
+verify it before acting, so that it never acts on the wrong device or the wrong screen size.
+
+.Acceptance criteria
+. Every command starts with `adb -s <serial>`.
+. `check()` raises for a device that is not ready, a resolution other than 720x1280 and a game
+  that is not in the foreground.
+. `screenshot()` returns a 720x1280 BGR image and raises for undecodable data or another size.
+. A missing binary, a timeout and a non-zero exit code raise `AdbError` with the cause.
+. No swipe, zoom, drag or text input exists.
+
+.Test criteria
+* Component test (pytest + pytest-mock, `tests/test_adb.py`): `subprocess.run` mocked; one test
+  per criterion.

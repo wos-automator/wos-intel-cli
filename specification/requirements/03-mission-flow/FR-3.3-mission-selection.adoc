@@ -1,0 +1,20 @@
+[#FR-3.3]
+=== FR-3.3 Mission selection
+
+.Acceptance criteria
+. Only `AVAILABLE` symbols are candidates, in the order of <<FR-2.4>>.
+. The boss is the exception to that order: it is attacked last, only when no other affordable
+  candidate is left, and once (<<FR-3.5>>).
+. A mission is only started if the stamina covers its cost (hunt 10, rescue 12, combat 10,
+  boss 10); unaffordable missions are skipped.
+. The run ends regularly when the stamina is below 10, when no candidate is left, or when
+  no remaining candidate is affordable – after running missions have been waited for
+  (<<FR-3.7>>).
+. If the stamina cannot be read the run continues.
+. A symbol is attempted at most once per run.
+. If another detected symbol lies closer than 30 px to the click point and further in front
+  (larger y of the ground ring), the one in front is processed first; if that one is not a
+  candidate, the tap moves to the edge of the disc opposite to it.
+
+Stakeholder need:: SPEC.md §3.3, §3.5 step 5, §4, §5 +
+Effort:: 4 h

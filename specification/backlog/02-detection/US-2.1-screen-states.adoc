@@ -1,0 +1,23 @@
+[#US-2.1]
+=== US-2.1 Screen states
+
+Status:: Done (0.1.0) +
+Effort:: 6 h +
+Traces to:: <<TS-2.1>>, <<FR-2.1>>
+
+As the run loop, I want every screenshot classified as one state with its tap targets, so that
+no tap is ever sent blindly.
+
+.Acceptance criteria
+. All eighteen reference screenshots yield their state; the lower boss dialog has its "View"
+  button at 360,870.
+. A world map without popup is `WORLD`; a result screen without "Victory!" is `DEFEAT`; a
+  blank image is `UNKNOWN`.
+. The tap targets lie within ±6 px of the positions in SPEC.md §2 (Claim All 360,1128; View
+  360,933; Fight 528,1201; exit 360,1140; Deploy 548,1215; Intel button 663,862).
+. The Intel button is found with and without the red badge.
+. A missing optional template never matches.
+
+.Test criteria
+* Unit test (pytest, `tests/test_detect.py`): parametrised over the reference screenshots and
+  the synthetic screens.

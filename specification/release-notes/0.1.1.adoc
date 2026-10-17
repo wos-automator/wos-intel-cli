@@ -1,0 +1,18 @@
+== 0.1.1 (unreleased)
+
+=== Documentation
+
+* The specification moved from `docs/` to `specification/`, with one subdirectory per master
+  file (`requirements/`, `tech-specification/`, `backlog/`, `release-notes/`) and
+  `stakeholder/` for the chapters of `SPEC.md`. Each chapter is a folder whose `index.adoc`
+  includes one file per requirement, technical specification or user story, so a single item
+  can be read without its whole chapter. The rendered documents are unchanged (<<NFR-2>>).
+* `SPEC.md` is now an index; its sections live in `specification/stakeholder/<NN>-<topic>.md`
+  and keep their numbers, so references like `SPEC.md §3.5` stay valid.
+* `scripts/validate_specs.py` follows nested includes relative to the including file and
+  reports every item file that no master reaches (<<US-4.2>>, <<NFR-2>>).
+
+=== Breaking changes
+
+* Paths below `docs/specifications/`, `docs/tech-specifications/`, `docs/backlog/` and
+  `docs/release-notes/` no longer exist.

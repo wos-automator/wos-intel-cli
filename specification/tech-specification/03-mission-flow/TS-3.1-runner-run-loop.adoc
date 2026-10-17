@@ -1,0 +1,77 @@
+[#TS-3.1]
+=== TS-3.1 Runner and run loop
+
+Implements <<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>>, <<FR-3.7>>, <<FR-3.8>> and <<FR-4.3>>.
+
+[source,python]
+----
+class Device(Protocol):          # implemented by adb.Adb and by the fake game of the tests
+    def check(self) -> None: ...
+    def screenshot(self) -> Image: ...
+    def tap(self, x: int, y: int) -> None: ...
+    def back(self) -> None: ...
+
+Runner(config, device, detector, store, *, dry_run=False, debug_dir=None,
+       sleep=time.sleep, clock=time.monotonic, now=datetime.now)
+Runner.run() -> Outcome
+----
+
+`Outcome`: `NOTHING_TO_DO`, `OUT_OF_STAMINA`, `NO_TROOPS`, `MISSION_LIMIT`, `DRY_RUN` (regular,
+`ok`), `WRONG_SCREEN`, `TOO_MANY_FAILURES` (not `ok`).
+
+[plantuml]
+----
+@startuml
+start
+:device.check();
+:observe;
+if (WORLD / INTEL*?) then (no)
+  :WRONG_SCREEN;
+  stop
+endif
+repeat
+  if (missions >= max_missions?) then (yes)
+    :MISSION_LIMIT;
+    stop
+  endif
+  :enter Intel (tap Intel button on WORLD);
+  :read stamina;
+  if (INTEL_CLAIMABLE?) then (yes)
+    :Claim All -> REWARDS -> tap 360,180 -> INTEL;
+  else (no)
+    :detect symbols, build candidates;
+    if (stamina < 10 / none / none affordable?) then (yes)
+      :OUT_OF_STAMINA or NOTHING_TO_DO;
+      stop
+    endif
+    :choose target (TS-3.3);
+    :run mission (TS-3.2);
+  endif
+repeat while (continue)
+@enduml
+----
+
+The diagram omits two refinements. Boss last (<<FR-3.3>>): `choose_target` receives the
+affordable candidates without the boss; only if that list is empty does it receive the boss.
+Settling (<<FR-3.7>>): every regular end (`NOTHING_TO_DO`, `OUT_OF_STAMINA`, `MISSION_LIMIT`)
+goes through `Runner._settle(final, symbols)`. It returns `final` at once if no symbol is
+`RUNNING` and `_unclaimed` (missions started since the last claim) is 0. Otherwise it polls
+every `timing.completion_poll` (10 s) for up to `timing.completion_timeout` (900 s):
+`INTEL_CLAIMABLE` → `_claim` (resets `_unclaimed`) and `None`, so the loop evaluates the Intel
+screen again; `INTEL` → keep waiting; any other state → `StepFailed`. On timeout it logs a
+warning and returns `final`. `_unclaimed` exists because a greyed-out running pin is not always
+found by the white mask (SPEC.md §3.5).
+
+Expert (<<FR-3.8>>): on every evaluation of the Intel screen `Detector.find_expert` is asked
+for the sign and a hit is logged (`expert sign at x,y`), so a dry run always shows it. It is
+tapped after the mission-limit check and before the stamina check, if every candidate is a
+boss (or there is none) and `_expert_used` is not set. The sign (template `expert_sign`, cut by `tools/cut_templates.py` from the inside
+of the sign in `ref/intel-expert-available.png`, region `regions.expert_sign`; other references
+score ≤ 0.57). If found: set `_expert_used`, tap the match, return `None` so that the loop
+evaluates the Intel screen again. What the game shows after the tap has no reference yet; a
+screen other than `INTEL*` runs into the normal `StepFailed` recovery (<<TS-3.5>>).
+
+Candidates are the `AVAILABLE` symbols that were not attempted in this run (same type within
+`lock_radius` of an attempted one) and, for the boss, not locked (<<TS-3.4>>). With `dry_run`
+the runner logs the tap it would send (Intel button, Claim All, first mission) and returns
+`DRY_RUN` without calling `tap` or `back`.

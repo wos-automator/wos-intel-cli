@@ -1,0 +1,16 @@
+[#FR-2.6]
+=== FR-2.6 Mission type in the dialog and action button in the popup
+
+.Acceptance criteria
+. The pin of the mission dialog is classified as one of the four mission types;
+  `combat-1-dialog.png` yields `COMBAT`, `hunt-1-dialog.png` yields `HUNT`,
+  `boss-1-dialog.png` yields `BOSS`.
+. The action button of the world-map popup is searched by template in y 250–700 and classified
+  as Explore or Attack; only the upper half with the label is matched.
+. A button without template whose median hue (pixels with S > 120 and V > 120 in the region
+  x 245–475, y 598–660) lies in 50–75 is classified as Rescue.
+. The green hint "You are quite likely to prevail" on the Deploy screen is detected; the red
+  "You are not likely to prevail" (`boss-3-deploy.png`) does not count as that hint.
+
+Stakeholder need:: SPEC.md §2 (Rescue without a reference image), §3.5 step 6, §5 +
+Effort:: 4 h

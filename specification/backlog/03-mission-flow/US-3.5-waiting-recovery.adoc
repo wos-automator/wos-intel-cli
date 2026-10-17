@@ -1,0 +1,20 @@
+[#US-3.5]
+=== US-3.5 Waiting and recovery
+
+Status:: Done (0.1.0) +
+Effort:: 3 h +
+Traces to:: <<TS-3.5>>, <<FR-3.6>>
+
+As the operator, I want the run to leave unexpected screens carefully and to stop when it
+keeps failing, so that it never loops or clicks around.
+
+.Acceptance criteria
+. A step polls every 0.7 s for 8 s (13 screenshots) before it fails.
+. An unexpected screen is left with BACK; nothing is tapped on it.
+. BACK is never pressed on `INTEL` or `WORLD`.
+. Three failed steps in a row end the run with `TOO_MANY_FAILURES`.
+. The screenshot of a skipped mission is saved as `debug/failure-<step>-<STATE>.png`.
+
+.Test criteria
+* Component test (pytest + fake game with a fake clock, `tests/test_flow.py`): screenshot
+  count, BACK on an unknown screen, three failures, saved failure screenshots.

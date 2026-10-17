@@ -1,0 +1,16 @@
+[#NFR-3]
+=== NFR-3 Screens without reference screenshot
+
+Rescue (popup button and what follows), `DEFEAT`, the "not enough stamina" dialog and the
+"no troops / march slots" dialog have no reference screenshot yet.
+
+.Acceptance criteria
+. The steps are implemented and work as soon as the template exists: `btn_rescue.png`,
+  `dialog_no_stamina.png`, `dialog_no_troops.png` in `templates/` are used when present and
+  ignored when absent.
+. `snap` records the missing screens (<<FR-1.3>>).
+. Until verified on the device these paths are exercised with `--dry-run` and with tests on
+  synthetic screens only.
+
+Stakeholder need:: SPEC.md §2 ("Still open") +
+Effort:: 2 h

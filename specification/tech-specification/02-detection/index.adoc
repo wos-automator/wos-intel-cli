@@ -1,0 +1,28 @@
+== Detection (`wos_intel/detect.py`)
+
+.Data model
+[source,python]
+----
+class State(StrEnum):       INTEL, INTEL_CLAIMABLE, REWARDS, MISSION_DIALOG, WORLD_TARGET, DEPLOY,
+                            SQUAD, VICTORY, DEFEAT, WORLD, NO_STAMINA, NO_TROOPS, UNKNOWN
+class MissionType(StrEnum): HUNT, RESCUE, COMBAT, BOSS
+class Tier(IntEnum):        BLUE = 1, PURPLE = 2, GOLD = 3
+class Status(StrEnum):      AVAILABLE, RUNNING, DONE
+class Action(StrEnum):      EXPLORE, ATTACK, RESCUE
+
+Match(name, score, x, y)                               # centre of a template match
+Symbol(type, x, y, score, saturation, status, tier)    # x, y = click point
+Screen(state, matches: dict[str, Match], action: Action | None)
+----
+
+`Detector(config)` loads all templates once. Required templates raise `DetectError` when
+missing; the optional ones (`btn_rescue`, `dialog_no_stamina`, `dialog_no_troops`) take part
+only if the file exists.
+
+include::TS-2.1-state-detection.adoc[]
+
+include::TS-2.2-symbol-detection-status-tier.adoc[]
+
+include::TS-2.3-digit-ocr.adoc[]
+
+include::TS-2.4-dialog-type-action-button.adoc[]

@@ -1,0 +1,29 @@
+[#TS-1.3]
+=== TS-1.3 Configuration (`wos_intel/config.py`, `config.toml`)
+
+Implements <<FR-1.5>>.
+
+`Config` is a frozen dataclass of frozen section dataclasses; the defaults in code are the
+values of SPEC.md.
+
+[cols="1,3"]
+|===
+|Section |Content
+
+|`device` |serial, adb path, package, resolution, command timeout
+|`timing` |tap delay 1.0 s, poll interval 0.7 s, expect timeout 8 s, fight timeout 60 s, completion timeout 900 s, completion poll 10 s
+|`limits` |max missions 30, max BACK 3, max failures 3, minimum stamina 10
+|`costs` |stamina cost per mission type
+|`symbols` |search band, white mask, thresholds, disc radius, check mark, tier hues, overlap, dialog pin
+|`buttons` |template thresholds, popup band, colour classification, rewards exit point
+|`ocr` |white mask for text, stamina and timer region, glyph thresholds
+|`boss` |fallback cycle length
+|`paths` |templates, ref, debug, state file
+|`regions` |search region per template
+|===
+
+`load_config(path, env)` reads the file with `tomllib`, replaces only the given keys, converts
+lists to tuples and rejects unknown sections/keys and wrong types with `ConfigError`. Without
+`path` it uses `config.toml` from the working directory, then from the project root. `base_dir`
+is the directory of the file; `Config.path()` resolves relative paths against it.
+`ANDROID_SERIAL` overrides `device.serial`.

@@ -1,0 +1,17 @@
+== Mission Flow
+
+include::FR-3.1-entering-intel-screen.adoc[]
+
+include::FR-3.2-claiming-rewards.adoc[]
+
+include::FR-3.3-mission-selection.adoc[]
+
+include::FR-3.4-starting-mission.adoc[]
+
+include::FR-3.5-boss-once-per-refresh.adoc[]
+
+include::FR-3.6-waiting-recovery.adoc[]
+
+include::FR-3.8-expert-more-missions-once.adoc[]
+
+include::FR-3.7-waiting-running-missions-claiming.adoc[]

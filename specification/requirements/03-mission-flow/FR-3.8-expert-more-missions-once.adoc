@@ -1,0 +1,21 @@
+[#FR-3.8]
+=== FR-3.8 Expert: more missions once a day
+
+Once a day a white sign pointing left with a bust portrait – the expert – appears top left on
+the Intel screen (`ref/intel-expert-available.png`, centre ≈ 59,210). Tapping it yields
+additional missions.
+
+.Acceptance criteria
+. The sign is detected by a colour template (threshold 0.9) in the region x 0–160, y 140–290
+  and is not detected on any other reference screenshot.
+. When no regular mission is left to work on (boss aside) and the sign is visible, it is
+  tapped – before the boss (<<FR-3.3>>), before waiting for running missions (<<FR-3.7>>) and
+  also when the stamina is below the minimum, so that the daily offer is not lost.
+. While a regular mission can still be worked on, the sign is not tapped.
+. The sign is tapped at most once per run; afterwards the Intel screen is evaluated again.
+. Whenever the sign is visible on the Intel screen this is logged with its position, also when
+  it is not tapped.
+. A dry run logs the tap instead of sending it.
+
+Stakeholder need:: SPEC.md §3.6, §5 +
+Effort:: 3 h

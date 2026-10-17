@@ -1,0 +1,21 @@
+[#US-3.4]
+=== US-3.4 Boss lock
+
+Status:: Done (0.1.0) +
+Effort:: 3 h +
+Traces to:: <<TS-3.4>>, <<FR-3.5>>
+
+As the operator, I want the boss attacked only once per refresh cycle, also across restarts.
+
+.Acceptance criteria
+. After a boss attack `state.json` holds `locked_until` = attack time + 06:59:27 (the timer of
+  `intel-x.png`).
+. With an unreadable timer the lock lasts 8 h.
+. A locked boss is not tapped; an expired lock is ignored.
+. A broken or malformed `state.json` means "not locked"; other keys in the file are kept.
+
+.Test criteria
+* Integration test (pytest, `tests/test_config_state.py`): round trip through the file, broken
+  files, unrelated keys.
+* Component test (pytest + fake game, `tests/test_flow.py`): lock written, fallback, locked and
+  expired.

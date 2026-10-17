@@ -1,0 +1,9 @@
+[#FR-4.2]
+=== FR-4.2 The map is never moved
+
+.Acceptance criteria
+. The program sends no swipe, drag, zoom or text input.
+. The program sends no mouse or keyboard input through macOS.
+
+Stakeholder need:: SPEC.md §1 (macOS input), §6 +
+Effort:: 0.5 h

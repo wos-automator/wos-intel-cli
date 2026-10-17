@@ -1,0 +1,18 @@
+[#FR-2.3]
+=== FR-2.3 Symbol status
+
+.Acceptance criteria
+. `DONE`: a green component (HSV 45–75 / S ≥ 120 / V ≥ 120, area 40–600 px) lies within
+  14 px of the point +24/−24 px from the disc centre.
+. `AVAILABLE`: not `DONE` and the median saturation of the non-white disc pixels is ≥ 150.
+. `RUNNING`: everything else; values from 130 to 149 are treated as `RUNNING` so that an
+  uncertain symbol is never started.
+. A dimmed symbol that the normal white mask no longer finds is searched with a second, wider
+  white mask HSV (0,0,190)–(180,70,255). Its status follows the same rules as above: this pass
+  also finds vivid pins the first pass narrowly missed, and those stay `AVAILABLE`. On
+  `intel-boss-running.png` the boss at 518,700 is `RUNNING` (saturation 99).
+. On the reference screenshots: the tent is `RUNNING` in `intel-xx.png` (saturation 38) and
+  `DONE` in `intel-xxx.png`; the golden paw at 564,737 is `DONE` in `intel-xxx.png`.
+
+Stakeholder need:: SPEC.md §3.4 +
+Effort:: 3 h

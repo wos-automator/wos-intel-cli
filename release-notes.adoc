@@ -2,4 +2,6 @@
 :toc: left
 :sectnums:
 
-include::docs/release-notes/0.1.0.adoc[]
+include::specification/release-notes/0.1.1.adoc[]
+
+include::specification/release-notes/0.1.0.adoc[]

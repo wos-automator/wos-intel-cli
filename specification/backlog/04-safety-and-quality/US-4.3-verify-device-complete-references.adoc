@@ -1,0 +1,24 @@
+[#US-4.3]
+=== US-4.3 Verify on the device and complete the references
+
+Status:: Open +
+Effort:: 4 h +
+Traces to:: <<TS-4.3>>, <<NFR-3>>, <<FR-3.4>>
+
+As the operator, I want the paths without reference screenshot verified on the real game, so
+that rescue, boss, defeat and the blocking dialogs are as reliable as combat and hunt.
+
+.Acceptance criteria
+. `python -m wos_intel run --dry-run` on the device logs the correct symbols without input
+  (SPEC.md §8, acceptance criterion 2).
+. A real run works off all `AVAILABLE` missions, claims the rewards and ends regularly
+  (acceptance criterion 3).
+. `snap` references exist for: the screen after the expert tap, rescue dialog, rescue popup, `DEFEAT`,
+  "not enough stamina", "no troops / march slots".
+. `btn_rescue.png`, `dialog_no_stamina.png` and `dialog_no_troops.png` are cut from them and
+  the synthetic test screens are replaced by the real ones.
+
+.Test criteria
+* Blackbox test (manual, on the device): dry run, then a supervised real run.
+* Unit test (pytest, `tests/test_detect.py`): the new references added to the state and symbol
+  tables.

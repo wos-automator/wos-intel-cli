@@ -1,0 +1,10 @@
+[#FR-3.1]
+=== FR-3.1 Entering the Intel screen
+
+.Acceptance criteria
+. On `WORLD` the Intel button is tapped and `INTEL` is awaited.
+. On `INTEL` or `INTEL_CLAIMABLE` the run starts directly.
+. On any other state the run aborts with a message; nothing is tapped ("no guessing").
+
+Stakeholder need:: SPEC.md §5 (start) +
+Effort:: 1 h

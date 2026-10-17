@@ -29,15 +29,17 @@ The user relies on `fish` shell and its specific PATH environment variables. Whe
 ### Modular Documentation Format
 - Primary specification and backlog documentation format is AsciiDoc (`.adoc`).
 - Asciidoctor-diagram syntax is supported for architectural diagrams.
-- **Chapter-Level Modularization:** To optimize token usage and context clarity:
+- **Item-Level Modularization:** To optimize token usage and context clarity:
   - Master entry points reside at the root: `specification-web.adoc`, `tech-specification-web.adoc`, `backlog-web.adoc`, `release-notes.adoc`.
-  - Feature/domain chapters reside in subdirectories:
-    - Requirements: `docs/specifications/<chapter>.adoc`
-    - Technical Specifications: `docs/tech-specifications/<chapter>.adoc`
-    - Backlog User Stories: `docs/backlog/<chapter>.adoc`
-    - Release Notes: `docs/release-notes/<version>.adoc`
-  - Master files include chapters via `include::docs/<folder>/<chapter>.adoc[]`.
-  - When researching or updating a specific feature, load only its respective chapter files to conserve context window tokens.
+  - All split files reside in `specification/`, one subdirectory per master; each chapter is a folder:
+    - Requirements: `specification/requirements/<NN-chapter>/<ID>-<slug>.adoc` (e.g. `FR-3.4-starting-mission.adoc`, `NFR-2-quality-gate.adoc`)
+    - Technical Specifications: `specification/tech-specification/<NN-chapter>/<ID>-<slug>.adoc`
+    - Backlog User Stories: `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc`
+    - Release Notes: `specification/release-notes/<version>.adoc`
+    - Stakeholder input (`SPEC.md` sections): `specification/stakeholder/<NN>-<topic>.md`; `SPEC.md` is only an index, `SPEC.md §n` refers to file `<NN>`.
+  - Master files include chapter indexes via `include::specification/<folder>/<NN-chapter>/index.adoc[]`; the chapter `index.adoc` holds the `==` heading, the chapter intro and one `include::<ID>-<slug>.adoc[]` per item (paths relative to the index).
+  - Each item file starts with its anchor (`[#FR-x.y]`) and its `===` heading. A new item gets its own file plus an include line in the chapter index; a new chapter gets a folder, an `index.adoc` and an include in the master.
+  - When researching or updating a specific item, load only its item file (find it by ID with `ls specification/*/*/<ID>-*`); load the chapter `index.adoc` only for the chapter intro.
 
 ### SMART Criteria
 Every requirement and user story must be:
@@ -74,7 +76,7 @@ An implementation task is complete ONLY when:
    - Specification cross-references and includes validate cleanly (`uv run poe validate-specs`).
 2. No `print()` debug statements, unused variables/imports, or leftover debug code remain.
 3. Code adheres to existing architectural patterns and styling conventions.
-4. `docs/release-notes/<version>.adoc` is updated with relevant Features, Fixes, or Breaking Changes and requirement traceability links.
+4. `specification/release-notes/<version>.adoc` is updated with relevant Features, Fixes, or Breaking Changes and requirement traceability links.
 
 ---
 
