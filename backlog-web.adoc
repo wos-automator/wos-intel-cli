@@ -13,3 +13,5 @@ include::specification/backlog/02-detection/index.adoc[]
 include::specification/backlog/03-mission-flow/index.adoc[]
 
 include::specification/backlog/04-safety-and-quality/index.adoc[]
+
+include::specification/backlog/05-defects/index.adoc[]

@@ -1,0 +1,30 @@
+[#US-5.4]
+=== US-5.4 BUG-0095a Account logged in on another device
+
+Status:: Open +
+Effort:: 3 h +
+Traces to:: <<TS-3.5>>, <<FR-3.6>>, <<FR-4.1>>
+
+As the player, I want the run to give me a minute when I log in on another device and to
+reclaim the session afterwards, so that a quick look on my phone neither stops the run nor is
+interrupted at once.
+
+Defect:: A "Tips" dialog covers the world map: "The account has been logged in on another
+device. Please sign in again on this device." with the buttons "Contact Us" and "Reconnect".
+The dialog is not detected; every step fails until the run ends. Screenshots:
+`failure-0095-UNKNOWN.png`, `failure-0099-UNKNOWN.png`, `failure-0103-UNKNOWN.png`
+(byte-identical).
+
+.Acceptance criteria
+. The dialog is detected by its text on `ref/dialog-logged-in-elsewhere.png`; its "Reconnect"
+  button is reported as tap target.
+. Whenever the dialog is seen, the run waits 60 s (configurable), then taps "Reconnect".
+  "Contact Us" is never tapped.
+. After the reconnect the run waits up to 120 s (configurable) for the Intel screen or the
+  world map and starts the next iteration; the interrupted step costs no failure.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): state and "Reconnect" position on the reference
+  screenshot.
+* Component test (`tests/test_flow.py`, fake clock): the tap on "Reconnect" comes 60 s after
+  the dialog appeared, the run then finishes regularly.

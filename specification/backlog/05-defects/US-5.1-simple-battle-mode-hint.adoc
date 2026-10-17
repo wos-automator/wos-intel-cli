@@ -1,0 +1,26 @@
+[#US-5.1]
+=== US-5.1 BUG-0002 Simple Battle Mode hint covers the world map
+
+Status:: Open +
+Effort:: 2 h +
+Traces to:: <<TS-2.1>>, <<FR-2.1>>, <<TS-3.5>>, <<FR-3.6>>
+
+As the operator, I want the run to dismiss the "Simple Battle Mode" hint, so that it does not
+stop on a world map the hint covers.
+
+Defect:: A white speech bubble with dark text covers the lower half of the world map: "You
+have enabled Simple Battle Mode to optimize your experience. Adjust your Frame Rate and
+Display Quality through Avatar - Settings - Game Settings for better experience!". The screen
+is classified `UNKNOWN`, the recovery presses BACK on it and opens the "Quit game?"
+confirmation (BUG-0006). Screenshot: `failure-0002-UNKNOWN.png`.
+
+.Acceptance criteria
+. The hint is detected by its text on `ref/world-simple-battle-mode.png`.
+. The hint is dismissed by a tap on the detected text; BACK is never pressed on it.
+. The step that was running when the hint appeared continues; the hint costs no failure.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): the reference screenshot yields the hint state and the
+  tap target inside the bubble.
+* Component test (`tests/test_flow.py`): a run whose world map shows the hint taps it once and
+  continues with the Intel button.
