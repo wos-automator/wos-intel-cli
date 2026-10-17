@@ -15,6 +15,10 @@
 * BUG-0098: the retry also applies to the boss; its skull pin is recognised on the world map,
   and the boss is locked for the refresh cycle only after it has been deployed (<<US-5.5>>,
   <<FR-3.5>>).
+* BUG-0118: a target that is no longer on the world map after "View" (no popup, no pin of
+  its type) is skipped for the run without counting as a failure; the run returns to the Intel
+  screen and selects the next mission. Before, three such targets in a row ended the run
+  (<<US-5.6>>, <<FR-3.4>>).
 * BUG-0095a: the dialog "The account has been logged in on another device." is recognised as
   `SESSION_LOST`. The run waits 60 s, taps "Reconnect", waits up to 120 s for the Intel screen
   or the world map and starts over without counting a failure. New settings

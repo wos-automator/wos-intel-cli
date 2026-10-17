@@ -445,6 +445,25 @@ def test_pin_of_another_type_is_not_tapped(
     assert game.stray_taps == []
 
 
+def test_vanished_target_is_skipped_without_a_failure(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0118: after "View" the map shows neither the target nor its popup."""
+    game = game_factory(overrides={"hunt-1-dialog": [(VIEW, "world-target-vanished")]})
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    # the three hunts in a row would have been three failures
+    assert outcome is Outcome.NOTHING_TO_DO
+    taps = game.taps_on("world-target-vanished")
+    assert len(taps) == 3
+    assert all(near(tap, INTEL_BUTTON, 8) for tap in taps)
+    assert runner.missions_started == 2  # the combats
+    assert len(game.taps_on("hunt-1-dialog")) == 3  # each hunt once, none retried
+    assert game.stray_taps == []
+
+
 def test_boss_whose_popup_did_not_open_is_tapped_again_and_locked(
     game_factory: GameFactory, detector: Detector, state_file: Path
 ) -> None:

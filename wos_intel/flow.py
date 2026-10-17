@@ -522,7 +522,8 @@ class Runner:
                 raise
             pin = self._detector.world_pin(self._last[1])
             if pin is None or pin[0] is not target.type:
-                raise
+                # The target has gone, e.g. the map scrolled (BUG-0118): select the next one.
+                raise MissionRejected("the target is no longer on the world map") from None
             match = pin[1]
             offset = self._config.symbols.world_pin_tap_offset
             log.info("popup did not open, tapping the target again")
