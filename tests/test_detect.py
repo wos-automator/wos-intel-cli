@@ -166,6 +166,7 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("world-simple-battle-mode", State.HINT),
         ("dialog-quit-game", State.QUIT_CONFIRMATION),
         ("dialog-logged-in-elsewhere", State.SESSION_LOST),
+        ("hunt-2-world-queues-busy", State.WORLD),
     ],
 )
 def test_states(detector: Detector, images: dict[str, Image], name: str, state: State) -> None:
@@ -360,6 +361,25 @@ def test_refresh_timer(detector: Detector, name: str, seconds: int) -> None:
 
 def test_refresh_timer_is_none_without_banner(detector: Detector) -> None:
     assert detector.read_refresh_seconds(load_ref("hunt-3-deploy")) is None
+
+
+@pytest.mark.parametrize(
+    ("name", "marches"),
+    [
+        ("hunt-2-world-queues-busy", (6, 6)),
+        ("hunt-2-world-no-popup", (5, 6)),
+        ("world-target-vanished", (3, 6)),
+        ("hunt-2-world-attack", (1, 6)),
+    ],
+)
+def test_march_counter(detector: Detector, name: str, marches: tuple[int, int]) -> None:
+    """BUG-0014: "Marching N/M" top left on the world map."""
+    assert detector.read_marches(load_ref(name)) == marches
+
+
+@pytest.mark.parametrize("name", ["boss-2-world-no-popup", "intel-x", "hunt-3-deploy"])
+def test_march_counter_is_none_without_the_panel(detector: Detector, name: str) -> None:
+    assert detector.read_marches(load_ref(name)) is None
 
 
 def test_digits_from_other_screens_are_read(config: Config) -> None:

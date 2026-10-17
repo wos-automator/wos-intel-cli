@@ -538,7 +538,20 @@ class Detector:
     def _read_digits(self, image: Image, region: Region, last: int = 0) -> list[int] | None:
         """Classify the glyphs of a region; ``last`` keeps only the rightmost glyphs."""
         ocr = self._config.ocr
-        glyphs = segment_glyphs(
+        glyphs = self._glyphs_of(image, region)
+        if len(glyphs) < last:
+            return None
+        digits: list[int] = []
+        for glyph in glyphs[-last:]:
+            score, digit = self._classify(glyph)
+            if score < ocr.glyph_threshold:
+                return None
+            digits.append(digit)
+        return digits or None
+
+    def _glyphs_of(self, image: Image, region: Region) -> list[Image]:
+        ocr = self._config.ocr
+        return segment_glyphs(
             _crop(image, region),
             ocr.white_lo,
             ocr.white_hi,
@@ -546,18 +559,13 @@ class Detector:
             ocr.glyph_min_height,
             ocr.glyph_max_aspect,
         )
-        if len(glyphs) < last:
-            return None
-        digits: list[int] = []
-        for glyph in glyphs[-last:]:
-            normalized = normalize_glyph(glyph)
-            score, digit = max(
-                (_best_match(normalized, template)[0], value) for value, template in self._glyphs
-            )
-            if score < ocr.glyph_threshold:
-                return None
-            digits.append(digit)
-        return digits or None
+
+    def _classify(self, glyph: Image) -> tuple[float, int]:
+        """Best digit template score and its digit."""
+        normalized = normalize_glyph(glyph)
+        return max(
+            (_best_match(normalized, template)[0], value) for value, template in self._glyphs
+        )
 
     def read_stamina(self, image: Image) -> int | None:
         """Stamina shown top right on the Intel screen; ``None`` if it cannot be read."""
@@ -576,6 +584,29 @@ class Detector:
         if minutes > 59 or seconds > 59:
             return None
         return (h1 * 10 + h2) * 3600 + minutes * 60 + seconds
+
+    def read_marches(self, image: Image) -> tuple[int, int] | None:
+        """Busy and total march queues of "Marching N/M" on the world map (BUG-0014).
+
+        The "/" is the one glyph that matches no digit; ``None`` if the panel is collapsed or
+        anything else cannot be read.
+        """
+        threshold = self._config.ocr.glyph_threshold
+        read = [
+            self._classify(glyph) for glyph in self._glyphs_of(image, self._config.ocr.march_region)
+        ]
+        separators = [index for index, (score, _) in enumerate(read) if score < threshold]
+        if len(separators) != 1:
+            return None
+        slash = separators[0]
+        busy, total = read[:slash], read[slash + 1 :]
+        if not busy or not total:
+            return None
+
+        def number(digits: list[tuple[float, int]]) -> int:
+            return int("".join(str(digit) for _, digit in digits))
+
+        return number(busy), number(total)
 
     # ------------------------------------------------------------------ debug image
 

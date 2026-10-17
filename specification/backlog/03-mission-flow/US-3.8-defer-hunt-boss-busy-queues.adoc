@@ -1,7 +1,7 @@
 [#US-3.8]
 === US-3.8 Defer hunt and boss while all march queues are busy
 
-Status:: Open +
+Status:: Done (0.1.1) – verified on the fake game only +
 Effort:: 6 h +
 Traces to:: <<TS-2.3>>, <<TS-3.6>>, <<TS-3.1>>, <<TS-3.2>>, <<FR-2.7>>, <<FR-3.9>>, <<FR-3.3>>
 

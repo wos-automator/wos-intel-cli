@@ -1,5 +1,15 @@
 == 0.1.1 (unreleased)
 
+=== Features
+
+* Busy march queues (BUG-0014): the counter "Marching N/M" on the world map is read with the
+  digit OCR. While all march queues are busy, hunt and boss targets are deferred: combat and
+  rescue missions go on, a hunt or boss whose popup does not open is neither tapped again nor
+  counted as a failure, and with only hunt and boss left the run tries again every 60 s. If the
+  queues stay busy for 15 min the run ends regularly with "all march queues busy". New settings
+  `queue_poll` and `queue_timeout` in `[timing]` and `march_region` in `[ocr]` (<<US-3.8>>,
+  <<FR-2.7>>, <<FR-3.9>>).
+
 === Fixes
 
 * BUG-0002: the hint bubble "You have enabled Simple Battle Mode …" over the world map is
@@ -27,7 +37,7 @@
 === Documentation
 
 * `SPEC.md §5` states what the run has to do when all march queues are busy: work only on
-  targets that are neither hunt nor boss (BUG-0014; not implemented yet).
+  targets that are neither hunt nor boss (BUG-0014).
 * The specification moved from `docs/` to `specification/`, with one subdirectory per master
   file (`requirements/`, `tech-specification/`, `backlog/`, `release-notes/`) and
   `stakeholder/` for the chapters of `SPEC.md`. Each chapter is a folder whose `index.adoc`
