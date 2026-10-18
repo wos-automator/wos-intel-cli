@@ -1,0 +1,45 @@
+[#TS-3.6]
+=== TS-3.6 Busy march queues
+
+Implements <<FR-3.9>>.
+
+`MARCH_TYPES = {HUNT, BOSS}`: the mission types that need a free march queue.
+
+Runner state:
+
+[cols="1,3"]
+|===
+|Field |Meaning
+
+|`_queues_busy: bool` |The last readable counter showed N ≥ M. Cleared when a counter shows a free queue, and before each new attempt after a wait.
+|`_busy_since: float \| None` |`clock()` when the queues were first seen busy; `None` once a counter shows a free queue. Start of the `queue_timeout` period.
+|===
+
+* `_look`: on `WORLD` and `WORLD_TARGET` it calls `_note_marches(image)`. That asks
+  `Detector.read_marches` (<<TS-2.3>>); `None` changes nothing. N ≥ M sets `_queues_busy` and,
+  if not yet set, `_busy_since`, and logs `all march queues busy (N/M)` on the change. N < M
+  clears both and logs `march queue free (N/M)` on the change.
+* `_iteration`: after the stamina checks, if `_queues_busy`, hunt and boss leave the affordable
+  candidates (`workable`). An empty `workable` with affordable candidates left calls
+  `_await_queue(symbols)`; otherwise the target is chosen from `workable` as before
+  (<<TS-3.1>>, <<TS-3.3>>). The expert check (<<FR-3.8>>) still looks at all candidates, so
+  deferred hunts count as regular missions left.
+* `_await_queue(symbols) -> Outcome | None`:
+** dry run: log `would wait for a free march queue`, return `DRY_RUN`;
+** `clock() - _busy_since >= timing.queue_timeout` (900 s): log a warning, return
+   `_settle(QUEUES_BUSY, symbols)` (<<TS-3.1>>);
+** otherwise log the wait, `sleep(timing.queue_poll)` (60 s), clear `_queues_busy` and return
+   `None`. The next iteration picks the first deferred target; the world map after its "View"
+   reads the counter again.
+* `_await_popup` (<<TS-3.2>>): on `StepFailed` with the last screen `WORLD`, a target of
+  `MARCH_TYPES` with `_queues_busy` raises `QueuesBusy` before the pin is asked, so the
+  target is not tapped again.
+* `_iteration` catches `QueuesBusy` around `_run_mission`, removes the target from
+  `_attempted` and re-raises. `run()` logs it (`deferred until a march queue is free`), calls
+  `_recover()` (<<TS-3.5>>) and continues; no failure is counted and no failure screenshot is
+  written. The boss lock is only set after a deploy (<<TS-3.4>>), so a deferred boss stays
+  unlocked.
+* `Outcome.QUEUES_BUSY = "all march queues busy"` is a regular (`ok`) outcome.
+
+Reference: `ref/hunt-2-world-queues-busy.png` is `failure-0014-WORLD.png` of the device run
+of 2026-10-17: the map is centred on the hunt target, no popup, "Marching 6/6".

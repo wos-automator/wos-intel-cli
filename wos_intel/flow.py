@@ -35,6 +35,9 @@ log = logging.getLogger(__name__)
 
 INTEL_STATES = frozenset({State.INTEL, State.INTEL_CLAIMABLE})
 RESULT_STATES = frozenset({State.VICTORY, State.DEFEAT})
+MAP_STATES = frozenset({State.WORLD, State.WORLD_TARGET})
+# Mission types that send troops and therefore need a free march queue (BUG-0014).
+MARCH_TYPES = frozenset({MissionType.HUNT, MissionType.BOSS})
 
 ACTION_FOR: dict[MissionType, Action] = {
     MissionType.COMBAT: Action.EXPLORE,
@@ -48,6 +51,7 @@ class Outcome(StrEnum):
     NOTHING_TO_DO = "nothing to do"
     OUT_OF_STAMINA = "not enough stamina"
     NO_TROOPS = "no troops or march slots available"
+    QUEUES_BUSY = "all march queues busy"
     MISSION_LIMIT = "mission limit reached"
     DRY_RUN = "dry run finished"
     WRONG_SCREEN = "game is neither on the Intel screen nor on the world map"
@@ -71,6 +75,10 @@ class StepFailed(Exception):
 
 class MissionRejected(Exception):
     """A plausibility or safety check failed; the mission is skipped for this run."""
+
+
+class QueuesBusy(Exception):
+    """A hunt or boss cannot be started while all march queues are busy; it waits."""
 
 
 class Reconnected(Exception):
@@ -173,6 +181,8 @@ class Runner:
         self._unclaimed = 0
         self._expert_used = False
         self._reconnecting = False
+        self._queues_busy = False
+        self._busy_since: float | None = None
         self.missions_started = 0
 
     # ------------------------------------------------------------------ primitives
@@ -216,6 +226,8 @@ class Runner:
         screen = self._detector.detect_state(image)
         self._step += 1
         log.info("state %s", screen.state)
+        if screen.state in MAP_STATES:
+            self._note_marches(image)
         if self._debug_dir is not None:
             symbols = self._detector.detect_symbols(image) if screen.state in INTEL_STATES else []
             self._debug_dir.mkdir(parents=True, exist_ok=True)
@@ -223,6 +235,24 @@ class Runner:
             cv2.imwrite(str(target), self._detector.annotate(image, screen, symbols))
         self._last = (screen, image)
         return screen, image
+
+    def _note_marches(self, image: Image) -> None:
+        """Update what the run knows about the march queues; an unreadable counter keeps it."""
+        marches = self._detector.read_marches(image)
+        if marches is None:
+            return
+        busy, total = marches
+        if busy >= total:
+            if not self._queues_busy:
+                log.info("all march queues busy (%d/%d)", busy, total)
+            self._queues_busy = True
+            if self._busy_since is None:
+                self._busy_since = self._clock()
+        else:
+            if self._queues_busy or self._busy_since is not None:
+                log.info("march queue free (%d/%d)", busy, total)
+            self._queues_busy = False
+            self._busy_since = None
 
     def _save_failure(self) -> None:
         """Keep the screenshot a skipped mission or failed step ended on, for diagnosis."""
@@ -328,6 +358,10 @@ class Runner:
             except Reconnected:
                 log.info("session reclaimed, starting over on the Intel screen")
                 continue
+            except QueuesBusy as busy:
+                log.info("deferred until a march queue is free: %s", busy)
+                self._recover()
+                continue
             except MissionRejected as rejected:
                 log.warning("mission skipped for this run: %s", rejected)
                 self._save_failure()
@@ -390,16 +424,44 @@ class Runner:
         ]
         if not affordable:
             return self._settle(Outcome.OUT_OF_STAMINA, symbols)
+        # Hunt and boss wait while every march queue is busy (BUG-0014).
+        workable = [
+            symbol
+            for symbol in affordable
+            if not (self._queues_busy and symbol.type in MARCH_TYPES)
+        ]
+        if not workable:
+            return self._await_queue(symbols)
 
         # The boss comes last: only once nothing else is left to work on.
-        others = [symbol for symbol in affordable if symbol.type is not MissionType.BOSS]
-        target, point = choose_target(self._config, others or affordable, symbols)
+        others = [symbol for symbol in workable if symbol.type is not MissionType.BOSS]
+        target, point = choose_target(self._config, others or workable, symbols)
         if self._dry_run:
             log.info("dry run: would tap %d,%d (%s)", point[0], point[1], target.describe())
             return Outcome.DRY_RUN
 
         self._attempted.append(target)
-        self._run_mission(target, point, self._detector.read_refresh_seconds(image))
+        try:
+            self._run_mission(target, point, self._detector.read_refresh_seconds(image))
+        except QueuesBusy:
+            self._attempted.remove(target)
+            raise
+        return None
+
+    def _await_queue(self, symbols: list[Symbol]) -> Outcome | None:
+        """Only hunt and boss are left and every march queue is busy: wait, then try again."""
+        timing = self._config.timing
+        if self._dry_run:
+            log.info("dry run: would wait for a free march queue")
+            return Outcome.DRY_RUN
+        since = self._clock() if self._busy_since is None else self._busy_since
+        if self._clock() - since >= timing.queue_timeout:
+            log.warning("march queues still busy after %.0f s", timing.queue_timeout)
+            return self._settle(Outcome.QUEUES_BUSY, symbols)
+        log.info("all march queues busy, trying hunt/boss again in %.0f s", timing.queue_poll)
+        self._sleep(timing.queue_poll)
+        # Only a fresh look at the map tells whether a march has returned meanwhile.
+        self._queues_busy = False
         return None
 
     def _claim(self, claim: Match) -> None:
@@ -520,6 +582,9 @@ class Runner:
         except StepFailed:
             if self._last is None or self._last[0].state is not State.WORLD:
                 raise
+            if target.type in MARCH_TYPES and self._queues_busy:
+                # No popup for a hunt or boss while every march queue is busy (BUG-0014).
+                raise QueuesBusy(f"no popup for the {target.type} target") from None
             pin = self._detector.world_pin(self._last[1])
             if pin is None or pin[0] is not target.type:
                 # The target has gone, e.g. the map scrolled (BUG-0118): select the next one.

@@ -1,7 +1,7 @@
 [#TS-2.3]
 === TS-2.3 Digit OCR
 
-Implements <<FR-2.5>>.
+Implements <<FR-2.5>> and <<FR-2.7>>.
 
 * `segment_glyphs(image, lo, hi, min_height_ratio, min_height, max_aspect)`: white mask of the
   region, connected components, components lower than `min_height` or lower than
@@ -17,6 +17,12 @@ Implements <<FR-2.5>>.
 * `read_stamina(image)`: all glyphs of `stamina_region`, at most `max_stamina_digits`.
 * `read_refresh_seconds(image)`: the six rightmost glyphs of `timer_region` as HHMMSS; minutes
   and seconds above 59 give `None`. The letters of "Refreshes In" left of them are ignored.
+* `read_marches(image) -> tuple[int, int] | None`: the glyphs of `ocr.march_region`
+  (185, 195, 250, 232), the "N/M" right of the word "Marching". Exactly one glyph scores below
+  `glyph_threshold` against every digit template: the "/" (best score 0.43, the digits ≥ 0.85
+  on the references). The glyphs left of it are N, the ones right of it M; both must be
+  non-empty and every digit must reach `glyph_threshold`, otherwise `None`. A collapsed panel
+  leaves no glyph in the region and gives `None`.
 
 `tools/cut_templates.py` generates the digit templates from `ref/`: stamina (0, 2, 3, 4, 5, 7),
 refresh timer (0, 1, 2, 5, 6, 7, 9) and the troop and power numbers of the Deploy screen

@@ -19,6 +19,8 @@ completion_timeout = 900.0  # wait for running missions to finish before the run
 completion_poll = 10.0      # screenshot interval while waiting for running missions
 reconnect_delay = 60.0      # after a login on another device: wait, then tap "Reconnect"
 reconnect_timeout = 120.0   # wait for the Intel screen or world map after "Reconnect"
+queue_poll = 60.0          # all march queues busy: wait this long before a hunt/boss is tried again
+queue_timeout = 900.0      # end the run if the march queues stay busy this long
 
 [limits]
 max_missions = 30           # per run
@@ -85,6 +87,7 @@ white_lo = [0, 0, 225]
 white_hi = [180, 40, 255]
 stamina_region = [595, 25, 675, 60]
 timer_region = [215, 108, 510, 146]
+march_region = [185, 195, 250, 232]   # "N/M" of "Marching N/M" on the world map
 glyph_min_height_ratio = 0.75
 glyph_min_height = 10
 glyph_max_aspect = 1.3      # wider than this x height = touching digits, cut apart

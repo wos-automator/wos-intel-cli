@@ -1,0 +1,35 @@
+[#US-3.8]
+=== US-3.8 Defer hunt and boss while all march queues are busy
+
+Status:: Done (0.1.1) – verified on the fake game only +
+Effort:: 6 h +
+Traces to:: <<TS-2.3>>, <<TS-3.6>>, <<TS-3.1>>, <<TS-3.2>>, <<FR-2.7>>, <<FR-3.9>>, <<FR-3.3>>
+
+As the operator, I want the run to keep working on combat and rescue missions while all march
+queues are busy, and to start the hunts and the boss once a queue is free, so that full queues
+neither cost failures nor end the run early.
+
+Origin:: BUG-0014 (also BUG-0015, BUG-0019, BUG-0029, BUG-0033, BUG-0043, BUG-0122, BUG-0123):
+after "View" of a hunt the map is centred on the target, but no popup opens; "Marching 6/6".
+Screenshot: `failure-0014-WORLD.png`, copied to `ref/hunt-2-world-queues-busy.png`.
+
+.Acceptance criteria
+. The counter reads 6/6, 5/6, 3/6 and 1/6 on the references of <<FR-2.7>>, and is unreadable
+  on `ref/boss-2-world-no-popup.png` and on the Intel screen.
+. A hunt whose popup does not open on a 6/6 map is not tapped again and costs no failure; the
+  combat missions of the run are started.
+. After a deploy that leaves the map at 6/6, the next tapped symbol is not a hunt or the boss
+  while a combat or rescue mission is left.
+. With only deferred targets left the run waits 60 s on the Intel screen between two tries;
+  once the map shows a free queue the hunt is deployed.
+. If the queues stay busy for 15 min the run ends with `QUEUES_BUSY`, not with
+  `TOO_MANY_FAILURES`.
+. A deferred boss is not locked for the refresh cycle.
+. New settings `queue_poll` (60 s) and `queue_timeout` (900 s) in `[timing]`.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): counter readings on the reference screenshots;
+  `hunt-2-world-queues-busy.png` is `WORLD`.
+* Component test (`tests/test_flow.py`, fake game and fake clock): one test per flow criterion,
+  with a world map whose counter is pasted from `ref/hunt-2-world-queues-busy.png`.
+* Integration test (`tests/test_config_state.py`): the new settings load from `config.toml`.

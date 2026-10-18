@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import itertools
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -76,6 +77,16 @@ def make_runner(
 
 
 WAIT = 30.0
+QUEUE_WAIT = 240.0
+
+
+def queue_config() -> Config:
+    """Short waits, so that a run with busy march queues ends after a few quick tries."""
+    config = Config()
+    timing = dataclasses.replace(
+        config.timing, completion_timeout=WAIT, queue_timeout=QUEUE_WAIT, expect_timeout=2.0
+    )
+    return dataclasses.replace(config, timing=timing)
 
 
 def tapped(game: FakeGame, screen: str, point: tuple[int, int]) -> bool:
@@ -890,6 +901,86 @@ def test_login_elsewhere_during_a_mission_costs_no_failure(
     assert outcome is Outcome.NOTHING_TO_DO
     assert game.taps_on("dialog-logged-in-elsewhere") == [RECONNECT] * 3
     assert len(game.taps_on("combat-3-squad-fight")) == 2
+    assert game.stray_taps == []
+
+
+def test_hunt_without_popup_on_busy_queues_is_deferred_not_failed(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """BUG-0014: with "Marching 6/6" the game opens no popup for a hunt."""
+    game = game_factory(overrides={"hunt-1-dialog": [(VIEW, "hunt-2-world-queues-busy")]})
+    runner = make_runner(game, detector, state_file, queue_config())
+
+    outcome = runner.run()
+
+    # the queues never free up: a regular end after the wait, not three failures
+    assert outcome is Outcome.QUEUES_BUSY
+    assert game.clock is not None and game.clock.now >= QUEUE_WAIT
+    assert not tapped(game, "hunt-2-world-queues-busy", WORLD_TARGET)  # no BUG-0028 retry
+    assert all(near(tap, INTEL_BUTTON, 8) for tap in game.taps_on("hunt-2-world-queues-busy"))
+    assert len(game.taps_on("combat-3-squad-fight")) == 2
+    assert game.taps_on("hunt-3-deploy") == []
+    assert runner.missions_started == 2
+    assert game.stray_taps == []
+
+
+def test_busy_queues_after_a_deploy_defer_the_next_hunt(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    """A deploy that leaves the map at 6/6: the next target is a combat, not a hunt."""
+    game = game_factory(overrides={"hunt-3-deploy": [(DEPLOY, "world-queues-busy")]})
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    order = [TENT, AXE_PURPLE, PAW_PURPLE, AXE_BLUE, PAW_BLUE_LEFT, PAW_BLUE_RIGHT, BOSS]
+    taps = game.taps_on("intel-x")
+    assert len(taps) == len(order)
+    assert all(near(tap, point, 8) for tap, point in zip(taps, order, strict=True))
+    assert runner.missions_started == 5
+    assert game.stray_taps == []
+
+
+def test_deferred_hunt_is_tried_every_minute_and_deployed_once_a_queue_is_free(
+    game_factory: GameFactory, detector: Detector, state_file: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    game = game_factory(overrides={"hunt-1-dialog": [(VIEW, "hunt-2-world-queues-busy")]})
+    # after 150 s a march has returned: the next look at the map shows the popup and 1/6
+    game.timed["hunt-2-world-queues-busy"] = (150.0, "hunt-2-world-attack")
+    runner = make_runner(game, detector, state_file, queue_config())
+    times = record_tap_times(game, monkeypatch)
+
+    runner.run()
+
+    deploys = [at for screen, at in times if screen == "hunt-3-deploy"]
+    assert len(deploys) == 1
+    assert deploys[0] >= 150.0
+    # the first try comes before the second combat; the later ones wait a minute each
+    tries = [at for screen, at in times if screen == "hunt-1-dialog" and at < deploys[0]]
+    assert len(tries) >= 3
+    assert all(later - earlier >= 60.0 for earlier, later in itertools.pairwise(tries[1:]))
+    assert game.stray_taps == []
+
+
+def test_deferred_boss_is_not_locked(
+    game_factory: GameFactory, detector: Detector, state_file: Path
+) -> None:
+    game = game_factory(
+        overrides={
+            "intel-x": [(BOSS, "boss-1-dialog")],
+            "boss-1-dialog": [(BOSS_VIEW, "boss-2-world-queues-busy")],
+        }
+    )
+    runner = make_runner(game, detector, state_file, queue_config())
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.QUEUES_BUSY
+    assert runner.missions_started == 5
+    assert not tapped(game, "boss-2-world-queues-busy", WORLD_TARGET)
+    assert len(game.taps_on("boss-1-dialog")) > 1  # tried again after each wait
+    assert not StateStore(state_file).boss_locked(NOW)
     assert game.stray_taps == []
 
 

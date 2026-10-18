@@ -29,6 +29,7 @@ Control flow uses four exceptions, handled in `Runner.run`:
 
 |`MissionRejected` |Plausibility or safety check failed. Recovery (<<TS-3.5>>), next symbol; not counted as a failure.
 |`StepFailed` |Expected state did not appear. Counted; recovery; after `max_failures` in a row `TOO_MANY_FAILURES`.
+|`QueuesBusy` |Hunt or boss popup missing with all march queues busy (<<TS-3.6>>). The target leaves the attempted list; recovery; not counted.
 |`Reconnected` |The session was reclaimed after a login on another device (<<TS-3.5>>). Next iteration; not counted. On the start screen the detection is repeated.
 |`RunEnded(outcome)` |`NO_STAMINA` or `NO_TROOPS` dialog: one BACK, the run ends with that outcome.
 |===
@@ -49,7 +50,8 @@ vanished (`ref/world-target-vanished.png`, BUG-0118) and `MissionRejected` is ra
 recovery leads back to the Intel screen and the next mission is selected (<<US-5.6>>); a
 screen other than `WORLD` re-raises the `StepFailed`.
 Found on the device run of 2026-10-17 (`ref/hunt-2-world-no-popup.png`, Marching 5/6), also
-for the boss right after a march returned (BUG-0095b, BUG-0141).
+for the boss right after a march returned (BUG-0095b, BUG-0141). Before the pin is asked, a
+hunt or boss target with all march queues busy raises `QueuesBusy` instead (<<TS-3.6>>).
 
 `ACTION_FOR` maps COMBAT → EXPLORE, HUNT/BOSS → ATTACK, RESCUE → RESCUE. The target is added
 to the attempted list before the first tap, so no symbol is tapped twice in a run.

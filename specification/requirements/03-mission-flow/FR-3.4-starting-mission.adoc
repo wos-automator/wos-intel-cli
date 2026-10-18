@@ -13,7 +13,8 @@
   (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.
 . If the popup does not appear and the world map shows the intel pin of the expected type, the
   game has swallowed the tap: the target below the pin is tapped once more and the popup
-  awaited again. A pin of another type is never tapped (<<US-5.3>>, BUG-0028).
+  awaited again. A pin of another type is never tapped (<<US-5.3>>, BUG-0028). A hunt or boss
+  target is not tapped again while the counter shows all march queues busy (<<FR-3.9>>).
 . If the popup does not appear and no pin of the expected type is shown, the target has
   vanished: the mission is skipped for this run without counting as a failure, and the run
   returns to the Intel screen to select the next one (<<US-5.6>>, BUG-0118).

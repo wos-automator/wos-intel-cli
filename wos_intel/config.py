@@ -42,6 +42,8 @@ class TimingConfig:
     completion_poll: float = 10.0
     reconnect_delay: float = 60.0
     reconnect_timeout: float = 120.0
+    queue_poll: float = 60.0
+    queue_timeout: float = 900.0
 
 
 @dataclass(frozen=True)
@@ -118,6 +120,7 @@ class OcrConfig:
     white_hi: Hsv = (180, 40, 255)
     stamina_region: Region = (595, 25, 675, 60)
     timer_region: Region = (215, 108, 510, 146)
+    march_region: Region = (185, 195, 250, 232)
     glyph_min_height_ratio: float = 0.75
     glyph_min_height: int = 10
     glyph_max_aspect: float = 1.3

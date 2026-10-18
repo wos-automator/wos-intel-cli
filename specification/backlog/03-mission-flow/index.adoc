@@ -17,3 +17,5 @@ include::US-3.5-waiting-recovery.adoc[]
 include::US-3.6-wait-running-missions-claim.adoc[]
 
 include::US-3.7-use-expert-more-missions.adoc[]
+
+include::US-3.8-defer-hunt-boss-busy-queues.adoc[]

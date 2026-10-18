@@ -16,8 +16,8 @@ Runner(config, device, detector, store, *, dry_run=False, debug_dir=None,
 Runner.run() -> Outcome
 ----
 
-`Outcome`: `NOTHING_TO_DO`, `OUT_OF_STAMINA`, `NO_TROOPS`, `MISSION_LIMIT`, `DRY_RUN` (regular,
-`ok`), `WRONG_SCREEN`, `TOO_MANY_FAILURES` (not `ok`).
+`Outcome`: `NOTHING_TO_DO`, `OUT_OF_STAMINA`, `NO_TROOPS`, `QUEUES_BUSY`, `MISSION_LIMIT`,
+`DRY_RUN` (regular, `ok`), `WRONG_SCREEN`, `TOO_MANY_FAILURES` (not `ok`).
 
 [plantuml]
 ----
@@ -53,6 +53,8 @@ repeat while (continue)
 
 The diagram omits two refinements. Boss last (<<FR-3.3>>): `choose_target` receives the
 affordable candidates without the boss; only if that list is empty does it receive the boss.
+Busy march queues (<<FR-3.9>>): before that, hunt and boss leave the affordable candidates
+while the queues are busy (<<TS-3.6>>).
 Settling (<<FR-3.7>>): every regular end (`NOTHING_TO_DO`, `OUT_OF_STAMINA`, `MISSION_LIMIT`)
 goes through `Runner._settle(final, symbols)`. It returns `final` at once if no symbol is
 `RUNNING` and `_unclaimed` (missions started since the last claim) is 0. Otherwise it polls
