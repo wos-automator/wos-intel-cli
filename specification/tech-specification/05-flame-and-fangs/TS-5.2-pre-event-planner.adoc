@@ -43,7 +43,7 @@ Runner integration (<<TS-3.1>>, <<TS-3.2>>):
 |Phase change |`_start_holding`, after the expert check: in `CLAIM`, no candidate except the boss left and a mission remembered as `HOLD`. With a `RUNNING` symbol or `_unclaimed` missions it calls `_settle(NOTHING_TO_DO)` (<<FR-3.7>>): after a claim the Intel screen is evaluated again; on its timeout the run ends with `NOTHING_TO_DO` and does not hold. Otherwise `store.hold(event_start)` and the Intel screen is evaluated again, now in `HOLD`. Without a remembered `HOLD` mission the run continues as on a normal day.
 |`_run_mission` |`_check_expiry` after the dialog type check (<<TS-2.4>>), except the boss: `read_expiry_seconds`, polled like the dialog type under a banner. Unreadable → `MissionRejected`. The group is remembered in `_groups`; group ≠ phase → `MissionDeferred` (new): `_iteration` takes the target off `_attempted`, `run()` logs `left for later`, BACK via `_recover`; no failure, no failure screenshot. `IGNORE` never equals a phase.
 |`_settle` |In `HOLD` it returns at once, without waiting: `REWARDS_HELD` instead of `NOTHING_TO_DO`, any other outcome unchanged.
-|Expert |Not tapped while `event_start - now() > expert_hours`; otherwise as in <<TS-3.1>>, with deferred groups not counted as workable.
+|Expert |`_expert_due()`: in a pre-event phase `False` while `event_start - now()` exceeds `expert_hours` (logged `expert held back: the event starts in N h`); otherwise as in <<TS-3.1>>. Its "only the boss left" check runs on the phase-filtered candidates, so missions of another group do not count as workable.
 |===
 
 New outcomes, both regular (`ok`): `REWARDS_HELD = "rewards held for the event"`,

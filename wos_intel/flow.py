@@ -430,7 +430,7 @@ class Runner:
         # The expert hands out more missions once a day. Use it as soon as no regular mission
         # is left - before the boss, and even if the stamina is used up - so it is not lost.
         only_boss_left = all(symbol.type is MissionType.BOSS for symbol in candidates)
-        if expert is not None and only_boss_left and not self._expert_used:
+        if expert is not None and only_boss_left and not self._expert_used and self._expert_due():
             if self._dry_run:
                 log.info("dry run: would tap %d,%d (%s)", expert.x, expert.y, expert.name)
                 return Outcome.DRY_RUN
@@ -482,6 +482,16 @@ class Runner:
         if self._event_start is None or self._now() >= self._event_start:
             return None
         return Phase.HOLD if self._store.holding(self._now()) else Phase.CLAIM
+
+    def _expert_due(self) -> bool:
+        """Before the event the expert waits until shortly before the start (SPEC 3.7)."""
+        if self._phase() is None or self._event_start is None:
+            return True
+        hours = (self._event_start - self._now()).total_seconds() / 3600
+        if hours > self._config.event.expert_hours:
+            log.info("expert held back: the event starts in %.1f h", hours)
+            return False
+        return True
 
     def _group_of(self, symbol: Symbol) -> Group | None:
         radius = self._config.symbols.lock_radius
