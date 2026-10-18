@@ -17,6 +17,13 @@
 * The expiry "Intel Expires In HH:MM:SS" of the mission dialogs is read with digit templates
   for the dark text, cut from the dialog references. New settings `expiry_region`, `dark_lo`
   and `dark_hi` in `[ocr]` (<<US-6.2>>, <<FR-5.2>>).
+* Pre-event rules of the Flame and Fangs event: while the event icon counts down, each
+  mission's expiry is compared with the event start. Missions that expire before it are
+  finished and claimed first; then the run stores a hold in `state.json`, finishes the missions
+  that expire with the event start and claims nothing until the event, also in later runs.
+  Missions that expire after the start are left for the event. The run ends with "rewards held
+  for the event"; an unreadable countdown ends it untouched. New section `[event]` with
+  `tolerance_minutes` (<<US-6.3>>, <<FR-5.3>>).
 
 === Fixes
 

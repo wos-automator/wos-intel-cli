@@ -29,6 +29,8 @@ def test_defaults_follow_the_spec() -> None:
     assert config.timing.fight_timeout == 60.0
     assert config.timing.queue_poll == 60.0
     assert config.timing.queue_timeout == 900.0
+    assert config.event.tolerance_minutes == 10.0
+    assert config.event.expert_hours == 2.0
     assert config.limits.max_missions == 30
     assert config.symbols.match_threshold == 0.75
     assert config.buttons.threshold == 0.9
@@ -146,3 +148,29 @@ def test_lock_keeps_unrelated_state(tmp_path: Path) -> None:
     StateStore(path).lock_boss(NOW, 60)
 
     assert json.loads(path.read_text(encoding="utf-8"))["other"] == 1
+
+
+@pytest.mark.integration
+def test_event_hold_round_trip_keeps_the_boss_lock(tmp_path: Path) -> None:
+    path = tmp_path / "state.json"
+    store = StateStore(path)
+    store.lock_boss(NOW, 3600)
+    assert not store.holding(NOW)
+
+    store.hold(NOW + timedelta(hours=8))
+
+    again = StateStore(path)
+    assert again.holding(NOW + timedelta(hours=7, minutes=59))
+    assert not again.holding(NOW + timedelta(hours=8))  # the event has started
+    assert again.boss_locked(NOW)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "content", ["{broken", '{"event": 3}', '{"event": {}}', '{"event": {"hold_until": "x"}}']
+)
+def test_unusable_event_hold_means_not_holding(tmp_path: Path, content: str) -> None:
+    path = tmp_path / "state.json"
+    path.write_text(content, encoding="utf-8")
+
+    assert not StateStore(path).holding(NOW)

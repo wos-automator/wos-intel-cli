@@ -1,7 +1,7 @@
 [#US-6.3]
 === US-6.3 Claim, hold and ignore before the event
 
-Status:: Open +
+Status:: Done (0.1.1) – verified on the fake game only +
 Effort:: 8 h +
 Traces to:: <<TS-5.2>>, <<TS-3.1>>, <<TS-3.4>>, <<FR-5.3>>, <<FR-3.2>>, <<FR-3.7>>
 

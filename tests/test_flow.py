@@ -999,6 +999,158 @@ def test_deferred_boss_is_not_locked(
     assert game.stray_taps == []
 
 
+# Flame and Fangs (US-6.3): the pasted icon counts down 07:52:41 from NOW.
+UNTIL_EVENT = 7 * 3600 + 52 * 60 + 41
+CLAIM_EXPIRY = 3 * 3600  # e.g. a mission of the 00:00 refresh at 13:00
+HOLD_EXPIRY = UNTIL_EVENT - 42  # expires with the event start
+IGNORE_EXPIRY = 12 * 3600  # expires after the event start
+
+
+def set_expiries(
+    mocker: MockerFixture, game: FakeGame, detector: Detector, expiries: dict[str, int | None]
+) -> None:
+    """The fake game has one dialog per type; give each the expiry the test needs."""
+    mocker.patch.object(
+        detector, "read_expiry_seconds", side_effect=lambda image: expiries[game.screen]
+    )
+
+
+def test_claim_missions_are_claimed_before_the_held_ones_are_started(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    mocker: MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    game = game_factory(start="event-intel-x", intel="event-intel-x")
+    # the two combats finish after 200 s: Claim All appears
+    game.timed["event-intel-x"] = (200.0, "event-intel-xxx")
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": HOLD_EXPIRY}
+    )
+    runner = make_runner(game, detector, state_file, Config())
+    times = record_tap_times(game, monkeypatch)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.REWARDS_HELD
+    claims = [at for screen, at in times if screen == "event-intel-xxx"]
+    assert len(claims) == 1
+    assert all(near(tap, CLAIM_ALL, 8) for tap in game.taps_on("event-intel-xxx"))
+    deploys = [at for screen, at in times if screen == "hunt-3-deploy"]
+    assert len(deploys) == 3
+    assert all(at > claims[0] for at in deploys)
+    assert len(game.taps_on("combat-3-squad-fight")) == 2
+    # the hunts were opened in the claim phase, closed with BACK, and opened again
+    assert game.backs.count("hunt-1-dialog") == 4  # 3 hunts + the boss (wrong dialog type)
+    assert StateStore(state_file).holding(NOW)
+    assert game.stray_taps == []
+
+
+def test_missions_expiring_after_the_event_are_never_started(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    game = game_factory(start="event-intel-x", intel="event-intel-x")
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": IGNORE_EXPIRY}
+    )
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps_on("hunt-1-dialog") == []  # "View" never tapped
+    assert game.backs.count("hunt-1-dialog") == 4
+    for paw in (PAW_PURPLE, PAW_BLUE_LEFT, PAW_BLUE_RIGHT):
+        assert sum(near(tap, paw, 8) for tap in game.taps_on("event-intel-x")) == 1
+    assert runner.missions_started == 2
+    assert not StateStore(state_file).holding(NOW)
+    assert game.stray_taps == []
+
+
+def test_a_later_run_before_the_event_claims_nothing(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    StateStore(state_file).hold(NOW + timedelta(seconds=UNTIL_EVENT))
+    game = game_factory(start="event-intel-xxx", intel="event-intel-xxx")
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": HOLD_EXPIRY}
+    )
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.REWARDS_HELD
+    assert not any(near(tap, CLAIM_ALL, 8) for tap in game.taps_on("event-intel-xxx"))
+    assert len(game.taps_on("hunt-3-deploy")) == 3
+    assert game.taps_on("combat-1-dialog") == []  # claim missions are ignored once holding
+    assert game.stray_taps == []
+
+
+def test_held_missions_wait_while_claim_missions_are_unclaimed(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    game = game_factory(start="event-intel-x", intel="event-intel-x")
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": HOLD_EXPIRY}
+    )
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    # the combats never finish within the wait: holding now would block their claim
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps_on("hunt-3-deploy") == []
+    assert not StateStore(state_file).holding(NOW)
+
+
+def test_boss_is_attacked_before_the_event_without_an_expiry(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    game = game_factory(
+        start="event-intel-x",
+        intel="event-intel-x",
+        overrides={"event-intel-x": [(BOSS, "boss-1-dialog")]},
+    )
+    # no entry for the boss dialog: asking for its expiry would fail the test
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": IGNORE_EXPIRY}
+    )
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert len(game.taps_on("boss-3-deploy")) == 1
+    assert StateStore(state_file).boss_locked(NOW)
+
+
+def test_mission_with_an_unreadable_expiry_is_skipped(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    game = game_factory(start="event-intel-x", intel="event-intel-x")
+    set_expiries(mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": None})
+    runner = make_runner(game, detector, state_file)
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.taps_on("hunt-1-dialog") == []
+    assert runner.missions_started == 2
+
+
+def test_unreadable_event_countdown_ends_the_run_untouched(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    mocker.patch.object(detector, "read_event_countdown", return_value=None)
+    game = game_factory(start="event-intel-xxx", intel="event-intel-xxx")
+
+    outcome = make_runner(game, detector, state_file).run()
+
+    assert outcome is Outcome.EVENT_UNREADABLE
+    assert game.taps == []
+    assert game.backs == []
+
+
 def test_expect_polls_until_the_timeout(
     game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
 ) -> None:
