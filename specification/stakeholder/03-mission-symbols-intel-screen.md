@@ -90,3 +90,36 @@ centre ≈ 59,210, template `templates/expert_sign.png`). A tap on it delivers f
 - **Still open:** what appears after the tap (dialog, animation) is not covered by a reference
   image. If something other than the Intel screen appears, the normal recovery applies
   (`BACK`), and the screenshot is stored under `debug/`.
+
+### 3.7 flame and fangs special mission
+
+The game has an episode called flame and fangs. The mission is only available once in four weeks. It is advertised with a symbol in the lower right corner of the screen with a countdown until the main event starts. 
+
+The icon is `templates/flame-and-fans-event-icon.png`, a screenshot with the icon and some missions is `ref/flame-and-fangs-announced.png`.
+
+During the flame and fangs event, the game rewards each hunt with Crystallite Cores. The reward is paid when the mission rewards are claimed. To max out the rewards for the event, the player avoids to finish hunts or claim the rewards until the event starts. This way, the player has more missions during the flame and fangs event than on a usual day and can collect more Crystallite Cores.
+
+During the flame and fangs event, a new hunt icon is available, that exposes the firebeast on the pin. It works like the normal hunt (paw symbol). The pin is `templates/flame-and-fangs-firebeast-mission.png`.
+
+In each mission dialog, an expiration time for the mission is given. If the expiration time is past the start of the event, the player shall not collect the rewards or complete the mission before the event starts. 
+
+The following table shows the player action to move the most mission rewards into the event:
+
+The firebeast with timer is only visible the day before the event starts. 
+
+- Day before event start Time 00:00 
+  - Expiration is 16 hrs. The missions will expire before the event starts.
+  - Task: Finish the missions and claim all the mission rewards
+- Day before event start Time 08:00
+  - The missions expire with the start of the event
+  - Task: Finish the missions but DO NOT CLAIM the mission rewards
+- Day before event start Time 16:00
+  - The missions expire after the start of the event
+  - Task: ignore the missions
+- Day of event start Time 22:00
+  - The missions expire after the start of the event
+  - Task: ignore the missions. Activate the expert missions.
+- Day of the event Time 00:00
+  - the firebeast icon with the event countdown vanishes 
+  - The event started, now claim all missions, including the firebeast missions
+  - Task: finish and claim all missions, including the firebeast missions
