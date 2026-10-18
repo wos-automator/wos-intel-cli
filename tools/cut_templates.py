@@ -47,6 +47,8 @@ CUTS: tuple[tuple[str, str, Region], ...] = (
     # "The account has been logged in on another device.", BUG-0095a
     ("text_logged_in_elsewhere", "dialog-logged-in-elsewhere", (60, 588, 660, 620)),
     ("btn_reconnect", "dialog-logged-in-elsewhere", (435, 782, 605, 822)),
+    # creature head of the Flame and Fangs icon, without its countdown (SPEC 3.7)
+    ("event_icon", "flame-and-fangs-announced", (612, 1158, 680, 1200)),
 )
 
 

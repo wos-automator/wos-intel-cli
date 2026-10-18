@@ -8,15 +8,19 @@ Implements <<FR-5.1>> and <<FR-5.2>>.
   it. `templates/flame-and-fangs-event-icon.png` delivered with SPEC.md §3.7 is about twice
   the device scale (182 px wide, the icon on the screenshot ≈ 95 px) and has an alpha channel;
   it stays as the stakeholder's source and is not used for matching. Region
-  `regions.event_icon` (560, 1100, 720, 1280); it is an optional template (<<TS-2.1>>), so
-  other screens are unaffected.
+  `regions.event_icon` (560, 1100, 720, 1280), threshold 0.9: the cut scores 1.0 on its
+  reference and at most 0.50 on every other one. It is a required template like
+  `expert_sign`, because it is cut from a reference.
 * `Detector.find_event_icon(image) -> Match | None`, asked on every evaluation of the Intel
   screen.
 * `Detector.read_event_countdown(image) -> int | None`: the six rightmost glyphs of
-  `ocr.event_countdown_region` as HHMMSS, like `read_refresh_seconds` (<<TS-2.3>>). A probe
-  with the white mask of `[ocr]` on the reference read nothing usable; the region and, if
-  needed, the mask (white text with a dark outline over the icon) are measured when the
-  template is cut. Missing digit glyphs of this size are cut from the same reference.
+  `ocr.countdown_region` (590, 1228, 695, 1254) as HHMMSS, like `read_refresh_seconds`
+  (<<TS-2.3>>). The digits are pure white with a dark outline on a light map (V ≈ 220,
+  S ≈ 30), which the white mask of `[ocr]` takes in as well; the countdown therefore has its own
+  mask `ocr.countdown_lo` / `ocr.countdown_hi` (V ≥ 235, S ≤ 25). With it the existing digit
+  templates read 07:52:41 with scores ≥ 0.82.
+* `Runner._note_event(image)`: on every evaluation of the Intel screen; with the icon and a
+  readable countdown it sets `_event_start = now() + countdown` once per run and logs it.
 * `Detector.read_expiry_seconds(image) -> int | None`: the six rightmost glyphs of
   `ocr.expiry_region` (≈ 330–500 / 845–885) as HHMMSS, segmented with a dark-text mask
   `ocr.dark_lo` / `ocr.dark_hi` (≈ V ≤ 110, S ≤ 120). A probe with the existing white digit

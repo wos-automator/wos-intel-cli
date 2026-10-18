@@ -10,6 +10,11 @@
   `queue_poll` and `queue_timeout` in `[timing]` and `march_region` in `[ocr]` (<<US-3.8>>,
   <<FR-2.7>>, <<FR-3.9>>).
 
+* Flame and Fangs event: the event icon on the Intel screen and its countdown "Opens in
+  HH:MM:SS" are detected; the run logs when the event starts. New template `event_icon`, new
+  settings `countdown_region`, `countdown_lo` and `countdown_hi` in `[ocr]` (<<US-6.1>>,
+  <<FR-5.1>>).
+
 === Fixes
 
 * BUG-0002: the hint bubble "You have enabled Simple Battle Mode …" over the world map is

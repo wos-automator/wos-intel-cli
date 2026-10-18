@@ -121,6 +121,10 @@ class OcrConfig:
     stamina_region: Region = (595, 25, 675, 60)
     timer_region: Region = (215, 108, 510, 146)
     march_region: Region = (185, 195, 250, 232)
+    # "Opens in HH:MM:SS" of the Flame and Fangs icon: pure white on a light map
+    countdown_region: Region = (590, 1228, 695, 1254)
+    countdown_lo: Hsv = (0, 0, 235)
+    countdown_hi: Hsv = (180, 25, 255)
     glyph_min_height_ratio: float = 0.75
     glyph_min_height: int = 10
     glyph_max_aspect: float = 1.3
@@ -160,6 +164,7 @@ def _default_regions() -> dict[str, Region]:
         "btn_cancel": (40, 720, 360, 860),
         "text_logged_in_elsewhere": (0, 520, 720, 700),
         "btn_reconnect": (360, 720, 720, 880),
+        "event_icon": (560, 1100, 720, 1280),
     }
 
 
