@@ -251,6 +251,21 @@ def test_dry_run_logs_symbols_and_stamina(
     assert "BOSS GOLD AVAILABLE at 518,700" in caplog.text
 
 
+def test_dry_run_logs_the_event_start(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level("INFO")
+    game = game_factory(start="flame-and-fangs-announced")
+
+    make_runner(game, detector, state_file, dry_run=True).run()
+
+    # NOW (19:00) plus the countdown 07:52:41
+    assert caplog.text.count("Flame and Fangs starts at 2026-10-10T02:52:41") == 1
+
+
 def test_run_ends_when_stamina_is_below_minimum(
     game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
 ) -> None:

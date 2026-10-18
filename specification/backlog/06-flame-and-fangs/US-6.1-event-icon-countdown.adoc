@@ -1,7 +1,7 @@
 [#US-6.1]
 === US-6.1 Detect the event icon and its countdown
 
-Status:: Open +
+Status:: Done (0.1.1) +
 Effort:: 3 h +
 Traces to:: <<TS-5.1>>, <<FR-5.1>>
 
@@ -17,3 +17,4 @@ move mission rewards into the event.
 
 .Test criteria
 * Unit test (`tests/test_detect.py`): icon found / not found, countdown value.
+* Component test (`tests/test_flow.py`): a dry run logs the event start once.

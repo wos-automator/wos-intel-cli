@@ -10,7 +10,7 @@ import logging
 import math
 import time
 from collections.abc import Callable, Collection
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
 from pathlib import Path
 from typing import Protocol
@@ -183,6 +183,7 @@ class Runner:
         self._reconnecting = False
         self._queues_busy = False
         self._busy_since: float | None = None
+        self._event_start: datetime | None = None
         self.missions_started = 0
 
     # ------------------------------------------------------------------ primitives
@@ -397,6 +398,7 @@ class Runner:
         expert = self._detector.find_expert(image)
         if expert is not None:
             log.info("expert sign at %d,%d (score %.2f)", expert.x, expert.y, expert.score)
+        self._note_event(image)
 
         if self.missions_started >= self._config.limits.max_missions:
             return self._settle(Outcome.MISSION_LIMIT, symbols)
@@ -463,6 +465,16 @@ class Runner:
         # Only a fresh look at the map tells whether a march has returned meanwhile.
         self._queues_busy = False
         return None
+
+    def _note_event(self, image: Image) -> None:
+        """Remember when the Flame and Fangs event starts, while its icon counts down (SPEC 3.7)."""
+        if self._detector.find_event_icon(image) is None:
+            return
+        countdown = self._detector.read_event_countdown(image)
+        if countdown is None or self._event_start is not None:
+            return
+        self._event_start = self._now() + timedelta(seconds=countdown)
+        log.info("Flame and Fangs starts at %s", self._event_start.isoformat(timespec="seconds"))
 
     def _claim(self, claim: Match) -> None:
         self._tap_match(claim)

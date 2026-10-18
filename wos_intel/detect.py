@@ -107,6 +107,7 @@ REQUIRED_TEMPLATES: tuple[str, ...] = (
     "btn_cancel",
     "text_logged_in_elsewhere",
     "btn_reconnect",
+    "event_icon",
 )
 
 # Screens without a reference screenshot yet (SPEC §2 "Noch offen"). As soon as the file
@@ -535,10 +536,12 @@ class Detector:
 
     # ------------------------------------------------------------------ digit OCR
 
-    def _read_digits(self, image: Image, region: Region, last: int = 0) -> list[int] | None:
+    def _read_digits(
+        self, image: Image, region: Region, last: int = 0, mask: tuple[Hsv, Hsv] | None = None
+    ) -> list[int] | None:
         """Classify the glyphs of a region; ``last`` keeps only the rightmost glyphs."""
         ocr = self._config.ocr
-        glyphs = self._glyphs_of(image, region)
+        glyphs = self._glyphs_of(image, region, mask)
         if len(glyphs) < last:
             return None
         digits: list[int] = []
@@ -549,12 +552,15 @@ class Detector:
             digits.append(digit)
         return digits or None
 
-    def _glyphs_of(self, image: Image, region: Region) -> list[Image]:
+    def _glyphs_of(
+        self, image: Image, region: Region, mask: tuple[Hsv, Hsv] | None = None
+    ) -> list[Image]:
         ocr = self._config.ocr
+        lo, hi = (ocr.white_lo, ocr.white_hi) if mask is None else mask
         return segment_glyphs(
             _crop(image, region),
-            ocr.white_lo,
-            ocr.white_hi,
+            lo,
+            hi,
             ocr.glyph_min_height_ratio,
             ocr.glyph_min_height,
             ocr.glyph_max_aspect,
@@ -576,7 +582,13 @@ class Detector:
 
     def read_refresh_seconds(self, image: Image) -> int | None:
         """Seconds left on the "Refreshes In: HH:MM:SS" banner; ``None`` if unreadable."""
-        digits = self._read_digits(image, self._config.ocr.timer_region, last=6)
+        return self._read_hhmmss(image, self._config.ocr.timer_region)
+
+    def _read_hhmmss(
+        self, image: Image, region: Region, mask: tuple[Hsv, Hsv] | None = None
+    ) -> int | None:
+        """The six rightmost glyphs of a region as HH:MM:SS in seconds."""
+        digits = self._read_digits(image, region, last=6, mask=mask)
         if digits is None:
             return None
         h1, h2, m1, m2, s1, s2 = digits
@@ -584,6 +596,15 @@ class Detector:
         if minutes > 59 or seconds > 59:
             return None
         return (h1 * 10 + h2) * 3600 + minutes * 60 + seconds
+
+    def find_event_icon(self, image: Image) -> Match | None:
+        """The Flame and Fangs icon bottom right on the Intel screen, the day before the event."""
+        return self.find(image, "event_icon")
+
+    def read_event_countdown(self, image: Image) -> int | None:
+        """Seconds until the event starts ("Opens in HH:MM:SS" below the icon)."""
+        ocr = self._config.ocr
+        return self._read_hhmmss(image, ocr.countdown_region, (ocr.countdown_lo, ocr.countdown_hi))
 
     def read_marches(self, image: Image) -> tuple[int, int] | None:
         """Busy and total march queues of "Marching N/M" on the world map (BUG-0014).

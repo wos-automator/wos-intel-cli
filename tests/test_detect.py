@@ -167,6 +167,7 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("dialog-quit-game", State.QUIT_CONFIRMATION),
         ("dialog-logged-in-elsewhere", State.SESSION_LOST),
         ("hunt-2-world-queues-busy", State.WORLD),
+        ("flame-and-fangs-announced", State.INTEL),
     ],
 )
 def test_states(detector: Detector, images: dict[str, Image], name: str, state: State) -> None:
@@ -361,6 +362,28 @@ def test_refresh_timer(detector: Detector, name: str, seconds: int) -> None:
 
 def test_refresh_timer_is_none_without_banner(detector: Detector) -> None:
     assert detector.read_refresh_seconds(load_ref("hunt-3-deploy")) is None
+
+
+def test_event_icon_and_countdown(detector: Detector) -> None:
+    """SPEC 3.7: the Flame and Fangs icon counts down to the event start."""
+    image = load_ref("flame-and-fangs-announced")
+
+    icon = detector.find_event_icon(image)
+
+    assert icon is not None
+    assert abs(icon.x - 646) <= POSITION_TOLERANCE and abs(icon.y - 1179) <= POSITION_TOLERANCE
+    assert detector.read_event_countdown(image) == 7 * 3600 + 52 * 60 + 41
+    assert detector.read_refresh_seconds(image) == 7 * 3600 + 52 * 60 + 41
+
+
+@pytest.mark.parametrize(
+    "name", ["intel-x", "intel-xx", "intel-xxx", "intel-boss-running", "intel-expert-available"]
+)
+def test_no_event_icon_on_a_normal_day(detector: Detector, name: str) -> None:
+    image = load_ref(name)
+
+    assert detector.find_event_icon(image) is None
+    assert detector.read_event_countdown(image) is None
 
 
 @pytest.mark.parametrize(
