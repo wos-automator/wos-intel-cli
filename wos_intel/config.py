@@ -142,6 +142,12 @@ class BossConfig:
 
 
 @dataclass(frozen=True)
+class EventConfig:
+    tolerance_minutes: float = 10.0
+    expert_hours: float = 2.0
+
+
+@dataclass(frozen=True)
 class PathConfig:
     templates: str = "templates"
     ref: str = "ref"
@@ -182,6 +188,7 @@ class Config:
     buttons: ButtonConfig = field(default_factory=ButtonConfig)
     ocr: OcrConfig = field(default_factory=OcrConfig)
     boss: BossConfig = field(default_factory=BossConfig)
+    event: EventConfig = field(default_factory=EventConfig)
     paths: PathConfig = field(default_factory=PathConfig)
     regions: dict[str, Region] = field(default_factory=_default_regions)
     base_dir: Path = PROJECT_ROOT

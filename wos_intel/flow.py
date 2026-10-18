@@ -29,6 +29,7 @@ from wos_intel.detect import (
     Status,
     Symbol,
 )
+from wos_intel.event import Group, Phase, classify
 from wos_intel.state import StateStore
 
 log = logging.getLogger(__name__)
@@ -52,6 +53,8 @@ class Outcome(StrEnum):
     OUT_OF_STAMINA = "not enough stamina"
     NO_TROOPS = "no troops or march slots available"
     QUEUES_BUSY = "all march queues busy"
+    REWARDS_HELD = "rewards held for the event"
+    EVENT_UNREADABLE = "event countdown unreadable"
     MISSION_LIMIT = "mission limit reached"
     DRY_RUN = "dry run finished"
     WRONG_SCREEN = "game is neither on the Intel screen nor on the world map"
@@ -75,6 +78,10 @@ class StepFailed(Exception):
 
 class MissionRejected(Exception):
     """A plausibility or safety check failed; the mission is skipped for this run."""
+
+
+class MissionDeferred(Exception):
+    """The mission belongs to another phase of the Flame and Fangs pre-event rules."""
 
 
 class QueuesBusy(Exception):
@@ -184,6 +191,9 @@ class Runner:
         self._queues_busy = False
         self._busy_since: float | None = None
         self._event_start: datetime | None = None
+        # pre-event group of every mission whose expiry has been read (SPEC 3.7)
+        self._groups: list[tuple[Symbol, Group]] = []
+        self._logged_phase: Phase | None = None
         self.missions_started = 0
 
     # ------------------------------------------------------------------ primitives
@@ -363,6 +373,10 @@ class Runner:
                 log.info("deferred until a march queue is free: %s", busy)
                 self._recover()
                 continue
+            except MissionDeferred as deferred:
+                log.info("left for later: %s", deferred)
+                self._recover()
+                continue
             except MissionRejected as rejected:
                 log.warning("mission skipped for this run: %s", rejected)
                 self._save_failure()
@@ -384,13 +398,21 @@ class Runner:
         screen, image = self._enter_intel()
         stamina = self._detector.read_stamina(image)
         log.info("stamina %s", "unreadable" if stamina is None else stamina)
+        image = self._note_event(image)
+        phase = self._phase()
+        if phase is not None and phase is not self._logged_phase:
+            log.info("Flame and Fangs pre-event: %s phase", phase)
+            self._logged_phase = phase
 
         if screen.state is State.INTEL_CLAIMABLE:
             claim = screen.matches["btn_claim_all"]
-            if not self._dry_run:
+            if phase is Phase.HOLD:
+                log.info("not claiming: the rewards are held for the event")
+            elif not self._dry_run:
                 self._claim(claim)
                 return None
-            log.info("dry run: would tap %d,%d (%s)", claim.x, claim.y, claim.name)
+            else:
+                log.info("dry run: would tap %d,%d (%s)", claim.x, claim.y, claim.name)
 
         symbols = self._detector.detect_symbols(image)
         for symbol in symbols:
@@ -398,12 +420,13 @@ class Runner:
         expert = self._detector.find_expert(image)
         if expert is not None:
             log.info("expert sign at %d,%d (score %.2f)", expert.x, expert.y, expert.score)
-        self._note_event(image)
 
         if self.missions_started >= self._config.limits.max_missions:
             return self._settle(Outcome.MISSION_LIMIT, symbols)
 
         candidates = self._candidates(symbols)
+        if phase is not None:
+            candidates = [symbol for symbol in candidates if self._in_phase(symbol, phase)]
         # The expert hands out more missions once a day. Use it as soon as no regular mission
         # is left - before the boss, and even if the stamina is used up - so it is not lost.
         only_boss_left = all(symbol.type is MissionType.BOSS for symbol in candidates)
@@ -414,6 +437,8 @@ class Runner:
             self._expert_used = True
             self._tap_match(expert)
             return None
+        if phase is Phase.CLAIM and only_boss_left and self._held_missions_left():
+            return self._start_holding(symbols)
 
         if stamina is not None and stamina < self._config.limits.min_stamina:
             return self._settle(Outcome.OUT_OF_STAMINA, symbols)
@@ -445,10 +470,77 @@ class Runner:
         self._attempted.append(target)
         try:
             self._run_mission(target, point, self._detector.read_refresh_seconds(image))
-        except QueuesBusy:
+        except (QueuesBusy, MissionDeferred):
             self._attempted.remove(target)
             raise
         return None
+
+    # ------------------------------------------------------------------ Flame and Fangs
+
+    def _phase(self) -> Phase | None:
+        """Pre-event phase while the event icon counts down; ``None`` on a normal day."""
+        if self._event_start is None or self._now() >= self._event_start:
+            return None
+        return Phase.HOLD if self._store.holding(self._now()) else Phase.CLAIM
+
+    def _group_of(self, symbol: Symbol) -> Group | None:
+        radius = self._config.symbols.lock_radius
+        for known, group in self._groups:
+            if (
+                known.type is symbol.type
+                and math.hypot(known.x - symbol.x, known.y - symbol.y) <= radius
+            ):
+                return group
+        return None
+
+    def _in_phase(self, symbol: Symbol, phase: Phase) -> bool:
+        """A mission not opened yet is a candidate; its expiry decides once its dialog is open."""
+        group = self._group_of(symbol)
+        return group is None or group.value == phase.value
+
+    def _held_missions_left(self) -> bool:
+        return any(group is Group.HOLD for _, group in self._groups)
+
+    def _start_holding(self, symbols: list[Symbol]) -> Outcome | None:
+        """Every claim mission is done: claim them, then start the missions held for the event."""
+        running = any(symbol.status is Status.RUNNING for symbol in symbols)
+        if running or self._unclaimed:
+            outcome = self._settle(Outcome.NOTHING_TO_DO, symbols)
+            if outcome is None:
+                return None  # claimed: look at the Intel screen again
+            log.warning("claim missions still running; the held missions are not started")
+            return outcome
+        if self._dry_run:
+            log.info("dry run: would start the hold phase")
+            return Outcome.DRY_RUN
+        assert self._event_start is not None
+        self._store.hold(self._event_start)
+        log.info("hold phase: rewards are not claimed before %s", self._event_start.isoformat())
+        return None
+
+    def _check_expiry(self, target: Symbol, image: Image) -> None:
+        """Group the mission by its expiry; one of another phase is left for later (SPEC 3.7)."""
+        phase = self._phase()
+        if phase is None or target.type is MissionType.BOSS or self._event_start is None:
+            return
+        timing = self._config.timing
+        expires_in = self._detector.read_expiry_seconds(image)
+        deadline = self._clock() + timing.expect_timeout
+        while expires_in is None and self._clock() < deadline:
+            self._sleep(timing.poll_interval)
+            screen, image = self._observe()
+            if screen.state is not State.MISSION_DIALOG:
+                raise StepFailed(f"mission dialog disappeared, screen is {screen.state}")
+            expires_in = self._detector.read_expiry_seconds(image)
+        if expires_in is None:
+            raise MissionRejected("the mission expiry cannot be read")
+        until_start = (self._event_start - self._now()).total_seconds()
+        tolerance = self._config.event.tolerance_minutes * 60
+        group = classify(expires_in, until_start, tolerance)
+        self._groups.append((target, group))
+        log.info("mission expires in %d s, event in %.0f s: %s", expires_in, until_start, group)
+        if group.value != phase.value:
+            raise MissionDeferred(f"{group} mission in the {phase} phase")
 
     def _await_queue(self, symbols: list[Symbol]) -> Outcome | None:
         """Only hunt and boss are left and every march queue is busy: wait, then try again."""
@@ -466,15 +558,28 @@ class Runner:
         self._queues_busy = False
         return None
 
-    def _note_event(self, image: Image) -> None:
-        """Remember when the Flame and Fangs event starts, while its icon counts down (SPEC 3.7)."""
-        if self._detector.find_event_icon(image) is None:
-            return
+    def _note_event(self, image: Image) -> Image:
+        """Remember when the Flame and Fangs event starts, while its icon counts down (SPEC 3.7).
+
+        Returns the screenshot the countdown was read on. Without a readable countdown the run
+        cannot tell which rewards to hold, so it ends without touching anything.
+        """
+        if self._event_start is not None or self._detector.find_event_icon(image) is None:
+            return image
+        timing = self._config.timing
         countdown = self._detector.read_event_countdown(image)
-        if countdown is None or self._event_start is not None:
-            return
+        deadline = self._clock() + timing.expect_timeout
+        while countdown is None and self._clock() < deadline:
+            self._sleep(timing.poll_interval)
+            screen, image = self._observe()
+            if screen.state not in INTEL_STATES:
+                raise StepFailed(f"left the Intel screen, screen is {screen.state}")
+            countdown = self._detector.read_event_countdown(image)
+        if countdown is None:
+            raise RunEnded(Outcome.EVENT_UNREADABLE)
         self._event_start = self._now() + timedelta(seconds=countdown)
         log.info("Flame and Fangs starts at %s", self._event_start.isoformat(timespec="seconds"))
+        return image
 
     def _claim(self, claim: Match) -> None:
         self._tap_match(claim)
@@ -488,6 +593,9 @@ class Runner:
 
         Returns ``None`` after a claim so that the loop looks at the Intel screen again.
         """
+        if self._phase() is Phase.HOLD:
+            # Waiting would only end in a claim, and nothing is claimed before the event.
+            return Outcome.REWARDS_HELD if final is Outcome.NOTHING_TO_DO else final
         running = sum(symbol.status is Status.RUNNING for symbol in symbols)
         if running == 0 and self._unclaimed == 0:
             return final
@@ -554,6 +662,7 @@ class Runner:
         if shown is None or shown[0] is not target.type:
             found = "no known type" if shown is None else str(shown[0])
             raise MissionRejected(f"dialog shows {found}, expected {target.type}")
+        self._check_expiry(target, image)
         self._tap_match(screen.matches["btn_view"])
 
         screen = self._await_popup(target)

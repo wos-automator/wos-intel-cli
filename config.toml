@@ -103,6 +103,10 @@ max_stamina_digits = 6
 [boss]
 fallback_cycle_hours = 8.0  # boss lock if the "Refreshes In" timer cannot be read
 
+[event]
+tolerance_minutes = 10.0   # Flame and Fangs: a mission expiring this close to the start is held
+expert_hours = 2.0         # the day before the event, the expert is only used this close to it
+
 [paths]
 templates = "templates"
 ref = "ref"

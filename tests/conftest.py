@@ -32,6 +32,7 @@ CANCEL: Point = (210, 787)
 RECONNECT: Point = (520, 802)
 WORLD_TARGET: Point = (360, 731)  # below the intel pin at 360,661
 EXPERT_AREA = (10, 165, 105, 255)
+EVENT_AREA = (560, 1100, 720, 1280)  # Flame and Fangs icon with its countdown 07:52:41
 MARCH_COUNTER = (185, 195, 250, 232)  # "N/M" of "Marching N/M" on the world map
 
 BOSS: Point = (518, 700)
@@ -96,6 +97,14 @@ def with_expert(name: str) -> Image:
     return out
 
 
+def with_event(name: str) -> Image:
+    """An Intel reference with the Flame and Fangs icon of flame-and-fangs-announced.png."""
+    out = load_ref(name)
+    x0, y0, x1, y1 = EVENT_AREA
+    out[y0:y1, x0:x1] = load_ref("flame-and-fangs-announced")[y0:y1, x0:x1]
+    return out
+
+
 def with_busy_queues(image: Image) -> Image:
     """A world map whose march counter shows 6/6, pasted from hunt-2-world-queues-busy.png."""
     out = image.copy()
@@ -134,6 +143,8 @@ def images() -> dict[str, Image]:
     loaded["defeat"] = make_defeat()
     loaded["expert-only-boss-running"] = with_expert("intel-boss-running")
     loaded["expert-and-missions"] = with_expert("intel-x")
+    loaded["event-intel-x"] = with_event("intel-x")
+    loaded["event-intel-xxx"] = with_event("intel-xxx")
     loaded["world-queues-busy"] = with_busy_queues(loaded["world"])
     loaded["boss-2-world-queues-busy"] = with_busy_queues(loaded["boss-2-world-no-popup"])
     return loaded
@@ -186,6 +197,8 @@ class FakeGame:
             "intel-xxxx": [(REWARDS_EXIT, intel)],
             "expert-only-boss-running": [(EXPERT, "intel-x")],
             "expert-and-missions": [(EXPERT, "intel-x"), *symbols],
+            "event-intel-x": list(symbols),
+            "event-intel-xxx": [(CLAIM_ALL, "intel-xxxx"), *symbols],
             "combat-1-dialog": [(VIEW, "combat-2-world-explore")],
             "hunt-1-dialog": [(VIEW, "hunt-2-world-attack")],
             "rescue-dialog": [(VIEW, "rescue-popup")],
