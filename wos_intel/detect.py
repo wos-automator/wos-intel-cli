@@ -597,6 +597,11 @@ class Detector:
             return None
         return (h1 * 10 + h2) * 3600 + minutes * 60 + seconds
 
+    def read_expiry_seconds(self, image: Image) -> int | None:
+        """Seconds until the mission expires ("Intel Expires In" of the dialog); not on the boss."""
+        ocr = self._config.ocr
+        return self._read_hhmmss(image, ocr.expiry_region, (ocr.dark_lo, ocr.dark_hi))
+
     def find_event_icon(self, image: Image) -> Match | None:
         """The Flame and Fangs icon bottom right on the Intel screen, the day before the event."""
         return self.find(image, "event_icon")
