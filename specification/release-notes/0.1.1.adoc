@@ -24,6 +24,9 @@
   Missions that expire after the start are left for the event. The run ends with "rewards held
   for the event"; an unreadable countdown ends it untouched. New section `[event]` with
   `tolerance_minutes` (<<US-6.3>>, <<FR-5.3>>).
+* Before the Flame and Fangs event the expert is only used within 2 h of the start, so its
+  missions are still available during the event. New setting `expert_hours` in `[event]`
+  (<<US-6.4>>, <<FR-5.4>>).
 
 === Fixes
 
@@ -54,7 +57,7 @@
 * `SPEC.md §3.7` describes the Flame and Fangs event and the pre-event rules: claim the
   missions that expire before the event, finish but do not claim those that expire with its
   start, ignore the rest. Specified in <<FR-5.1>> to <<FR-5.4>>, <<TS-5.1>>, <<TS-5.2>> and
-  <<US-6.1>> to <<US-6.4>>; not implemented yet.
+  <<US-6.1>> to <<US-6.4>>. The firebeast pin of the event itself is not covered yet.
 
 * `SPEC.md §5` states what the run has to do when all march queues are busy: work only on
   targets that are neither hunt nor boss (BUG-0014).

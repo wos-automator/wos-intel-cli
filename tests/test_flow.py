@@ -1138,6 +1138,60 @@ def test_mission_with_an_unreadable_expiry_is_skipped(
     assert runner.missions_started == 2
 
 
+def test_expert_is_held_back_until_shortly_before_the_event(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    mocker: MockerFixture,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level("INFO")
+    game = game_factory(start="event-expert-intel-x", intel="event-expert-intel-x")
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": IGNORE_EXPIRY}
+    )
+
+    make_runner(game, detector, state_file).run()
+
+    assert not tapped(game, "event-expert-intel-x", EXPERT)
+    assert "expert sign at 59,210" in caplog.text
+    assert "expert held back: the event starts in 7.9 h" in caplog.text
+
+
+def test_expert_is_used_within_two_hours_of_the_event(
+    game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
+) -> None:
+    game = game_factory(start="event-expert-intel-x", intel="event-expert-intel-x")
+    set_expiries(
+        mocker, game, detector, {"combat-1-dialog": CLAIM_EXPIRY, "hunt-1-dialog": IGNORE_EXPIRY}
+    )
+    config = Config()
+    # 2 h before the start: the countdown of the pasted icon reads 07:52:41
+    config = dataclasses.replace(
+        config,
+        event=dataclasses.replace(config.event, expert_hours=8.0),
+        timing=dataclasses.replace(config.timing, completion_timeout=WAIT),
+    )
+
+    make_runner(game, detector, state_file, config).run()
+
+    taps = game.taps_on("event-expert-intel-x")
+    assert sum(near(tap, EXPERT, 8) for tap in taps) == 1
+    # the expert comes once the claim missions (the combats) are done; the ignored hunts
+    # do not count as workable
+    assert len(game.taps_on("combat-3-squad-fight")) == 2
+    expert_at = next(
+        index
+        for index, (screen, point) in enumerate(game.taps)
+        if screen == "event-expert-intel-x" and near(point, EXPERT, 8)
+    )
+    fights = [
+        index for index, (screen, _) in enumerate(game.taps) if screen == "combat-3-squad-fight"
+    ]
+    assert max(fights) < expert_at
+    assert game.stray_taps == []
+
+
 def test_unreadable_event_countdown_ends_the_run_untouched(
     game_factory: GameFactory, detector: Detector, state_file: Path, mocker: MockerFixture
 ) -> None:

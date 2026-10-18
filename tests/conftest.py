@@ -99,7 +99,11 @@ def with_expert(name: str) -> Image:
 
 def with_event(name: str) -> Image:
     """An Intel reference with the Flame and Fangs icon of flame-and-fangs-announced.png."""
-    out = load_ref(name)
+    return add_event(load_ref(name))
+
+
+def add_event(image: Image) -> Image:
+    out = image.copy()
     x0, y0, x1, y1 = EVENT_AREA
     out[y0:y1, x0:x1] = load_ref("flame-and-fangs-announced")[y0:y1, x0:x1]
     return out
@@ -145,6 +149,7 @@ def images() -> dict[str, Image]:
     loaded["expert-and-missions"] = with_expert("intel-x")
     loaded["event-intel-x"] = with_event("intel-x")
     loaded["event-intel-xxx"] = with_event("intel-xxx")
+    loaded["event-expert-intel-x"] = add_event(with_expert("intel-x"))
     loaded["world-queues-busy"] = with_busy_queues(loaded["world"])
     loaded["boss-2-world-queues-busy"] = with_busy_queues(loaded["boss-2-world-no-popup"])
     return loaded
@@ -198,6 +203,7 @@ class FakeGame:
             "expert-only-boss-running": [(EXPERT, "intel-x")],
             "expert-and-missions": [(EXPERT, "intel-x"), *symbols],
             "event-intel-x": list(symbols),
+            "event-expert-intel-x": [(EXPERT, "event-intel-x"), *symbols],
             "event-intel-xxx": [(CLAIM_ALL, "intel-xxxx"), *symbols],
             "combat-1-dialog": [(VIEW, "combat-2-world-explore")],
             "hunt-1-dialog": [(VIEW, "hunt-2-world-attack")],

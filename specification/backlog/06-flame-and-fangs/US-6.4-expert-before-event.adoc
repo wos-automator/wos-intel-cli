@@ -1,7 +1,7 @@
 [#US-6.4]
 === US-6.4 Expert only shortly before the event
 
-Status:: Open +
+Status:: Done (0.1.1) – verified on the fake game only +
 Effort:: 1 h +
 Traces to:: <<TS-5.2>>, <<FR-5.4>>, <<FR-3.8>>
 
