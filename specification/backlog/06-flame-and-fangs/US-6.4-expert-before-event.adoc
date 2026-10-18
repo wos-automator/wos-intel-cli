@@ -1,0 +1,17 @@
+[#US-6.4]
+=== US-6.4 Expert only shortly before the event
+
+Status:: Open +
+Effort:: 1 h +
+Traces to:: <<TS-5.2>>, <<FR-5.4>>, <<FR-3.8>>
+
+As the player, I want the expert to hand out its missions only shortly before the event, so
+that they are still available when the event starts.
+
+.Acceptance criteria
+. With a countdown above 2 h the sign is logged but not tapped.
+. With a countdown of 2 h or less it is tapped once no mission of the current phase is left.
+
+.Test criteria
+* Component test (`tests/test_flow.py`): both criteria, on an Intel reference with the expert
+  sign and the event icon pasted in.

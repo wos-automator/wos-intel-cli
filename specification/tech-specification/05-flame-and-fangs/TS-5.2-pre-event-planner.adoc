@@ -1,0 +1,53 @@
+[#TS-5.2]
+=== TS-5.2 Pre-event planner
+
+Implements <<FR-5.3>> and <<FR-5.4>>.
+
+Pure logic in `wos_intel/event.py`:
+
+[source,python]
+----
+class Group(StrEnum):  CLAIM, HOLD, IGNORE
+class Phase(StrEnum):  CLAIM, HOLD
+
+def classify(expires_in: int, countdown: int, tolerance: int) -> Group
+    # expires_in < countdown - tolerance -> CLAIM; > countdown + tolerance -> IGNORE; else HOLD
+----
+
+Both values are seconds from the same moment: the countdown is converted once into
+`event_start = now() + countdown` (logged), and each expiry into `now() + expires_in` when its
+dialog is read, so `classify` gets `expiry - now()` and `event_start - now()`.
+
+Configuration `[event]`: `tolerance_minutes = 10`, `expert_hours = 2.0`; regions in `[ocr]` and
+`[regions]` as in <<TS-5.1>>.
+
+State (`state.json`, <<TS-3.4>>), written atomically like the boss lock:
+
+[source,json]
+----
+{ "event": { "hold_until": "2026-10-19T00:00:00" } }
+----
+
+`StateStore.holding(now) -> bool`, `StateStore.hold(until)`. A missing, malformed or past
+entry means "not holding".
+
+Runner integration (<<TS-3.1>>, <<TS-3.2>>):
+
+[cols="1,3"]
+|===
+|Point |Behaviour while the event icon is shown
+
+|`_iteration`, Intel screen |`find_event_icon`; with the icon, `read_event_countdown` – unreadable: poll for `expect_timeout`, then `RunEnded(EVENT_UNREADABLE)`. Phase = `HOLD` if `store.holding(now)`, else `CLAIM`.
+|Claim All |`INTEL_CLAIMABLE` is only claimed in phase `CLAIM`; in `HOLD` the button is ignored (logged).
+|Candidates |Symbols whose remembered group (`_groups`, by type and position like `_attempted`) is not the phase are left out; in `HOLD` remembered `CLAIM` missions too. The boss is never grouped.
+|Phase change |No candidate except the boss left in `CLAIM`: `_settle` as today (<<FR-3.7>>). Only when nothing is running and nothing is unclaimed: `store.hold(event_start)`, phase `HOLD`, evaluate again. If `_settle` times out, the run ends with its regular outcome and does not hold.
+|`_run_mission` |After the dialog type check (<<TS-2.4>>), except the boss: `read_expiry_seconds`, polled like the dialog type under a banner. Unreadable → `MissionRejected`. Group ≠ phase → remember the group, raise `MissionDeferred` (new): BACK via `_recover`, not attempted, no failure, no failure screenshot.
+|`_settle` |In `HOLD` it returns `REWARDS_HELD` at once, without waiting.
+|Expert |Not tapped while `event_start - now() > expert_hours`; otherwise as in <<TS-3.1>>, with deferred groups not counted as workable.
+|===
+
+New outcomes, both regular (`ok`): `REWARDS_HELD = "rewards held for the event"`,
+`EVENT_UNREADABLE = "event countdown unreadable"`.
+
+Without the event icon none of this applies; `state.json` keeps a stale `hold_until`, which
+is ignored once it is in the past.

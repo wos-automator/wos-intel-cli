@@ -91,35 +91,49 @@ centre ≈ 59,210, template `templates/expert_sign.png`). A tap on it delivers f
   image. If something other than the Intel screen appears, the normal recovery applies
   (`BACK`), and the screenshot is stored under `debug/`.
 
-### 3.7 flame and fangs special mission
+### 3.7 Flame and Fangs event
 
-The game has an episode called flame and fangs. The mission is only available once in four weeks. It is advertised with a symbol in the lower right corner of the screen with a countdown until the main event starts. 
+The game has an event called Flame and Fangs, once every four weeks. The day before it starts,
+an event icon in the lower right corner of the Intel screen counts down to the start
+("Opens in HH:MM:SS"). The icon is `templates/flame-and-fangs-event-icon.png`; a screenshot with
+the icon and some missions is `ref/flame-and-fangs-announced.png`. The event starts with a
+mission refresh at 00:00 game time (UTC): the countdown equals the "Refreshes In" timer of the
+last refresh before the event. When the event starts, the icon vanishes.
 
-The icon is `templates/flame-and-fans-event-icon.png`, a screenshot with the icon and some missions is `ref/flame-and-fangs-announced.png`.
+During the event, the game pays Crystallite Cores for every hunt; the boss does not count. The
+cores are paid when the mission rewards are claimed. To collect the most cores, the player
+moves as many mission rewards as possible into the event: missions that are still open at the
+event start are worked on then, and rewards that are finished but not yet claimed are claimed
+then.
 
-During the flame and fangs event, the game rewards each hunt with Crystallite Cores. The reward is paid when the mission rewards are claimed. To max out the rewards for the event, the player avoids to finish hunts or claim the rewards until the event starts. This way, the player has more missions during the flame and fangs event than on a usual day and can collect more Crystallite Cores.
+During the event, a new hunt pin shows the firebeast (`templates/flame-and-fangs-firebeast-mission.png`).
+It works like the normal hunt (paw symbol), in the same flow. Screenshots of the firebeast pin,
+its dialog and its popup can only be taken once the event has started; until then only the
+pre-event rules below apply.
 
-During the flame and fangs event, a new hunt icon is available, that exposes the firebeast on the pin. It works like the normal hunt (paw symbol). The pin is `templates/flame-and-fangs-firebeast-mission.png`.
+**Pre-event rules.** Every mission dialog (except the boss) shows "Intel Expires In HH:MM:SS".
+Missions are handed out at 00:00, 08:00 and 16:00 UTC and expire after 16 h. The day before the
+event this gives three groups, for all mission types:
 
-In each mission dialog, an expiration time for the mission is given. If the expiration time is past the start of the event, the player shall not collect the rewards or complete the mission before the event starts. 
+| Missions of the refresh | Expire | Task |
+|---|---|---|
+| 00:00 | at 16:00, before the event starts | finish them **and claim** the rewards |
+| 08:00 | at 00:00, with the event start | finish them, **do not claim** the rewards |
+| 16:00, expert missions | after the event start | ignore them |
 
-The following table shows the player action to move the most mission rewards into the event:
+The group follows from the expiry of the mission compared with the event start, not from the
+clock: a run started at 13:00 sees missions of the 00:00 and the 08:00 refresh side by side.
 
-The firebeast with timer is only visible the day before the event starts. 
+- The 00:00 missions must be claimed: finished but unclaimed missions block the next refresh.
+  Before 08:00 the 08:00 missions appear at 08:00; after 08:00 they appear as soon as the
+  00:00 missions are claimed.
+- So the run first finishes and claims all 00:00 missions, and only then starts the 08:00
+  missions. From then on it claims nothing until the event starts, also in a later run.
+- A 00:00 mission that is still open once the 08:00 missions have been started is ignored: its
+  reward could not be claimed without claiming the held rewards, and it expires at 16:00.
+- The boss has no expiry in its dialog; it is attacked as on a normal day (§5).
+- The expert is activated only from 22:00 the day before (countdown ≤ 2 h); its missions expire
+  after the event start and are ignored.
 
-- Day before event start Time 00:00 
-  - Expiration is 16 hrs. The missions will expire before the event starts.
-  - Task: Finish the missions and claim all the mission rewards
-- Day before event start Time 08:00
-  - The missions expire with the start of the event
-  - Task: Finish the missions but DO NOT CLAIM the mission rewards
-- Day before event start Time 16:00
-  - The missions expire after the start of the event
-  - Task: ignore the missions
-- Day of event start Time 22:00
-  - The missions expire after the start of the event
-  - Task: ignore the missions. Activate the expert missions.
-- Day of the event Time 00:00
-  - the firebeast icon with the event countdown vanishes 
-  - The event started, now claim all missions, including the firebeast missions
-  - Task: finish and claim all missions, including the firebeast missions
+When the event has started (no event icon), the run works as on a normal day: it claims all
+rewards and works on all missions; the firebeast pin is just another hunt.

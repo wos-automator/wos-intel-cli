@@ -1,0 +1,5 @@
+== Flame and Fangs Event (`wos_intel/detect.py`, `wos_intel/event.py`, `wos_intel/flow.py`)
+
+include::TS-5.1-event-detection.adoc[]
+
+include::TS-5.2-pre-event-planner.adoc[]

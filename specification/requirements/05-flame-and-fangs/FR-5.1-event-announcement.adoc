@@ -1,0 +1,18 @@
+[#FR-5.1]
+=== FR-5.1 Event announcement and countdown
+
+The day before the event an icon in the lower right corner of the Intel screen counts down to
+the event start ("Opens in HH:MM:SS").
+
+.Acceptance criteria
+. The icon is detected on `ref/flame-and-fangs-announced.png` and on no other Intel reference.
+. Its countdown reads 07:52:41 on that screenshot. The event start is the time of the
+  screenshot plus the countdown.
+. Without the icon the run works as on a normal day; the pre-event rules (<<FR-5.3>>,
+  <<FR-5.4>>) do not apply.
+. If the icon is shown but its countdown stays unreadable for 8 s, the run starts no mission,
+  claims nothing and ends regularly with "event countdown unreadable".
+. The event start is logged once per run.
+
+Stakeholder need:: SPEC.md §3.7 +
+Effort:: 3 h

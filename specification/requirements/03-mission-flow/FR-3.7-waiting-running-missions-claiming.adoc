@@ -13,6 +13,8 @@ The run does not end while missions are running; the player does not have to cla
   that rewards were not claimed.
 . Without running missions the run ends immediately.
 . A dry run only logs that it would wait.
+. In the hold phase before the Flame and Fangs event running missions are not waited for
+  (<<FR-5.3>>).
 
 Stakeholder need:: SPEC.md §5 (loop, End of the run), acceptance criterion 3 in §8 +
 Effort:: 3 h

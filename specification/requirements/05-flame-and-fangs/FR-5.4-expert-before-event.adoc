@@ -1,0 +1,12 @@
+[#FR-5.4]
+=== FR-5.4 Expert before the event
+
+.Acceptance criteria
+. While the event icon is shown with a countdown above 2 h (configurable), the expert sign is
+  not tapped; it is still logged (<<FR-3.8>>).
+. With a countdown of 2 h or less the sign is tapped by the rule of <<FR-3.8>>, in which
+  missions of another group than the current phase count as not workable (<<FR-5.3>>).
+. The missions the expert hands out expire after the event start and are ignored.
+
+Stakeholder need:: SPEC.md §3.6, §3.7 +
+Effort:: 1 h

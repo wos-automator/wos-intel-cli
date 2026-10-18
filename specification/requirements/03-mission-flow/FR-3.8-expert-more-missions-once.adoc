@@ -16,6 +16,7 @@ additional missions.
 . Whenever the sign is visible on the Intel screen this is logged with its position, also when
   it is not tapped.
 . A dry run logs the tap instead of sending it.
+. Before the Flame and Fangs event the sign is only tapped within 2 h of the start (<<FR-5.4>>).
 
 Stakeholder need:: SPEC.md §3.6, §5 +
 Effort:: 3 h

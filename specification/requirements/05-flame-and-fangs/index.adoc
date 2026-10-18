@@ -1,0 +1,14 @@
+== Flame and Fangs Event
+
+Once every four weeks the Flame and Fangs event pays Crystallite Cores for every claimed hunt
+reward (SPEC.md §3.7). The day before the event, the run moves as many mission rewards as
+possible into the event. The firebeast pin of the event itself follows once reference
+screenshots of it exist; until then this chapter covers the pre-event rules only.
+
+include::FR-5.1-event-announcement.adoc[]
+
+include::FR-5.2-mission-expiry.adoc[]
+
+include::FR-5.3-pre-event-claim-and-hold.adoc[]
+
+include::FR-5.4-expert-before-event.adoc[]
