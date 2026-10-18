@@ -19,19 +19,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from wos_intel.config import Config, Region
 from wos_intel.detect import DIGITS_DIR, normalize_glyph, segment_glyphs
 
-# tag, reference image, region (x0, y0, x1, y1), expected glyphs ("/" = glyph to skip)
-DIGIT_SOURCES: tuple[tuple[str, str, Region, str], ...] = (
-    ("stamina-a", "intel-x", (595, 25, 675, 60), "2047"),
-    ("stamina-b", "intel-xxx", (595, 25, 675, 60), "2035"),
-    ("timer-a", "intel-x", (375, 108, 510, 146), "065927"),
-    ("timer-b", "intel-xx", (375, 108, 510, 146), "065910"),
-    ("timer-c", "intel-xxx", (375, 108, 510, 146), "065905"),
-    ("timer-d", "intel-boss-running", (375, 108, 510, 146), "024603"),
-    ("stamina-c", "intel-boss-running", (595, 25, 675, 60), "1975"),
-    ("timer-e", "intel-expert-available", (375, 108, 510, 146), "005443"),
-    ("stamina-d", "intel-expert-available", (595, 25, 675, 60), "2165"),
-    ("troops", "hunt-3-deploy", (82, 178, 265, 212), "169830/169830"),
-    ("power", "hunt-3-deploy", (530, 178, 675, 212), "1155314530"),
+# tag, reference image, region (x0, y0, x1, y1), expected glyphs ("/" = glyph to skip),
+# text colour ("white" or "dark")
+DIGIT_SOURCES: tuple[tuple[str, str, Region, str, str], ...] = (
+    ("stamina-a", "intel-x", (595, 25, 675, 60), "2047", "white"),
+    ("stamina-b", "intel-xxx", (595, 25, 675, 60), "2035", "white"),
+    ("timer-a", "intel-x", (375, 108, 510, 146), "065927", "white"),
+    ("timer-b", "intel-xx", (375, 108, 510, 146), "065910", "white"),
+    ("timer-c", "intel-xxx", (375, 108, 510, 146), "065905", "white"),
+    ("timer-d", "intel-boss-running", (375, 108, 510, 146), "024603", "white"),
+    ("stamina-c", "intel-boss-running", (595, 25, 675, 60), "1975", "white"),
+    ("timer-e", "intel-expert-available", (375, 108, 510, 146), "005443", "white"),
+    ("stamina-d", "intel-expert-available", (595, 25, 675, 60), "2165", "white"),
+    ("troops", "hunt-3-deploy", (82, 178, 265, 212), "169830/169830", "white"),
+    ("power", "hunt-3-deploy", (530, 178, 675, 212), "1155314530", "white"),
+    # dark "Intel Expires In HH:MM:SS" of the mission dialogs (SPEC 3.7); no 6 in them yet
+    ("expiry-a", "combat-1-dialog", (380, 800, 500, 890), "135107", "dark"),
+    ("expiry-b", "hunt-1-dialog", (380, 800, 500, 890), "134842", "dark"),
+    ("expiry-c", "hunt-1-dialog-banner", (380, 800, 500, 890), "145941", "dark"),
+    ("expiry-d", "rescue-1-dialog-banner", (380, 800, 500, 890), "145919", "dark"),
 )
 
 # name, reference image, region
@@ -62,12 +68,17 @@ def main() -> int:
         stale.unlink()
 
     written: set[str] = set()
-    for tag, name, (x0, y0, x1, y1), expected in DIGIT_SOURCES:
+    masks = {
+        "white": (config.ocr.white_lo, config.ocr.white_hi),
+        "dark": (config.ocr.dark_lo, config.ocr.dark_hi),
+    }
+    for tag, name, (x0, y0, x1, y1), expected, colour in DIGIT_SOURCES:
         image = np.asarray(cv2.imread(str(ref / f"{name}.png")), dtype=np.uint8)
+        lo, hi = masks[colour]
         glyphs = segment_glyphs(
             image[y0:y1, x0:x1],
-            config.ocr.white_lo,
-            config.ocr.white_hi,
+            lo,
+            hi,
             config.ocr.glyph_min_height_ratio,
             config.ocr.glyph_min_height,
             config.ocr.glyph_max_aspect,

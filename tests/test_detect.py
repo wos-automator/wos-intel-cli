@@ -386,6 +386,36 @@ def test_no_event_icon_on_a_normal_day(detector: Detector, name: str) -> None:
     assert detector.read_event_countdown(image) is None
 
 
+def hms(hours: int, minutes: int, seconds: int) -> int:
+    return hours * 3600 + minutes * 60 + seconds
+
+
+@pytest.mark.parametrize(
+    ("name", "seconds"),
+    [
+        ("combat-1-dialog", hms(13, 51, 7)),
+        ("hunt-1-dialog", hms(13, 48, 42)),
+        ("hunt-1-dialog-banner", hms(14, 59, 41)),
+        ("rescue-1-dialog-banner", hms(14, 59, 19)),
+    ],
+)
+def test_mission_expiry(detector: Detector, name: str, seconds: int) -> None:
+    """SPEC 3.7: "Intel Expires In HH:MM:SS" in dark text above "View"."""
+    assert detector.read_expiry_seconds(load_ref(name)) == seconds
+
+
+@pytest.mark.parametrize("name", ["boss-1-dialog", "intel-x", "hunt-3-deploy"])
+def test_no_mission_expiry_without_the_line(detector: Detector, name: str) -> None:
+    assert detector.read_expiry_seconds(load_ref(name)) is None
+
+
+def test_covered_mission_expiry_is_unreadable(detector: Detector) -> None:
+    image = load_ref("hunt-1-dialog").copy()
+    image[855:880, 440:500] = (240, 230, 220)  # the seconds painted over
+
+    assert detector.read_expiry_seconds(image) is None
+
+
 @pytest.mark.parametrize(
     ("name", "marches"),
     [

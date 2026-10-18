@@ -125,6 +125,10 @@ class OcrConfig:
     countdown_region: Region = (590, 1228, 695, 1254)
     countdown_lo: Hsv = (0, 0, 235)
     countdown_hi: Hsv = (180, 25, 255)
+    # "Intel Expires In HH:MM:SS" of the mission dialog: dark grey on a light dialog
+    expiry_region: Region = (380, 800, 500, 890)
+    dark_lo: Hsv = (0, 0, 40)
+    dark_hi: Hsv = (180, 120, 110)
     glyph_min_height_ratio: float = 0.75
     glyph_min_height: int = 10
     glyph_max_aspect: float = 1.3

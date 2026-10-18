@@ -22,12 +22,14 @@ Implements <<FR-5.1>> and <<FR-5.2>>.
 * `Runner._note_event(image)`: on every evaluation of the Intel screen; with the icon and a
   readable countdown it sets `_event_start = now() + countdown` once per run and logs it.
 * `Detector.read_expiry_seconds(image) -> int | None`: the six rightmost glyphs of
-  `ocr.expiry_region` (≈ 330–500 / 845–885) as HHMMSS, segmented with a dark-text mask
-  `ocr.dark_lo` / `ocr.dark_hi` (≈ V ≤ 110, S ≤ 120). A probe with the existing white digit
-  templates read the first three references correctly, with scores down to 0.68. Own digit
-  templates `templates/digits/<digit>_expiry-<ref>-<index>.png` are therefore cut from the four
-  dialog references: they contain every digit except 6. Until a dialog with a 6 exists, the 6
-  falls back to the white templates. The line sits a few pixels lower on some dialogs; the
-  region covers both. On `ref/boss-1-dialog.png` the region holds no glyph: `None`.
+  `ocr.expiry_region` (380, 800, 500, 890) as HHMMSS, segmented with the dark-text mask
+  `ocr.dark_lo` / `ocr.dark_hi` (V 40–110, S ≤ 120). The line is at y ≈ 860 on the combat and
+  hunt dialogs and at y ≈ 817 on the rescue dialog; the region covers both, and the white
+  "View" and reward numbers drop out of the dark mask. With the white digit templates alone the
+  scores went down to 0.68, so `tools/cut_templates.py` cuts digit templates
+  `templates/digits/<digit>_expiry-<a-d>-<index>.png` from the four dialog references (digit
+  sources with the colour `dark`). They hold every digit except 6; until a dialog with a 6
+  exists, the 6 is classified by the white templates of the shared pool. On
+  `ref/boss-1-dialog.png` the region holds no glyph: `None`.
 * Same rules as <<TS-2.3>>: below `glyph_threshold` the whole reading is `None`, minutes and
   seconds above 59 give `None`.
