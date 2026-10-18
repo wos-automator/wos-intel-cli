@@ -1,0 +1,30 @@
+[#US-6.3]
+=== US-6.3 Claim, hold and ignore before the event
+
+Status:: Open +
+Effort:: 8 h +
+Traces to:: <<TS-5.2>>, <<TS-3.1>>, <<TS-3.4>>, <<FR-5.3>>, <<FR-3.2>>, <<FR-3.7>>
+
+As the player, I want the run to claim the missions that expire before the event and to keep
+the rewards of the missions that expire with the event start, so that the event pays as many
+Crystallite Cores as possible.
+
+.Acceptance criteria
+. `classify` returns claim, hold and ignore at the borders of the tolerance.
+. With missions of all three groups on the Intel screen, the claim missions are started and
+  claimed first; only then are the hold missions started, and "Claim All" is not tapped again.
+. Hold and ignore missions met in the claim phase are closed with BACK and cost no failure; the
+  ignore missions are never started.
+. The run ends with `REWARDS_HELD` without waiting for running missions.
+. A second run before the event start begins in the hold phase and does not tap a visible
+  "Claim All"; after the event start, the stored hold is ignored.
+. If the claim missions do not finish in time, no hold mission is started.
+. The boss is attacked as on a normal day.
+. Without the event icon the run is unchanged (all existing flow tests pass).
+
+.Test criteria
+* Unit test (`tests/test_event.py`): `classify`.
+* Integration test (`tests/test_config_state.py`): hold entry round trip, past and malformed
+  entries; `[event]` settings load.
+* Component test (`tests/test_flow.py`, fake game and fake clock): one test per flow criterion,
+  on the Intel references with the event icon pasted in and dialogs with chosen expiries.

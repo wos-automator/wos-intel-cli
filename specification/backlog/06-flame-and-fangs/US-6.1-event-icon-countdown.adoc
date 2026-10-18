@@ -1,0 +1,19 @@
+[#US-6.1]
+=== US-6.1 Detect the event icon and its countdown
+
+Status:: Open +
+Effort:: 3 h +
+Traces to:: <<TS-5.1>>, <<FR-5.1>>
+
+As the operator, I want the run to know when the Flame and Fangs event starts, so that it can
+move mission rewards into the event.
+
+.Acceptance criteria
+. `templates/event_icon.png` is cut by `tools/cut_templates.py` from
+  `ref/flame-and-fangs-announced.png`; it is found there and on no other Intel reference.
+. The countdown reads 07:52:41 on that reference; on every other Intel reference there is no
+  countdown.
+. The event start is logged.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): icon found / not found, countdown value.

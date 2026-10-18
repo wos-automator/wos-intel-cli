@@ -1,0 +1,41 @@
+[#FR-5.3]
+=== FR-5.3 Pre-event rules: claim, hold, ignore
+
+While the event icon is shown, every mission except the boss is put into a group by comparing
+its expiry (<<FR-5.2>>) with the event start (<<FR-5.1>>), with a tolerance of 10 min
+(configurable).
+
+[cols="1,1,2"]
+|===
+|Group |Expiry |Task
+
+|claim |before the event start |finish it and claim the reward
+|hold |at the event start |finish it, do not claim the reward
+|ignore |after the event start |do not start it
+|===
+
+.Acceptance criteria
+. The run has two phases. In the *claim phase* only claim missions are started and rewards are
+  claimed as on a normal day (<<FR-3.2>>).
+. The *hold phase* starts once no claim mission is left to start and every started claim mission
+  has been claimed. Waiting for running claim missions follows <<FR-3.7>>. If they are not
+  claimed in time, the run ends regularly with that note and does not enter the hold phase.
+. In the hold phase only hold missions are started, "Claim All" is never tapped and running
+  missions are not waited for. When nothing is left, the run ends regularly with "rewards held
+  for the event".
+. The hold phase is stored in `state.json` with the event start, before the first hold mission
+  is started. A later run before the event start begins in the hold phase; after the event
+  start the entry is ignored.
+. A mission of another group than the current phase is closed with BACK, without tapping
+  "View", and costs no failure. Its group is remembered: a hold mission is opened again in the
+  hold phase, an ignore mission not at all in this run. A claim mission met in the hold phase
+  is ignored.
+. A mission whose expiry is unreadable is closed with BACK and skipped for this run.
+. The boss has no expiry; it is attacked as on a normal day (<<FR-3.3>>, <<FR-3.5>>) in both
+  phases.
+. Before 08:00 UTC the day before, every mission is a claim mission, so the run behaves as on a
+  normal day.
+. A dry run logs the group and phase it would act on.
+
+Stakeholder need:: SPEC.md §3.7 +
+Effort:: 8 h

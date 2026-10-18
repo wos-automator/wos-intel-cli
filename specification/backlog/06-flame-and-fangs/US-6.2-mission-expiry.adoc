@@ -1,0 +1,19 @@
+[#US-6.2]
+=== US-6.2 Read the mission expiry
+
+Status:: Open +
+Effort:: 4 h +
+Traces to:: <<TS-5.1>>, <<FR-5.2>>
+
+As the operator, I want the run to read how long a mission stays available, so that it can
+decide whether the mission belongs before or into the event.
+
+.Acceptance criteria
+. Digit templates for the dark expiry text are cut by `tools/cut_templates.py` from the four
+  dialog references.
+. The expiries of <<FR-5.2>> are read; the boss dialog gives none.
+. A dialog with a covered or cut-off expiry gives "unreadable".
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): parametrised over the dialog references; a synthetic
+  dialog with the expiry line painted over.

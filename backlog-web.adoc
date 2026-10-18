@@ -15,3 +15,5 @@ include::specification/backlog/03-mission-flow/index.adoc[]
 include::specification/backlog/04-safety-and-quality/index.adoc[]
 
 include::specification/backlog/05-defects/index.adoc[]
+
+include::specification/backlog/06-flame-and-fangs/index.adoc[]

@@ -1,0 +1,29 @@
+[#TS-5.1]
+=== TS-5.1 Event icon, countdown and mission expiry
+
+Implements <<FR-5.1>> and <<FR-5.2>>.
+
+* Template `event_icon`: cut by `tools/cut_templates.py` from the creature head of the icon in
+  `ref/flame-and-fangs-announced.png` (≈ 595–690 / 1150–1210), without the countdown below
+  it. `templates/flame-and-fangs-event-icon.png` delivered with SPEC.md §3.7 is about twice
+  the device scale (182 px wide, the icon on the screenshot ≈ 95 px) and has an alpha channel;
+  it stays as the stakeholder's source and is not used for matching. Region
+  `regions.event_icon` (560, 1100, 720, 1280); it is an optional template (<<TS-2.1>>), so
+  other screens are unaffected.
+* `Detector.find_event_icon(image) -> Match | None`, asked on every evaluation of the Intel
+  screen.
+* `Detector.read_event_countdown(image) -> int | None`: the six rightmost glyphs of
+  `ocr.event_countdown_region` as HHMMSS, like `read_refresh_seconds` (<<TS-2.3>>). A probe
+  with the white mask of `[ocr]` on the reference read nothing usable; the region and, if
+  needed, the mask (white text with a dark outline over the icon) are measured when the
+  template is cut. Missing digit glyphs of this size are cut from the same reference.
+* `Detector.read_expiry_seconds(image) -> int | None`: the six rightmost glyphs of
+  `ocr.expiry_region` (≈ 330–500 / 845–885) as HHMMSS, segmented with a dark-text mask
+  `ocr.dark_lo` / `ocr.dark_hi` (≈ V ≤ 110, S ≤ 120). A probe with the existing white digit
+  templates read the first three references correctly, with scores down to 0.68. Own digit
+  templates `templates/digits/<digit>_expiry-<ref>-<index>.png` are therefore cut from the four
+  dialog references: they contain every digit except 6. Until a dialog with a 6 exists, the 6
+  falls back to the white templates. The line sits a few pixels lower on some dialogs; the
+  region covers both. On `ref/boss-1-dialog.png` the region holds no glyph: `None`.
+* Same rules as <<TS-2.3>>: below `glyph_threshold` the whole reading is `None`, minutes and
+  seconds above 59 give `None`.

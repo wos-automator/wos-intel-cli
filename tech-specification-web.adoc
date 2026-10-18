@@ -13,3 +13,5 @@ include::specification/tech-specification/02-detection/index.adoc[]
 include::specification/tech-specification/03-mission-flow/index.adoc[]
 
 include::specification/tech-specification/04-safety-and-quality/index.adoc[]
+
+include::specification/tech-specification/05-flame-and-fangs/index.adoc[]
