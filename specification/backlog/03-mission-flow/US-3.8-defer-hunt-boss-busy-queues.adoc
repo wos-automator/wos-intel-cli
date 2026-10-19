@@ -20,12 +20,15 @@ Screenshot: `failure-0014-WORLD.png`, copied to `ref/hunt-2-world-queues-busy.pn
   combat missions of the run are started.
 . After a deploy that leaves the map at 6/6, the next tapped symbol is not a hunt or the boss
   while a combat or rescue mission is left.
-. With only deferred targets left the run waits 60 s on the Intel screen between two tries;
+. With only deferred targets left the run waits 10 s on the Intel screen between two tries;
   once the map shows a free queue the hunt is deployed.
+. Rewards that become claimable while the run waits are claimed at the next screenshot (10 s),
+  and the deferred target is tried again right after the claim. Found on a device run: two
+  finished hunts were only claimed after the 60 s wait of the first version.
 . If the queues stay busy for 15 min the run ends with `QUEUES_BUSY`, not with
   `TOO_MANY_FAILURES`.
 . A deferred boss is not locked for the refresh cycle.
-. New settings `queue_poll` (60 s) and `queue_timeout` (900 s) in `[timing]`.
+. New settings `queue_poll` (10 s) and `queue_timeout` (900 s) in `[timing]`.
 
 .Test criteria
 * Unit test (`tests/test_detect.py`): counter readings on the reference screenshots;

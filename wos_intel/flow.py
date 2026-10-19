@@ -564,8 +564,15 @@ class Runner:
             log.warning("march queues still busy after %.0f s", timing.queue_timeout)
             return self._settle(Outcome.QUEUES_BUSY, symbols)
         log.info("all march queues busy, trying hunt/boss again in %.0f s", timing.queue_poll)
-        self._sleep(timing.queue_poll)
-        # Only a fresh look at the map tells whether a march has returned meanwhile.
+        # Rewards to claim end the wait: the loop claims them, and a claimed hunt is a march
+        # that has returned. Only a fresh look at the map tells whether a queue is free.
+        deadline = self._clock() + timing.queue_poll
+        while self._clock() < deadline:
+            self._sleep(min(timing.completion_poll, deadline - self._clock()))
+            screen, _ = self._observe()
+            if screen.state is State.INTEL_CLAIMABLE and self._phase() is not Phase.HOLD:
+                log.info("rewards to claim while waiting for a march queue")
+                break
         self._queues_busy = False
         return None
 

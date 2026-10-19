@@ -19,7 +19,7 @@ completion_timeout = 300.0  # wait for running missions to finish before the run
 completion_poll = 10.0      # screenshot interval while waiting for running missions
 reconnect_delay = 60.0      # after a login on another device: wait, then tap "Reconnect"
 reconnect_timeout = 120.0   # wait for the Intel screen or world map after "Reconnect"
-queue_poll = 60.0          # all march queues busy: wait this long before a hunt/boss is tried again
+queue_poll = 10.0          # all march queues busy: wait this long before a hunt/boss is tried again
 queue_timeout = 900.0      # end the run if the march queues stay busy this long
 
 [limits]

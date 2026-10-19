@@ -84,7 +84,11 @@ def queue_config() -> Config:
     """Short waits, so that a run with busy march queues ends after a few quick tries."""
     config = Config()
     timing = dataclasses.replace(
-        config.timing, completion_timeout=WAIT, queue_timeout=QUEUE_WAIT, expect_timeout=2.0
+        config.timing,
+        completion_timeout=WAIT,
+        queue_timeout=QUEUE_WAIT,
+        queue_poll=60.0,
+        expect_timeout=2.0,
     )
     return dataclasses.replace(config, timing=timing)
 
@@ -1017,13 +1021,15 @@ def test_busy_queues_after_a_deploy_defer_the_next_hunt(
     assert game.stray_taps == []
 
 
-def test_deferred_hunt_is_tried_every_minute_and_deployed_once_a_queue_is_free(
+def test_deferred_hunt_is_tried_every_10_s_and_deployed_once_a_queue_is_free(
     game_factory: GameFactory, detector: Detector, state_file: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     game = game_factory(overrides={"hunt-1-dialog": [(VIEW, "hunt-2-world-queues-busy")]})
     # after 150 s a march has returned: the next look at the map shows the popup and 1/6
     game.timed["hunt-2-world-queues-busy"] = (150.0, "hunt-2-world-attack")
-    runner = make_runner(game, detector, state_file, queue_config())
+    config = queue_config()
+    config = dataclasses.replace(config, timing=dataclasses.replace(config.timing, queue_poll=10.0))
+    runner = make_runner(game, detector, state_file, config)
     times = record_tap_times(game, monkeypatch)
 
     runner.run()
@@ -1031,10 +1037,31 @@ def test_deferred_hunt_is_tried_every_minute_and_deployed_once_a_queue_is_free(
     deploys = [at for screen, at in times if screen == "hunt-3-deploy"]
     assert len(deploys) == 1
     assert deploys[0] >= 150.0
-    # the first try comes before the second combat; the later ones wait a minute each
+    # the first try comes before the second combat; the later ones wait 10 s each
     tries = [at for screen, at in times if screen == "hunt-1-dialog" and at < deploys[0]]
     assert len(tries) >= 3
-    assert all(later - earlier >= 60.0 for earlier, later in itertools.pairwise(tries[1:]))
+    assert all(later - earlier >= 10.0 for earlier, later in itertools.pairwise(tries[1:]))
+    assert game.stray_taps == []
+
+
+def test_rewards_are_claimed_while_waiting_for_a_march_queue(
+    game_factory: GameFactory, detector: Detector, state_file: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    game = game_factory(overrides={"hunt-1-dialog": [(VIEW, "hunt-2-world-queues-busy")]})
+    # 100 s in, while the run waits for a queue, finished hunts make Claim All appear
+    game.timed["intel-x"] = (100.0, "intel-xxx")
+    runner = make_runner(game, detector, state_file, queue_config())  # 60 s between tries
+    times = record_tap_times(game, monkeypatch)
+
+    runner.run()
+
+    claims = [at for screen, at in times if screen == "intel-xxx"]
+    assert len(claims) == 1
+    # seen at the next 10 s look, not only when the 60 s between two tries are over
+    assert 100.0 <= claims[0] < 115.0
+    # the hunt is tried again right after the claim
+    tries = [at for screen, at in times if screen == "hunt-1-dialog" and at > claims[0]]
+    assert tries and tries[0] - claims[0] < 20.0
     assert game.stray_taps == []
 
 
