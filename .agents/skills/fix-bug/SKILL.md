@@ -21,3 +21,4 @@ Reproduce, diagnose, and resolve defects with automated regression coverage.
 3. **Fix**: Implement the minimal fix to turn the test green without introducing regressions.
 4. **Verification**: Run `npm run check` to verify linting, type-checking, test suite, and spec validation pass.
 5. **Release Notes**: Update `specification/release-notes/<version>.adoc` under the Fixes section, noting any behavioral changes.
+6. **Commit**: Commit the fix as one commit using [commit](../commit/SKILL.md) (type `fix`, `Fixes: BUG-xxxx`).

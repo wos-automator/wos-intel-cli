@@ -80,6 +80,14 @@ An implementation task is complete ONLY when:
 
 ---
 
+## Commit Messages
+
+Commits follow Conventional Commits (`feat(flow): …`, `fix(detect): …`) with `Refs:` footers to
+the traced items. The format and the steps are in the [commit](.agents/skills/commit/SKILL.md)
+skill; use it for every commit.
+
+---
+
 ## Self-Correction & Debugging Protocol
 
 - **Do Not Guess**: Read stack traces and error messages carefully before editing code.
