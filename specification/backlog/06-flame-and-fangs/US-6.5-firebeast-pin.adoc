@@ -1,0 +1,20 @@
+[#US-6.5]
+=== US-6.5 Work on the firebeast pin
+
+Status:: Done (0.1.1) – detected on the Intel screen; its dialog is not verified yet +
+Effort:: 1 h +
+Traces to:: <<TS-5.3>>, <<FR-5.5>>, <<FR-2.2>>
+
+As the player, I want the run to work on the firebeast pin during the event, so that its hunt
+earns Crystallite Cores like any other hunt.
+
+.Acceptance criteria
+. `templates/firebeast_mask.png` is cut by `tools/cut_templates.py` from
+  `ref/flame-and-fangs-missions.png`.
+. The symbols of that screenshot are found as listed in <<FR-5.5>>; the firebeast is the first
+  symbol worked on (gold tier).
+. The symbols of the other Intel references are unchanged.
+
+.Test criteria
+* Unit test (`tests/test_detect.py`): symbol table and state of the new reference, no event
+  icon on it, the firebeast first in the order.

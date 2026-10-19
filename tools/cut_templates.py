@@ -57,6 +57,12 @@ CUTS: tuple[tuple[str, str, Region], ...] = (
     ("event_icon", "flame-and-fangs-announced", (612, 1158, 680, 1200)),
 )
 
+# name, reference image, region: white mask of a symbol, matched like paw_mask & co (SPEC 3.5)
+MASK_CUTS: tuple[tuple[str, str, Region], ...] = (
+    # head of the gold firebeast pin, a hunt during Flame and Fangs (SPEC 3.7)
+    ("firebeast_mask", "flame-and-fangs-missions", (406, 255, 454, 303)),
+)
+
 
 def main() -> int:
     config = Config()
@@ -100,6 +106,14 @@ def main() -> int:
     for name, source, (x0, y0, x1, y1) in CUTS:
         image = np.asarray(cv2.imread(str(ref / f"{source}.png")), dtype=np.uint8)
         cv2.imwrite(str(templates / f"{name}.png"), image[y0:y1, x0:x1])
+
+    for name, source, (x0, y0, x1, y1) in MASK_CUTS:
+        image = np.asarray(cv2.imread(str(ref / f"{source}.png")), dtype=np.uint8)
+        hsv = cv2.cvtColor(image[y0:y1, x0:x1], cv2.COLOR_BGR2HSV)
+        white = cv2.inRange(
+            hsv, np.array(config.symbols.white_lo), np.array(config.symbols.white_hi)
+        )
+        cv2.imwrite(str(templates / f"{name}.png"), white)
     return 0
 
 

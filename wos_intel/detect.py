@@ -74,12 +74,14 @@ class Action(StrEnum):
     RESCUE = "RESCUE"
 
 
-MASK_TEMPLATES: dict[MissionType, str] = {
-    MissionType.HUNT: "paw_mask",
-    MissionType.RESCUE: "tent_mask",
-    MissionType.COMBAT: "axe_mask",
-    MissionType.BOSS: "skull_mask",
-}
+# One type can have several symbols: the firebeast of Flame and Fangs is a hunt (SPEC 3.7).
+MASK_TEMPLATES: tuple[tuple[MissionType, str], ...] = (
+    (MissionType.HUNT, "paw_mask"),
+    (MissionType.HUNT, "firebeast_mask"),
+    (MissionType.RESCUE, "tent_mask"),
+    (MissionType.COMBAT, "axe_mask"),
+    (MissionType.BOSS, "skull_mask"),
+)
 
 ACTION_TEMPLATES: dict[Action, str] = {
     Action.EXPLORE: "btn_explore_top",
@@ -257,10 +259,10 @@ class Detector:
         for name in OPTIONAL_TEMPLATES:
             if (directory / f"{name}.png").is_file():
                 self._templates[name] = self._read(directory / f"{name}.png", cv2.IMREAD_COLOR)
-        self._masks: dict[MissionType, Image] = {
-            kind: self._read(directory / f"{name}.png", cv2.IMREAD_GRAYSCALE)
-            for kind, name in MASK_TEMPLATES.items()
-        }
+        self._masks: list[tuple[MissionType, Image]] = [
+            (kind, self._read(directory / f"{name}.png", cv2.IMREAD_GRAYSCALE))
+            for kind, name in MASK_TEMPLATES
+        ]
         self._glyphs: list[tuple[int, Image]] = []
         for path in sorted((directory / DIGITS_DIR).glob("[0-9]_*.png")):
             self._glyphs.append((int(path.name[0]), self._read(path, cv2.IMREAD_GRAYSCALE)))
@@ -409,7 +411,7 @@ class Detector:
         hsv = _hsv(_crop(image, region))
         white = _in_range(hsv, self._config.symbols.white_lo, self._config.symbols.white_hi)
         best: tuple[MissionType, Match] | None = None
-        for kind, mask in self._masks.items():
+        for kind, mask in self._masks:
             for scale in scales:
                 scaled = cv2.resize(mask, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
                 score, x, y = _best_match(white, np.asarray(scaled, dtype=np.uint8))
@@ -479,7 +481,7 @@ class Detector:
         white[: symbols.search_y[0]] = 0
         white[symbols.search_y[1] :] = 0
         hits: list[tuple[float, MissionType, int, int]] = []
-        for kind, mask in self._masks.items():
+        for kind, mask in self._masks:
             result = cv2.matchTemplate(white, mask, cv2.TM_CCOEFF_NORMED)
             height, width = mask.shape[:2]
             while True:

@@ -46,7 +46,7 @@ config.toml
 - `boss-3-deploy.png`: `DEPLOY` of the boss with "You are not likely to prevail" (red).
 
 ### Templates
-Symbol masks: `paw_mask`, `tent_mask`, `axe_mask`, `skull_mask` (+ colour cut-outs), `check` (green check mark).
+Symbol masks: `paw_mask`, `firebeast_mask`, `tent_mask`, `axe_mask`, `skull_mask` (+ colour cut-outs), `check` (green check mark).
 Buttons/titles: `btn_view`, `btn_explore`, `btn_explore_top`, `btn_attack`, `btn_fight`, `btn_deploy`,
 `btn_claim_all`, `intel_button`, `intel_button_badge`, `dialog_pin_axe`, `dialog_pin_paw`,
 `title_intel`, `title_squad_settings`, `title_deploy`, `title_victory`, `text_tap_anywhere`, `text_likely_prevail`,

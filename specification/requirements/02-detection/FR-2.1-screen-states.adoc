@@ -7,7 +7,7 @@ Every screenshot is classified as exactly one state.
 |===
 |State |Feature |Reference
 
-|`INTEL` |title "Intel" top left |`ref/intel-x.png`, `ref/intel-xx.png`, `ref/flame-and-fangs-announced.png`
+|`INTEL` |title "Intel" top left |`ref/intel-x.png`, `ref/intel-xx.png`, `ref/flame-and-fangs-announced.png`, `ref/flame-and-fangs-missions.png`
 |`INTEL_CLAIMABLE` |as `INTEL` plus the green "Claim All" button |`ref/intel-xxx.png`
 |`REWARDS` |banner "Rewards" |`ref/intel-xxxx.png`
 |`MISSION_DIALOG` |blue "View" button |`ref/combat-1-dialog.png`, `ref/hunt-1-dialog.png`, `ref/boss-1-dialog.png`
@@ -25,7 +25,7 @@ Every screenshot is classified as exactly one state.
 |===
 
 .Acceptance criteria
-. Each of the twenty-three reference screenshots yields the state listed for it.
+. Each of the twenty-four reference screenshots yields the state listed for it.
 . Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
   the Intel button with 0.85, with and without the red badge.
 . `DEPLOY` is recognised by the Deploy button, never by the title alone.

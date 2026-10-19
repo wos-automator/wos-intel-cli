@@ -107,9 +107,10 @@ event start are worked on then, and rewards that are finished but not yet claime
 then.
 
 During the event, a new hunt pin shows the firebeast (`templates/flame-and-fangs-firebeast-mission.png`).
-It works like the normal hunt (paw symbol), in the same flow. Screenshots of the firebeast pin,
-its dialog and its popup can only be taken once the event has started; until then only the
-pre-event rules below apply.
+It works like the normal hunt (paw symbol), in the same flow. `ref/flame-and-fangs-missions.png`
+shows the Intel screen during the event: the gold firebeast pin below the refresh countdown,
+next to normal missions, without the event icon. Screenshots of its dialog and its popup are
+still missing.
 
 **Pre-event rules.** Every mission dialog (except the boss) shows "Intel Expires In HH:MM:SS".
 Missions are handed out at 00:00, 08:00 and 16:00 UTC and expire after 16 h. The day before the

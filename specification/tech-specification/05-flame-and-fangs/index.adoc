@@ -3,3 +3,5 @@
 include::TS-5.1-event-detection.adoc[]
 
 include::TS-5.2-pre-event-planner.adoc[]
+
+include::TS-5.3-firebeast-mask.adoc[]

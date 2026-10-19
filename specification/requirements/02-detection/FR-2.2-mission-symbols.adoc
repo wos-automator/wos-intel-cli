@@ -5,9 +5,9 @@ On the Intel screen the mission symbols are found with type and click point.
 
 .Acceptance criteria
 . Search band y 170–1050; white mask HSV (0,0,215)–(180,45,255); `TM_CCOEFF_NORMED` against
-  `paw_mask`, `tent_mask`, `axe_mask`, `skull_mask`; threshold 0.75; non-maximum suppression
+  `paw_mask`, `firebeast_mask`, `tent_mask`, `axe_mask`, `skull_mask`; threshold 0.75; non-maximum suppression
   within 20 px.
-. The types are `HUNT` (paw), `RESCUE` (tent), `COMBAT` (halberds), `BOSS` (skull).
+. The types are `HUNT` (paw, or the firebeast during Flame and Fangs, <<FR-5.5>>), `RESCUE` (tent), `COMBAT` (halberds), `BOSS` (skull).
 . The click point is the centre of the match (centre of the disc).
 . On `ref/intel-x.png`, `-xx.png` and `-xxx.png` exactly the symbols of SPEC.md §3.5 are
   found, each within ±6 px.
