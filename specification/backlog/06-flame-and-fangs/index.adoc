@@ -1,7 +1,6 @@
 == Flame and Fangs Event
 
-Pre-event rules of SPEC.md §3.7. The firebeast pin follows as its own story once screenshots of
-the running event exist.
+Pre-event rules of SPEC.md §3.7 and the firebeast pin of the running event.
 
 include::US-6.1-event-icon-countdown.adoc[]
 
@@ -10,3 +9,5 @@ include::US-6.2-mission-expiry.adoc[]
 include::US-6.3-pre-event-claim-hold.adoc[]
 
 include::US-6.4-expert-before-event.adoc[]
+
+include::US-6.5-firebeast-pin.adoc[]

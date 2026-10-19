@@ -52,11 +52,24 @@ INTEL_XXX: list[Expected] = [
     *((kind, x, y, DONE if kind is RESCUE else status) for kind, x, y, status in INTEL_X),
     (HUNT, 564, 737, DONE),
 ]
+# During Flame and Fangs: the gold firebeast pin at the top is a hunt (SPEC 3.7).
+FLAME_AND_FANGS: list[Expected] = [
+    (HUNT, 430, 279, AVAILABLE),
+    (RESCUE, 190, 474, RUNNING),
+    (HUNT, 562, 515, AVAILABLE),
+    (COMBAT, 242, 780, AVAILABLE),
+    (BOSS, 372, 828, AVAILABLE),
+]
 
 
 @pytest.mark.parametrize(
     ("name", "expected"),
-    [("intel-x", INTEL_X), ("intel-xx", INTEL_XX), ("intel-xxx", INTEL_XXX)],
+    [
+        ("intel-x", INTEL_X),
+        ("intel-xx", INTEL_XX),
+        ("intel-xxx", INTEL_XXX),
+        ("flame-and-fangs-missions", FLAME_AND_FANGS),
+    ],
 )
 def test_symbols_match_the_spec_table(
     detector: Detector, name: str, expected: list[Expected]
@@ -100,6 +113,15 @@ def test_vivid_symbol_found_only_by_the_dim_pass_is_available(
     (symbol,) = detector.detect_symbols(load_ref("intel-boss-running"))
 
     assert symbol.status is AVAILABLE
+
+
+def test_firebeast_is_a_gold_hunt_worked_on_first(detector: Detector) -> None:
+    symbols = detector.detect_symbols(load_ref("flame-and-fangs-missions"))
+
+    firebeast = symbols[0]
+    assert (firebeast.type, firebeast.tier) == (HUNT, Tier.GOLD)
+    assert abs(firebeast.x - 430) <= POSITION_TOLERANCE
+    assert abs(firebeast.y - 279) <= POSITION_TOLERANCE
 
 
 def test_running_symbol_has_low_saturation(detector: Detector) -> None:
@@ -168,6 +190,7 @@ def test_nothing_is_detected_outside_the_search_band(detector: Detector) -> None
         ("dialog-logged-in-elsewhere", State.SESSION_LOST),
         ("hunt-2-world-queues-busy", State.WORLD),
         ("flame-and-fangs-announced", State.INTEL),
+        ("flame-and-fangs-missions", State.INTEL),
     ],
 )
 def test_states(detector: Detector, images: dict[str, Image], name: str, state: State) -> None:
@@ -377,7 +400,15 @@ def test_event_icon_and_countdown(detector: Detector) -> None:
 
 
 @pytest.mark.parametrize(
-    "name", ["intel-x", "intel-xx", "intel-xxx", "intel-boss-running", "intel-expert-available"]
+    "name",
+    [
+        "intel-x",
+        "intel-xx",
+        "intel-xxx",
+        "intel-boss-running",
+        "intel-expert-available",
+        "flame-and-fangs-missions",
+    ],
 )
 def test_no_event_icon_on_a_normal_day(detector: Detector, name: str) -> None:
     image = load_ref(name)

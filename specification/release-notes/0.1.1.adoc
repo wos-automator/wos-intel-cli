@@ -27,6 +27,9 @@
 * Before the Flame and Fangs event the expert is only used within 2 h of the start, so its
   missions are still available during the event. New setting `expert_hours` in `[event]`
   (<<US-6.4>>, <<FR-5.4>>).
+* During the Flame and Fangs event the gold firebeast pin is detected as a hunt with the new
+  symbol mask `firebeast_mask`, cut from `ref/flame-and-fangs-missions.png` (<<US-6.5>>,
+  <<FR-5.5>>).
 
 === Fixes
 
@@ -57,7 +60,8 @@
 * `SPEC.md §3.7` describes the Flame and Fangs event and the pre-event rules: claim the
   missions that expire before the event, finish but do not claim those that expire with its
   start, ignore the rest. Specified in <<FR-5.1>> to <<FR-5.4>>, <<TS-5.1>>, <<TS-5.2>> and
-  <<US-6.1>> to <<US-6.4>>. The firebeast pin of the event itself is not covered yet.
+  <<US-6.1>> to <<US-6.4>>. `SPEC.md §3.7` also names `ref/flame-and-fangs-missions.png` with the
+  firebeast pin during the event (<<FR-5.5>>).
 
 * `SPEC.md §5` states what the run has to do when all march queues are busy: work only on
   targets that are neither hunt nor boss (BUG-0014).
