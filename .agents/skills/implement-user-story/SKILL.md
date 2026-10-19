@@ -24,3 +24,4 @@ Implement a backlog user story adhering to strict TDD and Definition of Done.
    - Run `npm run check` (`tsc`, `eslint`, `vitest`, `validate:specs`).
    - Zero `console.log` or debug leftovers.
 6. **Release Notes Update**: Update the target release version file in `specification/release-notes/<version>.adoc` with the new feature and trace back to requirements via story reference (`<<US-x.y>>`, `<<FR-x.y>>`).
+7. **Commit**: Commit the story as one commit using [commit](../commit/SKILL.md) (type `feat`).
