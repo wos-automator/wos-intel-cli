@@ -15,3 +15,5 @@ include::US-5.4-reconnect-after-login-elsewhere.adoc[]
 include::US-5.5-retry-tap-on-boss-target.adoc[]
 
 include::US-5.6-vanished-world-target.adoc[]
+
+include::US-5.7-wait-after-boss.adoc[]

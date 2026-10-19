@@ -38,7 +38,7 @@ class TimingConfig:
     poll_interval: float = 0.7
     expect_timeout: float = 8.0
     fight_timeout: float = 60.0
-    completion_timeout: float = 900.0
+    completion_timeout: float = 300.0
     completion_poll: float = 10.0
     reconnect_delay: float = 60.0
     reconnect_timeout: float = 120.0

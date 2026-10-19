@@ -186,6 +186,7 @@ class Runner:
         self._last: tuple[Screen, Image] | None = None
         self._attempted: list[Symbol] = []
         self._unclaimed = 0
+        self._unclaimed_regular = 0  # of them not the boss: their pin can hide behind another
         self._expert_used = False
         self._reconnecting = False
         self._queues_busy = False
@@ -597,13 +598,15 @@ class Runner:
         self._tap(self._config.buttons.rewards_exit, "rewards exit")
         self._expect(INTEL_STATES)
         self._unclaimed = 0
+        self._unclaimed_regular = 0
 
     def _settle(self, final: Outcome, symbols: list[Symbol]) -> Outcome | None:
         """Before ending with ``final``: wait for running missions and claim their rewards.
 
         Returns ``None`` after a claim so that the loop looks at the Intel screen again.
         """
-        if self._phase() is Phase.HOLD:
+        phase = self._phase()
+        if phase is Phase.HOLD:
             # Waiting would only end in a claim, and nothing is claimed before the event.
             return Outcome.REWARDS_HELD if final is Outcome.NOTHING_TO_DO else final
         running = sum(symbol.status is Status.RUNNING for symbol in symbols)
@@ -613,6 +616,9 @@ class Runner:
         if self._dry_run:
             log.info("dry run: would wait for running missions and claim all")
             return final
+        # Only a mission that was not workable at the start of the wait ends it: the boss
+        # that waits for the claim before the hold phase must not end it (TS-5.2).
+        known = self._startable(symbols, phase)
         log.info(
             "waiting up to %.0f s for running missions (%d shown as running, %d started "
             "since the last claim)",
@@ -623,16 +629,45 @@ class Runner:
         deadline = self._clock() + timing.completion_timeout
         while self._clock() < deadline:
             self._sleep(timing.completion_poll)
-            screen, _ = self._observe()
+            screen, image = self._observe()
             if screen.state is State.INTEL_CLAIMABLE:
                 self._claim(screen.matches["btn_claim_all"])
                 return None
             if screen.state is not State.INTEL:
                 raise StepFailed(f"left the Intel screen while waiting, screen is {screen.state}")
+            if final is not Outcome.NOTHING_TO_DO and self._unclaimed_regular:
+                continue  # nothing the symbols could show ends this wait early
+            shown = self._detector.detect_symbols(image)
+            appeared = [
+                symbol
+                for symbol in self._startable(shown, phase)
+                if not any(self._same_spot(symbol, other) for other in known)
+            ]
+            if final is Outcome.NOTHING_TO_DO and appeared:
+                log.info("missions became available while waiting")
+                return None
+            # A lost boss pays nothing, so "Claim All" never comes: stop once nothing runs.
+            # A started hunt is waited for in full, its pin may be hidden behind another.
+            running_shown = any(symbol.status is Status.RUNNING for symbol in shown)
+            if not running_shown and self._unclaimed_regular == 0:
+                log.info("no mission is running any more and there is nothing to claim")
+                self._unclaimed = 0
+                return final
         log.warning("running missions did not finish in time; rewards are not claimed")
         return final
 
-    def _candidates(self, symbols: list[Symbol]) -> list[Symbol]:
+    def _startable(self, symbols: list[Symbol], phase: Phase | None) -> list[Symbol]:
+        startable = self._candidates(symbols, quiet=True)
+        if phase is None:
+            return startable
+        return [symbol for symbol in startable if self._in_phase(symbol, phase)]
+
+    def _same_spot(self, a: Symbol, b: Symbol) -> bool:
+        radius = self._config.symbols.lock_radius
+        return a.type is b.type and math.hypot(a.x - b.x, a.y - b.y) <= radius
+
+    def _candidates(self, symbols: list[Symbol], quiet: bool = False) -> list[Symbol]:
+        """Available symbols that are not locked; ``quiet`` drops the log of a locked boss."""
         boss_locked = self._store.boss_locked(self._now())
         radius = self._config.symbols.lock_radius
         candidates: list[Symbol] = []
@@ -640,7 +675,8 @@ class Runner:
             if symbol.status is not Status.AVAILABLE:
                 continue
             if symbol.type is MissionType.BOSS and boss_locked:
-                log.info("boss already attacked in this refresh cycle, skipping")
+                if not quiet:
+                    log.info("boss already attacked in this refresh cycle, skipping")
                 continue
             if any(
                 done.type is symbol.type
@@ -689,6 +725,8 @@ class Runner:
             world = self._deploy(require_prevail=target.type is not MissionType.BOSS)
         self.missions_started += 1
         self._unclaimed += 1
+        if target.type is not MissionType.BOSS:
+            self._unclaimed_regular += 1
 
         self._tap_match(world.matches["intel_button"])
         self._expect(INTEL_STATES)

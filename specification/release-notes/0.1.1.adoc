@@ -50,6 +50,12 @@
   its type) is skipped for the run without counting as a failure; the run returns to the Intel
   screen and selects the next mission. Before, three such targets in a row ended the run
   (<<US-5.6>>, <<FR-3.4>>).
+* Waiting for running missions ends early when a workable mission appears (it is started), or
+  when only the boss was started since the last claim and no symbol runs any more: a lost
+  boss pays nothing, so the run no longer waits for a "Claim All" that never comes. A started
+  hunt, combat or rescue is still waited for in full, since its pin can be hidden behind
+  another symbol. `completion_timeout` in `[timing]` is now 300 s instead of 900 s
+  (<<US-5.7>>, <<FR-3.7>>).
 * BUG-0095a: the dialog "The account has been logged in on another device." is recognised as
   `SESSION_LOST`. The run waits 60 s, taps "Reconnect", waits up to 120 s for the Intel screen
   or the world map and starts over without counting a failure. New settings

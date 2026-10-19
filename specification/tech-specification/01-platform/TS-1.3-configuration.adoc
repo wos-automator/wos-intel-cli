@@ -11,7 +11,7 @@ values of SPEC.md.
 |Section |Content
 
 |`device` |serial, adb path, package, resolution, command timeout
-|`timing` |tap delay 1.0 s, poll interval 0.7 s, expect timeout 8 s, fight timeout 60 s, completion timeout 900 s, completion poll 10 s, reconnect delay 60 s, reconnect timeout 120 s, queue poll 60 s, queue timeout 900 s
+|`timing` |tap delay 1.0 s, poll interval 0.7 s, expect timeout 8 s, fight timeout 60 s, completion timeout 300 s, completion poll 10 s, reconnect delay 60 s, reconnect timeout 120 s, queue poll 60 s, queue timeout 900 s
 |`limits` |max missions 30, max BACK 3, max failures 3, minimum stamina 10
 |`costs` |stamina cost per mission type
 |`symbols` |search band, white mask, thresholds, disc radius, check mark, tier hues, overlap, dialog pin

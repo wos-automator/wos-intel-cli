@@ -33,6 +33,8 @@ RECONNECT: Point = (520, 802)
 WORLD_TARGET: Point = (360, 731)  # below the intel pin at 360,661
 EXPERT_AREA = (10, 165, 105, 255)
 EVENT_AREA = (560, 1100, 720, 1280)  # Flame and Fangs icon with its countdown 07:52:41
+BOSS_AREA = (450, 620, 590, 790)  # running boss of intel-boss-running.png at 518,700
+MAP_SNOW = (224, 207, 201)
 MARCH_COUNTER = (185, 195, 250, 232)  # "N/M" of "Marching N/M" on the world map
 
 BOSS: Point = (518, 700)
@@ -145,6 +147,7 @@ def images() -> dict[str, Image]:
     loaded["rescue-dialog"] = make_dialog("tent_mask")
     loaded["deploy-unlikely"] = make_deploy_unlikely()
     loaded["defeat"] = make_defeat()
+    loaded["intel-boss-gone"] = _fill(load_ref("intel-boss-running"), BOSS_AREA, MAP_SNOW)
     loaded["expert-only-boss-running"] = with_expert("intel-boss-running")
     loaded["expert-and-missions"] = with_expert("intel-x")
     loaded["event-intel-x"] = with_event("intel-x")
