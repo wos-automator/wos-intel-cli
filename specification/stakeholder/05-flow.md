@@ -20,8 +20,11 @@ loop:
   if none (or none affordable):
         if missions are still running (RUNNING detected, or started in this run and not
         yet collected): wait on the Intel screen until "Claim All" appears
-        (screenshot every 10 s, at most 15 min, both configurable), then "Claim All"
-        as above and continue with loop
+        (screenshot every 10 s, at most 5 min, both configurable), then "Claim All"
+        as above and continue with loop;
+        stop waiting early when a workable mission appears (continue with loop), or
+        when no symbol is RUNNING any more and only the boss was started since the
+        last claim (a lost boss pays nothing, so "Claim All" never comes)
         otherwise: end ("nothing to do" or "not enough stamina")
   s = symbols[0]
   if stamina < cost(s): skip s
@@ -52,7 +55,8 @@ loop:
 **End of the run:** the program does not end as long as missions are running. If only
 `RUNNING` missions are left, it waits for them to finish and collects the rewards with "Claim All";
 the player does not have to collect anything by hand. If the waiting time runs out, the run ends
-regularly with a note in the log.
+regularly with a note in the log. A started hunt, combat or rescue is always waited for in full:
+its pin can be hidden behind another symbol, so "no running symbol" does not mean it is done.
 
 **Busy march queues (BUG-0014):** a hunt or boss target needs a free march queue; combat and
 rescue do not. If all march queues are busy (the world map shows "Marching 6/6"), no more hunt

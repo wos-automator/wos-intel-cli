@@ -58,10 +58,22 @@ while the queues are busy (<<TS-3.6>>).
 Settling (<<FR-3.7>>): every regular end (`NOTHING_TO_DO`, `OUT_OF_STAMINA`, `MISSION_LIMIT`)
 goes through `Runner._settle(final, symbols)`. It returns `final` at once if no symbol is
 `RUNNING` and `_unclaimed` (missions started since the last claim) is 0. Otherwise it polls
-every `timing.completion_poll` (10 s) for up to `timing.completion_timeout` (900 s):
-`INTEL_CLAIMABLE` → `_claim` (resets `_unclaimed`) and `None`, so the loop evaluates the Intel
-screen again; `INTEL` → keep waiting; any other state → `StepFailed`. On timeout it logs a
-warning and returns `final`. `_unclaimed` exists because a greyed-out running pin is not always
+every `timing.completion_poll` (10 s) for up to `timing.completion_timeout` (300 s):
+`INTEL_CLAIMABLE` → `_claim` (resets `_unclaimed` and `_unclaimed_regular`) and `None`, so the
+loop evaluates the Intel screen again; any state other than `INTEL` → `StepFailed`. On `INTEL`
+the symbols are detected again:
+* with `final` = `NOTHING_TO_DO` and a symbol that `_candidates` (quietly, without the log of a
+  locked boss) and the pre-event phase filter (<<TS-5.2>>) let through and that was not
+  workable when the wait began (same type within `lock_radius`) → log "missions became
+  available while waiting" and `None`. The boss that waits for the claim before the hold
+  phase therefore does not end the wait;
+* with another `final` and a regular mission unclaimed, the symbols are not detected at all,
+  since nothing they show could end the wait;
+* no symbol `RUNNING` and `_unclaimed_regular` (non-boss missions started since the last
+  claim) is 0 → log "no mission is running any more and there is nothing to claim", reset
+  `_unclaimed`, return `final`;
+* otherwise keep waiting.
+On timeout it logs a warning and returns `final`. `_unclaimed` exists because a greyed-out running pin is not always
 found by the white mask (SPEC.md §3.5).
 
 Expert (<<FR-3.8>>): on every evaluation of the Intel screen `Detector.find_expert` is asked

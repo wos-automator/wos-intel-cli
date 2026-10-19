@@ -1,0 +1,29 @@
+[#US-5.7]
+=== US-5.7 Waiting after the boss does not end
+
+Status:: Done (0.1.1) – verified on the fake game only +
+Effort:: 2 h +
+Traces to:: <<TS-3.1>>, <<FR-3.7>>
+
+As the operator, I want the run to stop waiting when there is nothing left to wait for, so that
+it does not sit idle while missions are available or after a lost boss.
+
+Defect:: Reported by the operator from a device run, without a failure screenshot (the run did
+not fail). After the boss was attacked the run waited the full 900 s, although missions were
+available and the boss was finished or lost: the wait only looked for "Claim All", and a lost
+boss pays nothing. A first fix that stopped as soon as no symbol was running ended the wait
+after 30 s while a hunt was still running: its pin was hidden behind the boss.
+
+.Acceptance criteria
+. The wait lasts at most 5 min (`completion_timeout` 300 s).
+. A mission that becomes workable while waiting ends the wait and is started.
+. With only the boss started since the last claim, the wait ends as soon as no symbol is
+  `RUNNING` and nothing can be claimed.
+. A started hunt, combat or rescue is waited for until "Claim All" appears or the timeout,
+  even if no symbol is shown as `RUNNING`.
+
+.Test criteria
+* Component test (`tests/test_flow.py`): the running boss vanishes after 40 s → the run ends
+  at about 40 s; missions appear after 20 s → they are started; a started mission whose pin is
+  not shown → the run waits the full 300 s.
+* Integration test (`tests/test_config_state.py`): default `completion_timeout` 300 s.

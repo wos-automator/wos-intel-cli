@@ -640,7 +640,7 @@ def test_run_waits_for_running_missions_and_claims_them(
     assert len(game.taps_on("intel-xxx")) == 1
     assert near(game.taps_on("intel-xxx")[0], CLAIM_ALL, 8)
     assert game.taps_on("intel-xxxx") == [REWARDS_EXIT]
-    assert game.clock is not None and 200.0 <= game.clock.now < 900.0
+    assert game.clock is not None and 200.0 <= game.clock.now < 300.0
     assert game.stray_taps == []
     # the boss was rejected before the wait; the tent, available again on the fake's
     # intel-x after the claim, is rejected afterwards
@@ -663,6 +663,66 @@ def test_waiting_for_running_missions_gives_up_after_the_timeout(
     assert "did not finish in time" in caplog.text
     assert game.stray_taps == []
     assert "intel-xx" not in game.backs
+
+
+def test_wait_ends_when_nothing_runs_any_more(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # the boss is lost after 40 s: its pin is gone and there is nothing to claim
+    game = game_factory(start="intel-boss-running")
+    game.timed["intel-boss-running"] = (40.0, "intel-boss-gone")
+    caplog.set_level("INFO")
+
+    outcome = make_runner(game, detector, state_file, Config()).run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert game.clock is not None and 40.0 <= game.clock.now <= 50.0
+    assert "no mission is running any more and there is nothing to claim" in caplog.text
+    assert "did not finish in time" not in caplog.text
+    assert game.taps == []
+
+
+def test_missions_that_appear_while_waiting_are_started(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # while the boss runs, the missions of intel-x appear (a refresh)
+    game = game_factory(start="intel-boss-running", intel="intel-x")
+    game.timed["intel-boss-running"] = (20.0, "intel-x")
+    caplog.set_level("INFO")
+    runner = make_runner(game, detector, state_file)
+
+    runner.run()
+
+    assert "missions became available while waiting" in caplog.text
+    assert runner.missions_started >= 1
+    assert game.taps[0][0] == "intel-x"
+
+
+def test_started_mission_is_waited_for_even_if_its_pin_is_hidden(
+    game_factory: GameFactory,
+    detector: Detector,
+    state_file: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # a mission is started, then no symbol shows it as running (its pin hidden behind another)
+    game = game_factory(start="intel-x", intel="intel-boss-gone")
+    game.back_transitions["combat-1-dialog"] = "intel-x"  # the rejected tent
+    caplog.set_level("INFO")
+    runner = make_runner(game, detector, state_file, Config())
+
+    outcome = runner.run()
+
+    assert outcome is Outcome.NOTHING_TO_DO
+    assert runner.missions_started == 1
+    assert game.clock is not None and game.clock.now >= 300.0
+    assert "no mission is running any more" not in caplog.text
+    assert "did not finish in time" in caplog.text
 
 
 def test_running_boss_is_not_tapped_but_waited_for(

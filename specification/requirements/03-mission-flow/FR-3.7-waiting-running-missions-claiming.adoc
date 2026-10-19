@@ -9,8 +9,14 @@ The run does not end while missions are running; the player does not have to cla
   every 10 s (configurable).
 . As soon as "Claim All" appears the rewards are claimed (<<FR-3.2>>) and the Intel screen is
   evaluated again, so further running missions are waited for as well.
-. The wait lasts at most 15 min (configurable); then the run ends regularly and the log says
+. The wait lasts at most 5 min (configurable); then the run ends regularly and the log says
   that rewards were not claimed.
+. If a mission the run would start appears while it waits and nothing else was the reason to
+  end, the wait ends and the mission is started.
+. If no symbol is shown as `RUNNING` any more and nothing can be claimed, the wait ends early,
+  but only if the boss is the only mission started since the last claim (a lost boss pays
+  nothing). A started hunt, combat or rescue is waited for until the timeout, because its pin
+  can be hidden behind another symbol.
 . Without running missions the run ends immediately.
 . A dry run only logs that it would wait.
 . In the hold phase before the Flame and Fangs event running missions are not waited for
