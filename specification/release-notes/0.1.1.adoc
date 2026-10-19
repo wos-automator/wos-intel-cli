@@ -5,7 +5,8 @@
 * Busy march queues (BUG-0014): the counter "Marching N/M" on the world map is read with the
   digit OCR. While all march queues are busy, hunt and boss targets are deferred: combat and
   rescue missions go on, a hunt or boss whose popup does not open is neither tapped again nor
-  counted as a failure, and with only hunt and boss left the run tries again every 60 s. If the
+  counted as a failure, and with only hunt and boss left the run tries again every 10 s. While
+  it waits it claims rewards as soon as "Claim All" appears and then tries again at once. If the
   queues stay busy for 15 min the run ends regularly with "all march queues busy". New settings
   `queue_poll` and `queue_timeout` in `[timing]` and `march_region` in `[ocr]` (<<US-3.8>>,
   <<FR-2.7>>, <<FR-3.9>>).

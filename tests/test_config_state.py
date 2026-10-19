@@ -28,7 +28,7 @@ def test_defaults_follow_the_spec() -> None:
     assert config.timing.expect_timeout == 8.0
     assert config.timing.fight_timeout == 60.0
     assert config.timing.completion_timeout == 300.0
-    assert config.timing.queue_poll == 60.0
+    assert config.timing.queue_poll == 10.0
     assert config.timing.queue_timeout == 900.0
     assert config.event.tolerance_minutes == 10.0
     assert config.event.expert_hours == 2.0

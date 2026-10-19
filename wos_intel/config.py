@@ -42,7 +42,7 @@ class TimingConfig:
     completion_poll: float = 10.0
     reconnect_delay: float = 60.0
     reconnect_timeout: float = 120.0
-    queue_poll: float = 60.0
+    queue_poll: float = 10.0
     queue_timeout: float = 900.0
 
 

@@ -62,6 +62,9 @@ its pin can be hidden behind another symbol, so "no running symbol" does not mea
 rescue do not. If all march queues are busy (the world map shows "Marching 6/6"), no more hunt
 or boss targets can be started. The run then works only on the targets that are neither hunt
 nor boss, and leaves hunt and boss for later instead of ending. This is a new feature.
+No wait may block progress: while the run waits for a free queue it keeps looking at the Intel
+screen and claims rewards as soon as "Claim All" appears. A claimed hunt is a march that has
+returned, so the hunt or boss is tried again right after the claim; otherwise every 10 s.
 
 Every step `expect X` waits at most N seconds (default 8) with a screenshot every 0.7 s.
 On timeout: `BACK` up to 3×, then detect again; after 3 failures in a row the program ends.
