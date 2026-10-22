@@ -1,0 +1,62 @@
+#!/bin/sh
+# Runs the spec-validator release pinned in VERSION. The binary is downloaded once into the
+# user cache and verified against checksums.txt. SPEC_VALIDATOR=<path> runs another binary.
+set -eu
+
+if [ -n "${SPEC_VALIDATOR:-}" ]; then
+	exec "$SPEC_VALIDATOR" "$@"
+fi
+
+here=$(cd "$(dirname "$0")" && pwd)
+version=$(tr -d ' \r\n' <"$here/VERSION")
+
+fail() {
+	echo "validate-specs: $*" >&2
+	exit 2
+}
+
+case $(uname -s) in
+Darwin) os=darwin ;;
+Linux) os=linux ;;
+*) fail "unsupported system $(uname -s); on Windows use validate-specs.ps1" ;;
+esac
+case $(uname -m) in
+x86_64 | amd64) arch=amd64 ;;
+arm64 | aarch64) arch=arm64 ;;
+*) fail "unsupported architecture $(uname -m)" ;;
+esac
+
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/spec-validator/$version"
+binary="$cache/spec-validator"
+
+if [ ! -x "$binary" ]; then
+	archive="spec-validator_${version}_${os}_${arch}.tar.gz"
+	url="https://github.com/thst71/spec-validator/releases/download/v$version/$archive"
+	expected=$(awk -v name="$archive" '$2 == name { print $1 }' "$here/checksums.txt")
+	[ -n "$expected" ] || fail "no checksum for $archive in $here/checksums.txt"
+
+	work=$(mktemp -d)
+	trap 'rm -rf "$work"' EXIT
+	if ! curl -fsSL -o "$work/$archive" "$url"; then
+		if command -v go >/dev/null 2>&1; then
+			echo "validate-specs: download failed, running from source with go" >&2
+			rm -rf "$work"
+			exec go run "github.com/thst71/spec-validator/cmd/spec-validator@v$version" "$@"
+		fi
+		fail "cannot download $url"
+	fi
+	if command -v sha256sum >/dev/null 2>&1; then
+		actual=$(sha256sum "$work/$archive" | cut -d ' ' -f 1)
+	else
+		actual=$(shasum -a 256 "$work/$archive" | cut -d ' ' -f 1)
+	fi
+	[ "$actual" = "$expected" ] || fail "checksum mismatch for $archive"
+
+	tar -xzf "$work/$archive" -C "$work" spec-validator
+	mkdir -p "$cache"
+	mv "$work/spec-validator" "$binary"
+	rm -rf "$work"
+	trap - EXIT
+fi
+
+exec "$binary" "$@"
