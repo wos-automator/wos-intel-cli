@@ -1,4 +1,4 @@
-[#FR-5.3]
+[[FR-5.3]]
 === FR-5.3 Pre-event rules: claim, hold, ignore
 
 While the event icon is shown, every mission except the boss is put into a group by comparing

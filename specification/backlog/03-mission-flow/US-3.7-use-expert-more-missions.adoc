@@ -1,4 +1,4 @@
-[#US-3.7]
+[[US-3.7]]
 === US-3.7 Use the expert for more missions
 
 Status:: Done (0.1.0) – what follows the tap is not verified on the device, see <<US-4.3>> +

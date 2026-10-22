@@ -1,4 +1,4 @@
-[#US-2.1]
+[[US-2.1]]
 === US-2.1 Screen states
 
 Status:: Done (0.1.0) +

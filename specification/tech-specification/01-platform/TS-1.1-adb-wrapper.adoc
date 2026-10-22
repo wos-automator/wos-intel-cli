@@ -1,4 +1,4 @@
-[#TS-1.1]
+[[TS-1.1]]
 === TS-1.1 ADB wrapper (`wos_intel/adb.py`)
 
 Implements <<FR-1.1>>, <<FR-1.2>> and <<FR-4.2>>.

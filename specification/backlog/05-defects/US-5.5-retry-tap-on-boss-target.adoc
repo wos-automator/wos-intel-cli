@@ -1,4 +1,4 @@
-[#US-5.5]
+[[US-5.5]]
 === US-5.5 BUG-0098 Boss target without popup
 
 Status:: Done (0.1.1) +

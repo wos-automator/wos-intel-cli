@@ -1,4 +1,4 @@
-[#TS-2.4]
+[[TS-2.4]]
 === TS-2.4 Dialog type, action button, prevail hint
 
 Implements <<FR-2.6>>.

@@ -1,4 +1,4 @@
-[#FR-2.5]
+[[FR-2.5]]
 === FR-2.5 Stamina and refresh timer
 
 Stamina (top right) and the remaining time of "Refreshes In" are read without an OCR engine.

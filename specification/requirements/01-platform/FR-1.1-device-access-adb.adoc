@@ -1,4 +1,4 @@
-[#FR-1.1]
+[[FR-1.1]]
 === FR-1.1 Device access via ADB only
 
 The program reads the screen and sends input exclusively through ADB: `adb exec-out screencap -p`,

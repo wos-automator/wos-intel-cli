@@ -1,4 +1,4 @@
-[#US-6.3]
+[[US-6.3]]
 === US-6.3 Claim, hold and ignore before the event
 
 Status:: Done (0.1.1) – verified on the fake game only +

@@ -1,4 +1,4 @@
-[#US-6.5]
+[[US-6.5]]
 === US-6.5 Work on the firebeast pin
 
 Status:: Done (0.1.1) – detected on the Intel screen; its dialog is not verified yet +

@@ -1,4 +1,4 @@
-[#FR-2.3]
+[[FR-2.3]]
 === FR-2.3 Symbol status
 
 .Acceptance criteria

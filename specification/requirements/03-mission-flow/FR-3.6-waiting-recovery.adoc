@@ -1,4 +1,4 @@
-[#FR-3.6]
+[[FR-3.6]]
 === FR-3.6 Waiting and recovery
 
 .Acceptance criteria

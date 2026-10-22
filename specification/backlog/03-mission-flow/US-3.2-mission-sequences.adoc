@@ -1,4 +1,4 @@
-[#US-3.2]
+[[US-3.2]]
 === US-3.2 Mission sequences
 
 Status:: Done (0.1.0) – rescue verified on synthetic screens only, see <<US-4.3>> +

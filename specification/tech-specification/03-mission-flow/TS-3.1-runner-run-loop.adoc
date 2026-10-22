@@ -1,4 +1,4 @@
-[#TS-3.1]
+[[TS-3.1]]
 === TS-3.1 Runner and run loop
 
 Implements <<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>>, <<FR-3.7>>, <<FR-3.8>> and <<FR-4.3>>.

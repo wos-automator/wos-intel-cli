@@ -1,4 +1,4 @@
-[#TS-2.2]
+[[TS-2.2]]
 === TS-2.2 Symbol detection, status and tier
 
 Implements <<FR-2.2>>, <<FR-2.3>> and <<FR-2.4>>.

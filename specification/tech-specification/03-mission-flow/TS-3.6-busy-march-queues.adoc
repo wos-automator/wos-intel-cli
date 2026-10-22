@@ -1,4 +1,4 @@
-[#TS-3.6]
+[[TS-3.6]]
 === TS-3.6 Busy march queues
 
 Implements <<FR-3.9>>.

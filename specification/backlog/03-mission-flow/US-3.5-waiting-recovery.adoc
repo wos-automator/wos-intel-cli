@@ -1,4 +1,4 @@
-[#US-3.5]
+[[US-3.5]]
 === US-3.5 Waiting and recovery
 
 Status:: Done (0.1.0) +

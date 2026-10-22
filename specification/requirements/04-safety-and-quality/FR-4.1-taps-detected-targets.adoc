@@ -1,4 +1,4 @@
-[#FR-4.1]
+[[FR-4.1]]
 === FR-4.1 Taps only on detected targets
 
 .Acceptance criteria

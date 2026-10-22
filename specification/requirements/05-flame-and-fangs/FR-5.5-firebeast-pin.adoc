@@ -1,4 +1,4 @@
-[#FR-5.5]
+[[FR-5.5]]
 === FR-5.5 Firebeast pin
 
 During the event a gold pin with the head of the firebeast appears on the Intel screen. It is a

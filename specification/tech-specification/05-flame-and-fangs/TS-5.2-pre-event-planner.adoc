@@ -1,4 +1,4 @@
-[#TS-5.2]
+[[TS-5.2]]
 === TS-5.2 Pre-event planner
 
 Implements <<FR-5.3>> and <<FR-5.4>>.

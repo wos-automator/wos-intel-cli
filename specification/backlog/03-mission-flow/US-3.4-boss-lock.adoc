@@ -1,4 +1,4 @@
-[#US-3.4]
+[[US-3.4]]
 === US-3.4 Boss lock
 
 Status:: Done (0.1.0) +

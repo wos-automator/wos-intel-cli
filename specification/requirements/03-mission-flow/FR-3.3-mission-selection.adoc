@@ -1,4 +1,4 @@
-[#FR-3.3]
+[[FR-3.3]]
 === FR-3.3 Mission selection
 
 .Acceptance criteria

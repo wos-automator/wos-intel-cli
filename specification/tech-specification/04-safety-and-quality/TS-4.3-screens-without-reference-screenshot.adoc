@@ -1,4 +1,4 @@
-[#TS-4.3]
+[[TS-4.3]]
 === TS-4.3 Screens without reference screenshot
 
 Implements <<NFR-3>>.

@@ -1,4 +1,4 @@
-[#FR-5.2]
+[[FR-5.2]]
 === FR-5.2 Mission expiry
 
 Every mission dialog except the boss shows "Intel Expires In HH:MM:SS" in dark text above the

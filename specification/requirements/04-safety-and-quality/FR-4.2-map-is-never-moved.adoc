@@ -1,4 +1,4 @@
-[#FR-4.2]
+[[FR-4.2]]
 === FR-4.2 The map is never moved
 
 .Acceptance criteria

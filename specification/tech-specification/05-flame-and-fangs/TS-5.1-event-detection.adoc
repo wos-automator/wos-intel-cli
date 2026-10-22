@@ -1,4 +1,4 @@
-[#TS-5.1]
+[[TS-5.1]]
 === TS-5.1 Event icon, countdown and mission expiry
 
 Implements <<FR-5.1>> and <<FR-5.2>>.

@@ -1,4 +1,4 @@
-[#FR-1.4]
+[[FR-1.4]]
 === FR-1.4 Logging and debug images
 
 .Acceptance criteria

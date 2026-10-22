@@ -1,4 +1,4 @@
-[#FR-3.8]
+[[FR-3.8]]
 === FR-3.8 Expert: more missions once a day
 
 Once a day a white sign pointing left with a bust portrait – the expert – appears top left on

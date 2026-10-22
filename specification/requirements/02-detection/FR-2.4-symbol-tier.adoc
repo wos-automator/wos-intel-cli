@@ -1,4 +1,4 @@
-[#FR-2.4]
+[[FR-2.4]]
 === FR-2.4 Symbol tier
 
 The tier `GOLD > PURPLE > BLUE` follows from the hue of the disc.

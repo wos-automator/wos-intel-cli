@@ -1,4 +1,4 @@
-[#TS-2.3]
+[[TS-2.3]]
 === TS-2.3 Digit OCR
 
 Implements <<FR-2.5>> and <<FR-2.7>>.

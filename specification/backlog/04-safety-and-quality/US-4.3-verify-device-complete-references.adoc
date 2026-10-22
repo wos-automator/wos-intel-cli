@@ -1,4 +1,4 @@
-[#US-4.3]
+[[US-4.3]]
 === US-4.3 Verify on the device and complete the references
 
 Status:: Open +

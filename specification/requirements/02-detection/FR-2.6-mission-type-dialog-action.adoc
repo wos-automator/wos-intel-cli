@@ -1,4 +1,4 @@
-[#FR-2.6]
+[[FR-2.6]]
 === FR-2.6 Mission type in the dialog and action button in the popup
 
 .Acceptance criteria

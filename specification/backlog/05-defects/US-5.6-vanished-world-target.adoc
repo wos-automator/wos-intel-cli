@@ -1,4 +1,4 @@
-[#US-5.6]
+[[US-5.6]]
 === US-5.6 BUG-0118 World target has vanished
 
 Status:: Done (0.1.1) +

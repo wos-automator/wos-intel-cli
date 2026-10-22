@@ -1,4 +1,4 @@
-[#FR-3.7]
+[[FR-3.7]]
 === FR-3.7 Waiting for running missions and claiming them
 
 The run does not end while missions are running; the player does not have to claim by hand.

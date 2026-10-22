@@ -1,4 +1,4 @@
-[#FR-3.1]
+[[FR-3.1]]
 === FR-3.1 Entering the Intel screen
 
 .Acceptance criteria

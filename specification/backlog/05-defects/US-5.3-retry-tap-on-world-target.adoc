@@ -1,4 +1,4 @@
-[#US-5.3]
+[[US-5.3]]
 === US-5.3 BUG-0028 World target without popup
 
 Status:: Done (0.1.1) +

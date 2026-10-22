@@ -1,4 +1,4 @@
-[#US-6.2]
+[[US-6.2]]
 === US-6.2 Read the mission expiry
 
 Status:: Done (0.1.1) – the digit 6 has no dark template yet +

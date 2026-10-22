@@ -1,4 +1,4 @@
-[#TS-3.5]
+[[TS-3.5]]
 === TS-3.5 Waiting and recovery
 
 Implements <<FR-3.6>>.

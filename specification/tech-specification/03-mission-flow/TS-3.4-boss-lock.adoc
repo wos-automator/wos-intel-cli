@@ -1,4 +1,4 @@
-[#TS-3.4]
+[[TS-3.4]]
 === TS-3.4 Boss lock (`wos_intel/state.py`)
 
 Implements <<FR-3.5>>.

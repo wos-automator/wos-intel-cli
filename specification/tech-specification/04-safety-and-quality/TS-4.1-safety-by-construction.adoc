@@ -1,4 +1,4 @@
-[#TS-4.1]
+[[TS-4.1]]
 === TS-4.1 Safety by construction
 
 Implements <<FR-4.1>> and <<FR-4.2>>.

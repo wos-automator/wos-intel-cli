@@ -1,4 +1,4 @@
-[#FR-2.7]
+[[FR-2.7]]
 === FR-2.7 March queue counter
 
 The counter "Marching N/M" top left on the world map tells how many march queues are busy (N)

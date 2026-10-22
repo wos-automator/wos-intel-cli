@@ -1,4 +1,4 @@
-[#NFR-1]
+[[NFR-1]]
 === NFR-1 Technology
 
 .Acceptance criteria

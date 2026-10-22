@@ -1,4 +1,4 @@
-[#US-3.3]
+[[US-3.3]]
 === US-3.3 Mission selection
 
 Status:: Done (0.1.0) +

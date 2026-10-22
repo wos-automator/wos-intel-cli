@@ -1,4 +1,4 @@
-[#TS-2.1]
+[[TS-2.1]]
 === TS-2.1 State detection
 
 Implements <<FR-2.1>>.

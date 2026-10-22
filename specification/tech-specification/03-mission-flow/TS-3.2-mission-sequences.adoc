@@ -1,4 +1,4 @@
-[#TS-3.2]
+[[TS-3.2]]
 === TS-3.2 Mission sequences
 
 Implements <<FR-3.4>>.

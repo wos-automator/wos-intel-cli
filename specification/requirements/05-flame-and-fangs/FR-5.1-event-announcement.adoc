@@ -1,4 +1,4 @@
-[#FR-5.1]
+[[FR-5.1]]
 === FR-5.1 Event announcement and countdown
 
 The day before the event an icon in the lower right corner of the Intel screen counts down to

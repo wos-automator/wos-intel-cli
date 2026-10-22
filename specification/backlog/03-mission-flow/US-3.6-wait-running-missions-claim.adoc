@@ -1,4 +1,4 @@
-[#US-3.6]
+[[US-3.6]]
 === US-3.6 Wait for running missions and claim all
 
 Status:: Done (0.1.0) – waiting verified on the fake game only, see <<US-4.3>> +

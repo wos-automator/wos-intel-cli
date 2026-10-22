@@ -1,4 +1,4 @@
-[#TS-1.2]
+[[TS-1.2]]
 === TS-1.2 Command line (`wos_intel/__main__.py`)
 
 Implements <<FR-1.3>> and <<FR-1.4>>.

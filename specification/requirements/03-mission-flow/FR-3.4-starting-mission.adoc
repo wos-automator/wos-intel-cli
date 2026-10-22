@@ -1,4 +1,4 @@
-[#FR-3.4]
+[[FR-3.4]]
 === FR-3.4 Starting a mission
 
 .Acceptance criteria

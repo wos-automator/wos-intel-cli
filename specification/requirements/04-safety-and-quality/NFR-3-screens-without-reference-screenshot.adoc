@@ -1,4 +1,4 @@
-[#NFR-3]
+[[NFR-3]]
 === NFR-3 Screens without reference screenshot
 
 Rescue (popup button and what follows), `DEFEAT`, the "not enough stamina" dialog and the

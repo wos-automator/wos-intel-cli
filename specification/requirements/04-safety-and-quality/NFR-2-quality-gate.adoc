@@ -1,4 +1,4 @@
-[#NFR-2]
+[[NFR-2]]
 === NFR-2 Quality gate
 
 .Acceptance criteria

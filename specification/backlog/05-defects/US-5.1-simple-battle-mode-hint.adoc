@@ -1,4 +1,4 @@
-[#US-5.1]
+[[US-5.1]]
 === US-5.1 BUG-0002 Simple Battle Mode hint covers the world map
 
 Status:: Done (0.1.1) +

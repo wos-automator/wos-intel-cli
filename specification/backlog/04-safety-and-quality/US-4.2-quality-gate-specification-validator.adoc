@@ -1,21 +1,22 @@
-[#US-4.2]
+[[US-4.2]]
 === US-4.2 Quality gate and specification validator
 
-Status:: Done (0.1.0) +
-Effort:: 4 h +
+Status:: Done (0.1.0); validator replaced by spec-validator in 0.1.1 +
+Effort:: 4 h, replacement 1 h +
 Traces to:: <<TS-4.2>>, <<NFR-1>>, <<NFR-2>>
 
 As a developer, I want one command that checks code and documents, so that a change is only
 done when everything is consistent.
 
 .Acceptance criteria
-. `uv run poe check` runs lint, format check, strict type check, tests and
-  `scripts/validate_specs.py` and fails if any of them fails.
+. `uv run poe check` runs lint, format check, strict type check, tests and the agent-skills
+  launcher `.agents/skills/spec-system/bin/validate-specs` and fails if any of them fails.
 . The validator reports missing masters and include targets (nested ones too), files that
-  no include reaches, duplicate and misplaced anchors, unresolved references and missing
-  traceability.
+  no include reaches, duplicate, misplaced and shorthand (`+[#ID]+`) anchors, unresolved
+  references and missing traceability.
 . The documents of this project validate cleanly.
 
 .Test criteria
-* Integration test (pytest, `tests/test_validate_specs.py`): one generated document tree per
-  rule in `tmp_path`, plus the real project.
+* The validator's own tests live in spec-validator; it reproduces the problems of the former
+  `scripts/validate_specs.py` on this project (checked for spec-validator 0.1.0).
+* `validate-specs` in `uv run poe check` validates the real project.

@@ -1,4 +1,4 @@
-[#TS-3.3]
+[[TS-3.3]]
 === TS-3.3 Target selection with overlap
 
 Implements <<FR-3.3>>.

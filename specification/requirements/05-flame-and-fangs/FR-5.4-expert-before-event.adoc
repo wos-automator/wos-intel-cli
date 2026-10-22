@@ -1,4 +1,4 @@
-[#FR-5.4]
+[[FR-5.4]]
 === FR-5.4 Expert before the event
 
 .Acceptance criteria

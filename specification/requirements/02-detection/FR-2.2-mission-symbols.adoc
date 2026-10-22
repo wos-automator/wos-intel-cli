@@ -1,4 +1,4 @@
-[#FR-2.2]
+[[FR-2.2]]
 === FR-2.2 Mission symbols
 
 On the Intel screen the mission symbols are found with type and click point.

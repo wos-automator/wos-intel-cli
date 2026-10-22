@@ -1,4 +1,4 @@
-[#US-2.4]
+[[US-2.4]]
 === US-2.4 Dialog type, action button and prevail hint
 
 Status:: Done (0.1.0) +

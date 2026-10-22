@@ -1,4 +1,4 @@
-[#FR-1.2]
+[[FR-1.2]]
 === FR-1.2 Device check at start
 
 Before the first input the program verifies that the device is usable.

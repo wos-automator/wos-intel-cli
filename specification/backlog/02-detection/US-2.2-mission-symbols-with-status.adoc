@@ -1,4 +1,4 @@
-[#US-2.2]
+[[US-2.2]]
 === US-2.2 Mission symbols with status and tier
 
 Status:: Done (0.1.0) +

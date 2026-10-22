@@ -15,7 +15,7 @@ lint = "ruff check ."
 format-check = "ruff format --check ."
 typecheck = "mypy"
 test = "pytest"
-validate-specs = "python scripts/validate_specs.py"
+validate-specs = ".agents/skills/spec-system/bin/validate-specs"
 check = ["lint", "format-check", "typecheck", "test", "validate-specs"]
 
 [tool.ruff]
@@ -29,7 +29,7 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "T20", "RUF"]
 
 [tool.mypy]
 strict = true
-files = ["wos_intel", "scripts", "tools/cut_templates.py", "tests"]
+files = ["wos_intel", "tools/cut_templates.py", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

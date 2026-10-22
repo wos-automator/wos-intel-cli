@@ -1,4 +1,4 @@
-[#FR-1.5]
+[[FR-1.5]]
 === FR-1.5 Configuration file
 
 Thresholds, wait times and coordinates are configurable in `config.toml`.

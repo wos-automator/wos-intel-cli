@@ -1,4 +1,4 @@
-[#US-2.3]
+[[US-2.3]]
 === US-2.3 Stamina and refresh timer
 
 Status:: Done (0.1.0) +

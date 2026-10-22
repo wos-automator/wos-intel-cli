@@ -1,4 +1,4 @@
-[#FR-3.2]
+[[FR-3.2]]
 === FR-3.2 Claiming rewards
 
 .Acceptance criteria

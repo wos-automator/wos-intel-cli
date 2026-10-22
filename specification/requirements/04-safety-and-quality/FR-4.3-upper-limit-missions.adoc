@@ -1,4 +1,4 @@
-[#FR-4.3]
+[[FR-4.3]]
 === FR-4.3 Upper limit of missions
 
 .Acceptance criteria

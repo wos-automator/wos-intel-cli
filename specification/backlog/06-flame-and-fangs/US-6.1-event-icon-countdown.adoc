@@ -1,4 +1,4 @@
-[#US-6.1]
+[[US-6.1]]
 === US-6.1 Detect the event icon and its countdown
 
 Status:: Done (0.1.1) +

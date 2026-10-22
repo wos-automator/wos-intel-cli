@@ -1,4 +1,4 @@
-[#TS-5.3]
+[[TS-5.3]]
 === TS-5.3 Firebeast mask
 
 Implements <<FR-5.5>>.

@@ -81,6 +81,12 @@
   and keep their numbers, so references like `SPEC.md §3.5` stay valid.
 * `scripts/validate_specs.py` follows nested includes relative to the including file and
   reports every item file that no master reaches (<<US-4.2>>, <<NFR-2>>).
+* The specification is validated by spec-validator 0.1.0 through the launcher of the
+  agent-skills library, vendored into `.agents/skills/`; `scripts/validate_specs.py` and its
+  tests are gone (<<US-4.2>>, <<TS-4.2>>, <<NFR-2>>).
+* Anchors are written `+[[FR-1.2]]+` instead of `+[#FR-1.2]+`: Asciidoctor read the dot as a
+  role, so all items `FR-1.x` shared the id `FR-1` and links in the rendered documents pointed
+  to the wrong item. TS-4.2 writes its literal `+<<ID>>+` as passthrough (<<NFR-2>>).
 
 === Breaking changes
 

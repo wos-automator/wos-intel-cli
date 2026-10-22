@@ -16,6 +16,7 @@ wos-intel automates the Intel missions in Whiteout Survival via ADB. This file h
 | Fix a defect | [fix-bug](.agents/skills/fix-bug/SKILL.md) |
 | Done check | [definition-of-done](.agents/skills/definition-of-done/SKILL.md) |
 | Commit | [commit](.agents/skills/commit/SKILL.md) |
+| Release | [release](.agents/skills/release/SKILL.md) |
 | Commands, test tooling | [toolchain](.agents/skills/toolchain/SKILL.md) |
 | Specification layout and rules | [spec-system](.agents/skills/spec-system/SKILL.md) |
 
@@ -25,7 +26,7 @@ wos-intel automates the Intel missions in Whiteout Survival via ADB. This file h
 2. The project skills in `.agents/skills/`.
 3. Personal instructions and skills of the user (e.g. `~/.claude/skills`, `~/.agents/`). They may only cover the machine environment and how to communicate; they never override a project rule or a project skill of the same purpose.
 
-A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the shared library: adapt it here, under "Project Facts", not by editing a skill.
+A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the vendored agent-skills library (`git subtree`): adapt it here, under "Project Facts", not by editing a skill. Update it to a new version with `git subtree pull --prefix .agents/skills https://github.com/thst71/agent-skills.git v<version> --squash`.
 
 ---
 
@@ -35,9 +36,9 @@ A change to a project rule is a change to this file or to `.agents/skills/`, mad
 
 | Path | Toolchain profile |
 |---|---|
-| `.` (`wos_intel/`, `scripts/`, `tools/`, `tests/`) | [python-uv](.agents/skills/toolchain/python-uv/PROFILE.md) |
+| `.` (`wos_intel/`, `tools/`, `tests/`) | [python-uv](.agents/skills/toolchain/python-uv/PROFILE.md) |
 
-The contract tasks are defined in `[tool.poe.tasks]` of `pyproject.toml`; the spec validator is `scripts/validate_specs.py`.
+The contract tasks are defined in `[tool.poe.tasks]` of `pyproject.toml`; `validate-specs` runs the library's launcher.
 
 ### Test Pyramid Limits
 

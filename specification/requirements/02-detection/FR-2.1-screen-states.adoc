@@ -1,4 +1,4 @@
-[#FR-2.1]
+[[FR-2.1]]
 === FR-2.1 Screen states
 
 Every screenshot is classified as exactly one state.

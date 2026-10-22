@@ -1,4 +1,4 @@
-[#FR-3.5]
+[[FR-3.5]]
 === FR-3.5 Boss only once per refresh cycle
 
 .Acceptance criteria

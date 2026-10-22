@@ -1,4 +1,4 @@
-[#FR-3.9]
+[[FR-3.9]]
 === FR-3.9 Busy march queues
 
 A hunt or boss target sends troops and needs a free march queue; combat and rescue do not.
