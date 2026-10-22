@@ -40,6 +40,10 @@ A change to a project rule is a change to this file or to `.agents/skills/`, mad
 
 The contract tasks are defined in `[tool.poe.tasks]` of `pyproject.toml`; `validate-specs` runs the library's launcher.
 
+### Releases
+
+Releases follow the [release](.agents/skills/release/SKILL.md) skill with `.github/workflows/release.yml`. The version lives in `[project] version` of `pyproject.toml` (task `version`). There is no `dist` task: wos-intel is installed with `git clone` and run with `uv run`, so a release carries the documentation; GitHub adds the source archives. Release tags are signed with the `wos-automator` key; its environment secret holds that key.
+
 ### Test Pyramid Limits
 
 - Component tests replace the game with a scripted fake device.

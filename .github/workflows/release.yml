@@ -1,0 +1,68 @@
+# Release workflow of the agent-skills release skill (v0.1.0), with the Release Build of the
+# python-uv profile.
+name: release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: release
+    outputs:
+      version: ${{ steps.tag.outputs.version }}
+      prerelease: ${{ steps.tag.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: tag
+        uses: thst71/release-actions/verify-release-tag@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        with:
+          allowed-signers: ${{ secrets.RELEASE_ALLOWED_SIGNERS }}
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - run: uv run poe check
+      - run: test "$(uv run poe -q version)" = "${{ needs.verify.outputs.version }}"
+
+  docs:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: thst71/release-actions/render-docs@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        with:
+          version: ${{ needs.verify.outputs.version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: |
+            dist-docs/html/
+            dist-docs/*.zip
+
+  publish:
+    needs: [verify, build, docs]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: thst71/release-actions/publish-release@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        with:
+          version: ${{ needs.verify.outputs.version }}
+          prerelease: ${{ needs.verify.outputs.prerelease }}
+          assets: |
+            artifacts/docs/html/*.html
+            artifacts/docs/*.zip

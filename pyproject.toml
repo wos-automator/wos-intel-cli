@@ -17,6 +17,7 @@ typecheck = "mypy"
 test = "pytest"
 validate-specs = ".agents/skills/spec-system/bin/validate-specs"
 check = ["lint", "format-check", "typecheck", "test", "validate-specs"]
+version = "uv version --short"
 
 [tool.ruff]
 line-length = 100
