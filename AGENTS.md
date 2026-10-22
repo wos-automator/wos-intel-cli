@@ -1,90 +1,52 @@
 # Workspace Guidelines & Rules
 
-## Terminal Execution Environment
+wos-intel automates the Intel missions in Whiteout Survival via ADB. This file holds the project's facts and rules; the workflows are skills in `.agents/skills/`.
 
-The user relies on `fish` shell and its specific PATH environment variables. Whenever executing a terminal command (e.g. `uv run poe test`, `uv run poe check`, `uv sync`) using the `run_command` tool, you **MUST** wrap and execute the command in a Fish login shell:
-`fish -lc "your command here"`
+## How to Work Here
 
----
+1. **Environment**: Before the first terminal command, apply [environment](.agents/skills/environment/SKILL.md).
+2. **Skills**: Before a matching task, read the skill and follow it. Load the referenced skills and profiles only when a step needs them.
 
-## Toolchain
+| Task | Skill |
+|---|---|
+| New feature, from idea to backlog | [create-new-feature](.agents/skills/create-new-feature/SKILL.md) |
+| Requirement / tech specification / user story | [create-requirement](.agents/skills/create-requirement/SKILL.md), [create-tech-specification](.agents/skills/create-tech-specification/SKILL.md), [create-user-story](.agents/skills/create-user-story/SKILL.md) |
+| Change of existing specification items | [update-feature](.agents/skills/update-feature/SKILL.md), [update-requirement](.agents/skills/update-requirement/SKILL.md), [update-user-story](.agents/skills/update-user-story/SKILL.md) |
+| Implement a story | [implement-user-story](.agents/skills/implement-user-story/SKILL.md) |
+| Fix a defect | [fix-bug](.agents/skills/fix-bug/SKILL.md) |
+| Done check | [definition-of-done](.agents/skills/definition-of-done/SKILL.md) |
+| Commit | [commit](.agents/skills/commit/SKILL.md) |
+| Commands, test tooling | [toolchain](.agents/skills/toolchain/SKILL.md) |
+| Specification layout and rules | [spec-system](.agents/skills/spec-system/SKILL.md) |
 
-> Machine-readable summary for agent skills (create-requirement, create-tech-specification, create-user-story, create-new-feature, update-requirement, definition-of-done, etc.). Keep this in sync with the sections below if commands ever change.
+## Precedence
 
-- Ecosystem: Python 3.11+ / uv (`pyproject.toml`, tasks via `poethepoet`)
-- Quality gate command: `uv run poe check` (runs `ruff check`, `ruff format --check`, `mypy`, `pytest`, and validate-specs together)
-- Spec validation command: `uv run poe validate-specs` → `python scripts/validate_specs.py`
-- Dependency install: `uv sync`
-- Test pyramid mapping:
-  - Unit: pytest (`uv run pytest -m unit`)
-  - Component: pytest + `pytest-mock` / scripted fake game (`uv run pytest -m component`)
-  - Integration: pytest + `tmp_path` files (`uv run pytest -m integration`)
-  - Blackbox/E2E: pytest running the CLI as a process (`uv run pytest -m blackbox`); runs against the real device are manual
-- Shell wrapper for commands: `fish -lc "..."` (see Terminal Execution Environment above)
+1. This file.
+2. The project skills in `.agents/skills/`.
+3. Personal instructions and skills of the user (e.g. `~/.claude/skills`, `~/.agents/`). They may only cover the machine environment and how to communicate; they never override a project rule or a project skill of the same purpose.
 
----
-
-## Quality Guidelines
-
-### Modular Documentation Format
-- Primary specification and backlog documentation format is AsciiDoc (`.adoc`).
-- Asciidoctor-diagram syntax is supported for architectural diagrams.
-- **Item-Level Modularization:** To optimize token usage and context clarity:
-  - Master entry points reside at the root: `specification-web.adoc`, `tech-specification-web.adoc`, `backlog-web.adoc`, `release-notes.adoc`.
-  - All split files reside in `specification/`, one subdirectory per master; each chapter is a folder:
-    - Requirements: `specification/requirements/<NN-chapter>/<ID>-<slug>.adoc` (e.g. `FR-3.4-starting-mission.adoc`, `NFR-2-quality-gate.adoc`)
-    - Technical Specifications: `specification/tech-specification/<NN-chapter>/<ID>-<slug>.adoc`
-    - Backlog User Stories: `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc`
-    - Release Notes: `specification/release-notes/<version>.adoc`
-    - Stakeholder input (`SPEC.md` sections): `specification/stakeholder/<NN>-<topic>.md`; `SPEC.md` is only an index, `SPEC.md §n` refers to file `<NN>`.
-  - Master files include chapter indexes via `include::specification/<folder>/<NN-chapter>/index.adoc[]`; the chapter `index.adoc` holds the `==` heading, the chapter intro and one `include::<ID>-<slug>.adoc[]` per item (paths relative to the index).
-  - Each item file starts with its anchor (`[#FR-x.y]`) and its `===` heading. A new item gets its own file plus an include line in the chapter index; a new chapter gets a folder, an `index.adoc` and an include in the master.
-  - When researching or updating a specific item, load only its item file (find it by ID with `ls specification/*/*/<ID>-*`); load the chapter `index.adoc` only for the chapter intro.
-
-### SMART Criteria
-Every requirement and user story must be:
-- **Specific**: Clearly and unambiguously stated.
-- **Measurable**: Acceptance criteria are testable and verifiable.
-- **Achievable**: Implementable within the project tech stack.
-- **Relevant**: Traceable to stakeholder needs or parent requirements.
-- **Time-bound**: Includes an effort estimate.
-
-### Test Pyramid
-| Level | Scope | Tooling | Usage |
-|---|---|---|---|
-| **Unit test** | Single functions, pure logic, detection on reference screenshots | pytest | Always, for pure logic/utilities |
-| **Component test** | A single module in isolation, collaborators mocked or faked | pytest + `pytest-mock` | For every non-trivial module (flow, ADB wrapper) |
-| **Integration test** | Configuration and state files, CLI in-process | pytest + `tmp_path` | For persistence / multi-module flows |
-| **Blackbox test** | The CLI as a separate process | pytest + `subprocess` | `detect`, usage errors; device runs are manual |
-
-### Reference Traceability
-- Requirements reference stakeholder needs / constraints (`FR-x.y`, `NFR-x`).
-- Technical specifications reference requirements (`FR-x.y`).
-- User stories reference technical specifications and requirements (`TS-x.y`, `FR-x.y`).
-- Any artifact change requires an impact analysis on downstream/upstream artifacts.
-- Validate cross-references and includes with `uv run poe validate-specs`.
+A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the shared library: adapt it here, under "Project Facts", not by editing a skill.
 
 ---
 
-## Definition of Done (DoD)
+## Project Facts
 
-An implementation task is complete ONLY when:
-1. `uv run poe check` passes completely:
-   - Full test suite passes (`uv run poe test`).
-   - Type-checking passes without errors (`uv run poe typecheck`).
-   - Lint and formatting pass without errors or warnings (`uv run poe lint`, `uv run poe format-check`).
-   - Specification cross-references and includes validate cleanly (`uv run poe validate-specs`).
-2. No `print()` debug statements, unused variables/imports, or leftover debug code remain.
-3. Code adheres to existing architectural patterns and styling conventions.
-4. `specification/release-notes/<version>.adoc` is updated with relevant Features, Fixes, or Breaking Changes and requirement traceability links.
+### Components
 
----
+| Path | Toolchain profile |
+|---|---|
+| `.` (`wos_intel/`, `scripts/`, `tools/`, `tests/`) | [python-uv](.agents/skills/toolchain/python-uv/PROFILE.md) |
 
-## Commit Messages
+The contract tasks are defined in `[tool.poe.tasks]` of `pyproject.toml`; the spec validator is `scripts/validate_specs.py`.
 
-Commits follow Conventional Commits (`feat(flow): …`, `fix(detect): …`) with `Refs:` footers to
-the traced items. The format and the steps are in the [commit](.agents/skills/commit/SKILL.md)
-skill; use it for every commit.
+### Test Pyramid Limits
+
+- Component tests replace the game with a scripted fake device.
+- Blackbox tests run the CLI as a separate process (`detect`, usage errors). Runs against the real device are manual.
+
+### Commit Scopes
+
+`flow`, `detect`, `ocr`, `event`, `config`, `tools`.
 
 ---
 
@@ -93,7 +55,7 @@ skill; use it for every commit.
 - **Do Not Guess**: Read stack traces and error messages carefully before editing code.
 - **Isolate**: Reproduce defects with a minimal automated test before modifying code.
 - **Limit Loops**: If a test or build fails more than 3 times for the same reason, stop and ask the user for guidance.
-- **Zero Unapproved Dependencies**: Do not add new dependencies (`uv add`) unless specified in the technical specification or requested by the user.
+- **Zero Unapproved Dependencies**: Do not add new dependencies unless specified in the technical specification or requested by the user.
 
 ---
 
@@ -102,23 +64,3 @@ skill; use it for every commit.
 - **Reasoning Models (Gemini Thinking, OpenAI o-series)**: Do not over-refactor outside requested scope. Omit conversational fluff and manual planning chatter in final responses; output direct technical results.
 - **Claude Models**: Zero laziness policy (no placeholders). Match whitespace precisely when editing code.
 - **GPT-4o Models**: Strictly adhere to tool schemas and verify file contents before editing.
-
----
-
-## Toolchain Template (reference — copy into a new project's AGENTS.md)
-
-Blank version of the block above, for the next project (Java, Python, Go, or otherwise). The shared skill library reads the `## Toolchain` heading generically, so any project that fills this in works with the same skills unchanged.
-
-```
-## Toolchain
-- Ecosystem: <language / package manager, e.g. Java 21 / Maven, Python 3.12 / Poetry, Go 1.23>
-- Quality gate command: <single command that runs tests + type-check/compile + lint>
-- Spec validation command: <command that validates FR/TS/US anchors and include:: directives, if this project uses the modular AsciiDoc spec system>
-- Dependency install: <command>
-- Test pyramid mapping:
-  - Unit: <tool>
-  - Component: <tool, if applicable>
-  - Integration: <tool>
-  - Blackbox/E2E: <tool>
-- Shell wrapper for commands (if any): <e.g. fish -lc "...">
-```

@@ -6,7 +6,7 @@ description: >-
 
 # Skill: Update Requirement
 
-Modify existing requirements and cascade impacts to downstream technical specifications and stories.
+Modify existing requirements and cascade impacts to downstream technical specifications and stories, following [spec-system](../spec-system/SKILL.md).
 
 ## Files Modified
 
@@ -20,4 +20,4 @@ Modify existing requirements and cascade impacts to downstream technical specifi
 2. **Update**: Modify description, title, or acceptance criteria while ensuring SMART criteria compliance.
 3. **Impact Check**: Search `specification/tech-specification/` and `specification/backlog/` (e.g. `grep -rl '<<FR-1.0' specification`) for references to the changed requirement anchor.
 4. **Cascade**: Update affected technical specs and story test criteria, or flag dependencies for the user.
-5. **Validate**: Run `npm run validate:specs`.
+5. **Validate**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

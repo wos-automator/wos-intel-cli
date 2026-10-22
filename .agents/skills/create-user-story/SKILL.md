@@ -6,7 +6,7 @@ description: >-
 
 # Skill: Create User Story
 
-Create implementable, atomic user stories with structured test pyramid criteria in modular item files.
+Create implementable, atomic user stories with structured test pyramid criteria in modular item files. Layout, anchors, SMART criteria and test pyramid levels are defined in [spec-system](../spec-system/SKILL.md).
 
 ## Files Modified
 
@@ -23,9 +23,5 @@ Create implementable, atomic user stories with structured test pyramid criteria 
    - Narrative: *As a... I want to... So that...*
    - Traceability Links: Reference Tech Spec (`<<TS-2.1>>`) and Requirement (`<<FR-2.1>>`).
    - Acceptance Criteria (numbered, testable).
-4. **Test Criteria Definition**: Explicitly specify applicable test levels:
-   - **Unit test** (Vitest): Functions, validators, service methods, pure logic.
-   - **Component test** (Vitest + RTL): Isolated React components, mocked hooks.
-   - **Integration test** (Vitest + fake-indexeddb): Persistence flows, service chains.
-   - **Blackbox test** (Playwright): Critical end-to-end user journeys.
-5. **Verify**: Run `npm run validate:specs`.
+4. **Test Criteria Definition**: Explicitly specify the applicable test levels (unit, component, integration, blackbox) and what each level verifies. Name the tooling from the component's toolchain profile and respect the project's limits in `AGENTS.md`.
+5. **Verify**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

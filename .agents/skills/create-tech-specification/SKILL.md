@@ -6,7 +6,7 @@ description: >-
 
 # Skill: Create Technical Specification
 
-Map functional and non-functional requirements to technical architecture and schemas in modular item files.
+Map functional and non-functional requirements to technical architecture and schemas in modular item files. Layout, anchors and traceability are defined in [spec-system](../spec-system/SKILL.md).
 
 ## Files Modified
 
@@ -25,4 +25,4 @@ Map functional and non-functional requirements to technical architecture and sch
    - interface definitions and contracts
    - Component interactions / sequence
 5. **Draft Section**: Write the specification section into the item file with unique anchor (e.g. `[#TS-2.1]`).
-6. **Verify**: Run `npm run validate:specs`.
+6. **Verify**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

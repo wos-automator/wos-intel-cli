@@ -6,7 +6,7 @@ description: >-
 
 # Skill: Create Requirement
 
-Break down a feature into formal requirements meeting quality and traceability standards in modular item files.
+Break down a feature into formal requirements meeting quality and traceability standards in modular item files. Layout, anchors and SMART criteria are defined in [spec-system](../spec-system/SKILL.md).
 
 ## Files Modified
 
@@ -18,16 +18,11 @@ Break down a feature into formal requirements meeting quality and traceability s
 
 1. **Target Chapter**: Identify the existing chapter folder in `specification/requirements/` or create a new one (e.g. `specification/requirements/02-combat/`) with an `index.adoc` holding the `==` heading.
 2. **Include Registration**: Create the item file `<ID>-<slug>.adoc` (e.g. `FR-2.1-attack-order.adoc`) and add `include::<ID>-<slug>.adoc[]` to the chapter `index.adoc`. For a new chapter, add `include::specification/requirements/<NN-chapter>/index.adoc[]` to `specification-web.adoc`.
-3. **SMART Criteria Check**:
-   - **S**pecific: Unambiguously stated.
-   - **M**easurable: Verifiable acceptance criteria.
-   - **A**chievable: Implementable with current stack.
-   - **R**elevant: Traceable to stakeholder need or constraint.
-   - **T**ime-bound: Effort estimate included.
+3. **SMART Criteria Check**: Check each requirement against the SMART criteria.
 4. **Draft Section**: In the item file, add the requirement section:
    - Unique anchor (e.g., `[#FR-2.1]`)
    - Title
    - Description
    - Acceptance criteria (numbered with verifiable conditions)
    - Stakeholder need / constraint link
-5. **Verify**: Run `npm run validate:specs`.
+5. **Verify**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

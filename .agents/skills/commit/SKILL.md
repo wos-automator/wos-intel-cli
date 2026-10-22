@@ -34,7 +34,7 @@ Record one finished unit of work (a user story, a defect fix or a specification 
   | `docs` | specification, release notes or other documentation only |
   | `chore` | tooling, dependencies, templates, `.gitignore`, project files |
 
-- **scope** (optional, lower case): the module or area, e.g. `flow`, `detect`, `ocr`, `event`, `config`, `spec`, `tools`.
+- **scope** (optional, lower case): the module or area; use the scopes listed in `AGENTS.md`, plus `spec` and `agents` (this skill library).
 - **`!`** after the scope marks a breaking change: a removed or renamed setting, command or file path, or a changed default the operator has to know about. It requires a `BREAKING CHANGE:` footer.
 - **summary**: imperative mood, lower case start, no full stop, at most 72 characters for the whole first line. It says what the change does, not which item it implements.
 - **body** (optional): why the change was needed and what behaves differently, wrapped at 72 characters. Leave out what the diff already shows.
@@ -46,7 +46,7 @@ Record one finished unit of work (a user story, a defect fix or a specification 
 
 ## Execution Steps
 
-1. **Quality Gate**: Run the quality gate command from the `## Toolchain` section of `AGENTS.md`; commit only when it passes.
+1. **Quality Gate**: Run the `check` task (see [toolchain](../toolchain/SKILL.md)); commit only when it passes.
 2. **Scope Check**: One commit per user story, defect or specification change. If the working tree mixes several, stage them separately (`git add <paths>`). Never stage unrelated files of the user (IDE folders, scratch files).
 3. **Message**: Write the message in the format above. Pick the type from the main effect: a story that also adds tests and spec items is `feat`, not `test` or `docs`.
 4. **Commit**: Pass the message through a heredoc (`git commit -F - <<'EOF' … EOF`) so that backticks and line breaks survive. If commit signing fails, do not bypass it (`--no-gpg-sign`, `-n`); report it and ask the user.
