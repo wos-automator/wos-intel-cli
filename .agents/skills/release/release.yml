@@ -1,0 +1,74 @@
+# Release workflow of the agent-skills release skill. Copy to .github/workflows/release.yml and
+# replace the steps of the job "build" with the "Release Build" steps of the component's
+# toolchain profile. Keep everything else as it is.
+name: release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: release
+    outputs:
+      version: ${{ steps.tag.outputs.version }}
+      prerelease: ${{ steps.tag.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: tag
+        uses: thst71/release-actions/verify-release-tag@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        with:
+          allowed-signers: ${{ secrets.RELEASE_ALLOWED_SIGNERS }}
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Release Build steps of the toolchain profile: set up the toolchain, run the check task,
+      # run the dist task (artifacts in dist/). A project without artifacts runs only the check.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: ignore
+
+  docs:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: thst71/release-actions/render-docs@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        with:
+          version: ${{ needs.verify.outputs.version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: |
+            dist-docs/html/
+            dist-docs/*.zip
+
+  publish:
+    needs: [verify, build, docs]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: thst71/release-actions/publish-release@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        with:
+          version: ${{ needs.verify.outputs.version }}
+          prerelease: ${{ needs.verify.outputs.prerelease }}
+          # Without a dist task, drop the line artifacts/dist/*.
+          assets: |
+            artifacts/dist/*
+            artifacts/docs/html/*.html
+            artifacts/docs/*.zip
