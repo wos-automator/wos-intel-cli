@@ -24,7 +24,7 @@ Every project releases the same way, offline: the user signs an annotated tag `v
 
 ## Versions
 
-The library itself has no release pipeline: a version is a signed, annotated tag `v<semver>` whose message lists the changes since the previous tag. Projects pull a version with `git subtree pull --prefix .agents/skills <url> v<semver> --squash`.
+The library itself has no release pipeline: a version is a signed, annotated tag `v<semver>` whose message lists the changes since the previous tag. `vendor.sh` writes the vendored version into `.agents/skills/VERSION`; release notes name it ("Built with agent-skills v0.2.0.").
 
 ## Precedence
 
@@ -32,10 +32,17 @@ The project's `AGENTS.md` comes first, then this library, then the user's person
 
 ## Adopting the Library
 
+Once per machine, trust the maintainer's signing key: `~/.agents/allowed_signers` holds the line `<maintainer email> namespaces="git" <ssh public key>`, with the key as published among the signing keys of the maintainer's GitHub account (`gh api users/thst71/ssh_signing_keys --jq '.[].key'`).
+
 ```sh
-git subtree add  --prefix .agents/skills git@github.com:thst71/agent-skills.git main --squash
-git subtree pull --prefix .agents/skills git@github.com:thst71/agent-skills.git main --squash
+# first time: from a checkout of this repository
+sh /path/to/agent-skills/vendor.sh v0.2.0
+# later updates: the vendored copy updates itself
+.agents/skills/vendor.sh v0.3.0
+git commit -m "chore(agents): vendor agent-skills v0.3.0"
 ```
+
+`vendor.sh` clones the tag, refuses it unless its SSH signature is by an allowed signer who is the tagger, replaces `.agents/skills/` with the tag's content (without `.github/`) and stages the result, so that every update is one signed, linear commit. A project that used `git subtree` before switches by running it once.
 
 Then write the project's `AGENTS.md`: what the project is, a skill table linking `.agents/skills/<skill>/SKILL.md`, the precedence rule, the components with their toolchain profiles, test limits and commit scopes. Adopt the release workflow as the [release](release/SKILL.md) skill describes.
 

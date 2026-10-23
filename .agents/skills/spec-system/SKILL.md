@@ -76,7 +76,9 @@ User stories name the levels that apply. The tooling per level is in the compone
 
 `specification/release-notes/<version>.adoc` lists Features, Fixes and Breaking Changes, each with its traced items (`<<US-x.y>>`, `<<FR-x.y>>`). A new version gets its own file and an include in `release-notes.adoc`, newest first.
 
-- Until the release, the file's heading is `== <version> (unreleased)`; the [release](../release/SKILL.md) skill replaces it with `== <version> (YYYY-MM-DD)`. The release pipeline refuses notes without a date.
+- The heading of a version is `== Release v<version> (<date>)`: until the release `== Release v<version> (unreleased)`, then the [release](../release/SKILL.md) skill sets `YYYY-MM-DD`. The release pipeline refuses any other heading.
+- Directly below the heading: `Built with agent-skills v<version>.`, the content of `.agents/skills/VERSION` at the release. The pipeline compares both.
+- The master `release-notes.adoc` has no `:sectnums:`: a number in front of the version ("2. 0.1.0") is easily misread.
 - The first change after a release creates the file of the next version.
 
 ## Rendering

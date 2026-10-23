@@ -24,7 +24,7 @@ A release is a signed, annotated tag `v<semver>` pushed by the user. The pipelin
 
 1. **Version**: Derive the version from the commits since the last release tag (Conventional Commits): a `BREAKING CHANGE` raises the major version (the minor one before 1.0.0), a `feat` the minor version, otherwise the patch version. Confirm it with the user.
 2. **Quality Gate**: The `check` task passes (see [toolchain](../toolchain/SKILL.md)). If the profile has a `version` task, set the version where the profile says and check that the task prints it.
-3. **Release Notes**: Change the heading of `specification/release-notes/<version>.adoc` from `== <version> (unreleased)` to `== <version> (YYYY-MM-DD)`, today's date. Check that every feat and fix since the last release is listed.
+3. **Release Notes**: Change the heading of `specification/release-notes/<version>.adoc` from `== Release v<version> (unreleased)` to `== Release v<version> (YYYY-MM-DD)`, the day the user tags. Directly below it, the line `Built with agent-skills v<version>.` names the content of `.agents/skills/VERSION`. Check that every feat and fix since the last release is listed (see [spec-system](../spec-system/SKILL.md), Release Notes).
 4. **Commit**: Commit with [commit](../commit/SKILL.md): `chore(release): <version>`.
 5. **Hand Over**: Ask the user to sign, tag and push (1Password asks for approval):
 

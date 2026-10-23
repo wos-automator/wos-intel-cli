@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: tag
-        uses: thst71/release-actions/verify-release-tag@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+        uses: thst71/release-actions/verify-release-tag@7e4daefa8a915c28fd06bcd6f6a5bc77b1f27217 # v0.2.0
         with:
           allowed-signers: ${{ secrets.RELEASE_ALLOWED_SIGNERS }}
 
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: thst71/release-actions/render-docs@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+      - uses: thst71/release-actions/render-docs@7e4daefa8a915c28fd06bcd6f6a5bc77b1f27217 # v0.2.0
         with:
           version: ${{ needs.verify.outputs.version }}
       - uses: actions/upload-artifact@v4
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - uses: thst71/release-actions/publish-release@7835637511f0f1ddfc0a23009ef6a505343e615f # v0.1.0
+      - uses: thst71/release-actions/publish-release@7e4daefa8a915c28fd06bcd6f6a5bc77b1f27217 # v0.2.0
         with:
           version: ${{ needs.verify.outputs.version }}
           prerelease: ${{ needs.verify.outputs.prerelease }}
