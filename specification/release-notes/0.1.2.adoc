@@ -1,0 +1,9 @@
+== Release v0.1.2 (unreleased)
+
+Built with agent-skills v0.2.0.
+
+=== Documentation
+
+* The release notes have no section numbers; headings read "Release v<version> (<date>)".
+* The agent-skills library is vendored with its `vendor.sh`, which verifies the signed tag,
+  instead of `git subtree` (<<TS-4.2>>).

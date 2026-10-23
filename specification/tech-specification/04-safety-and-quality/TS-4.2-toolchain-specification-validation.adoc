@@ -15,9 +15,9 @@ Implements <<NFR-1>> and <<NFR-2>>.
 * Specification layout: each master includes `specification/<kind>/<NN-chapter>/index.adoc`;
   the chapter index includes one file per item (`<ID>-<slug>.adoc`), resolved relative to the
   index. Release notes are one file per version in `specification/release-notes/`.
-* Specification validation: spec-validator, run by the launcher of the vendored agent-skills
-  library (`.agents/skills/`, `git subtree`), which downloads the pinned release once and
-  verifies its checksum. It checks that masters and `include::` targets exist, nested includes
+* Specification validation: spec-validator, run by the launcher of the agent-skills library
+  (`.agents/skills/`, vendored with its `vendor.sh`), which downloads the pinned release once
+  and verifies its checksum. It checks that masters and `include::` targets exist, nested includes
   are followed relative to the including file; every file below the master's folder is reached
   by an include; anchors `+[[FR-x.y]]+`, `+[[NFR-x]]+`, `+[[TS-x.y]]+`, `+[[US-x.y]]+` are unique
   and in the folder of their kind; every `+<<ID>>+` resolves; each TS references a requirement,

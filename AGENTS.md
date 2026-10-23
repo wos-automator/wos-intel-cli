@@ -26,7 +26,7 @@ wos-intel automates the Intel missions in Whiteout Survival via ADB. This file h
 2. The project skills in `.agents/skills/`.
 3. Personal instructions and skills of the user (e.g. `~/.claude/skills`, `~/.agents/`). They may only cover the machine environment and how to communicate; they never override a project rule or a project skill of the same purpose.
 
-A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the vendored agent-skills library (`git subtree`): adapt it here, under "Project Facts", not by editing a skill. Update it to a new version with `git subtree pull --prefix .agents/skills https://github.com/thst71/agent-skills.git v<version> --squash`.
+A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the vendored agent-skills library (version in `.agents/skills/VERSION`): adapt it here, under "Project Facts", not by editing a skill. Update it to a new version with `.agents/skills/vendor.sh v<version>`, then commit `chore(agents): vendor agent-skills v<version>`.
 
 ---
 

@@ -1,6 +1,7 @@
 = wos-intel – Release Notes
 :toc: left
-:sectnums:
+
+include::specification/release-notes/0.1.2.adoc[]
 
 include::specification/release-notes/0.1.1.adoc[]
 

@@ -1,4 +1,4 @@
-== 0.1.0 (2026-10-09)
+== Release v0.1.0 (2026-10-09)
 
 First version: automation of the Intel missions as specified in `SPEC.md`.
 
