@@ -25,6 +25,7 @@ To keep the context small, every item lives in its own file.
 | Release notes | `release-notes.adoc` | `specification/release-notes/<version>.adoc` | – |
 | Stakeholder input | `SPEC.md` (index only) | `specification/stakeholder/<NN>-<topic>.md` | `SPEC.md §n` = file `<NN>` |
 
+- The master names above are the default layout of the validator; a project that names them differently configures them in `.spec-validator.json` (see Validator). The other skills say "the master" of a kind and mean these files.
 - A master includes each chapter as `include::specification/<folder>/<NN-chapter>/index.adoc[]`.
 - A chapter `index.adoc` holds the `==` heading, the chapter intro and one `include::<ID>-<slug>.adoc[]` per item (paths relative to the index).
 - An item file starts with its anchor `[[FR-2.1]]` followed by its `===` heading. Never the shorthand `[#FR-2.1]`: Asciidoctor reads the dot as a role and gives FR-2.1 and FR-2.2 the same id `FR-2`.
@@ -44,7 +45,59 @@ Every requirement and user story is:
 - **Measurable**: acceptance criteria are testable and verifiable.
 - **Achievable**: implementable within the project's stack.
 - **Relevant**: traceable to a stakeholder need or a parent requirement.
-- **Time-bound**: includes an effort estimate.
+- **Time-bound**: includes an effort estimate (`Effort::`).
+
+## Item Templates
+
+Requirement (`Stakeholder need::` is a constraint instead where there is no need behind it):
+
+```asciidoc
+[[FR-2.1]]
+=== FR-2.1 Attack order
+
+The system shall <one statement>.
+
+.Acceptance criteria
+. <verifiable condition>
+
+Stakeholder need:: SPEC.md §2.1 +
+Effort:: 2 h
+```
+
+Technical specification:
+
+```asciidoc
+[[TS-2.1]]
+=== TS-2.1 Attack planner
+
+Implements <<FR-2.1>> and <<NFR-3>>.
+
+<architecture, data model, interface definitions, interactions>
+```
+
+User story (a test level that does not apply says why, e.g. `* Blackbox test: none, no user journey`):
+
+```asciidoc
+[[US-2.1]]
+=== US-2.1 Plan the attack order
+
+Effort:: 4 h +
+Traces to:: <<TS-2.1>>, <<FR-2.1>>
+
+As a <role>, I want <goal>, so that <benefit>.
+
+.Acceptance criteria
+. <testable condition>
+
+.Technical tasks
+. <implementation step>
+
+.Test criteria
+* Unit test: <functions, validators, services and what they must show>
+* Component test: <rendered or isolated modules, interactions>
+* Integration test: <persistence, service chains>
+* Blackbox test: <critical user journey>
+```
 
 ## Traceability
 
@@ -56,7 +109,8 @@ Every requirement and user story is:
 
 ## Validator
 
-- The `validate-specs` task runs [spec-validator](https://github.com/thst71/spec-validator) through the launcher `bin/validate-specs` (`bin/validate-specs.ps1` on Windows): it downloads the release pinned in `bin/VERSION` once into the user cache, verifies it against `bin/checksums.txt` and runs it from the project root.
+- The `validate-specs` task runs [spec-validator](https://github.com/thst71/spec-validator) through the launcher `bin/validate-specs` (`bin/validate-specs.ps1` on Windows), from the project root. The project pins the release in `.agents/spec-validator.lock` (version and archive checksums, checked in). The launcher runs an installed `spec-validator` whose `-version` is exactly the pinned version; otherwise it downloads the release once into the user cache and verifies it against the lock.
+- `bin/validate-specs --update [v<version>]` pins a release (default: the latest): it refuses a tag that is not signed by an allowed signer of `~/.agents/allowed_signers`, writes the lock from the release's checksums and stages it. Commit it as `chore: spec-validator <version>`. Update the pin only when the user asks for it; a stricter validator then shows up in that commit, not in an unrelated one.
 - Exit code 0: valid; 1: problems, one per line; 2: usage or configuration error.
 - A project with a different layout (masters, folders, anchor kinds, traceability rules) describes it in `.spec-validator.json` in its root; see the validator's README.
 - `SPEC_VALIDATOR=<path>` runs another binary, e.g. a development build.

@@ -1,19 +1,91 @@
 #!/bin/sh
-# Runs the spec-validator release pinned in VERSION. The binary is downloaded once into the
-# user cache and verified against checksums.txt. SPEC_VALIDATOR=<path> runs another binary.
+# Runs the spec-validator release pinned in the project's .agents/spec-validator.lock: an installed
+# spec-validator of exactly that version, else the release binary, downloaded once into the user
+# cache and verified against the lock. SPEC_VALIDATOR=<path> runs another binary.
+#
+# Usage: validate-specs [validator arguments]
+#        validate-specs --update [v<version>]   pin a release (default: the latest) in the lock
+# Environment: SPEC_VALIDATOR_SIGNERS  allowed_signers file for --update (default ~/.agents/allowed_signers)
+#              SPEC_VALIDATOR_BASE_URL the validator's repository (default https://github.com/thst71/spec-validator)
 set -eu
 
-if [ -n "${SPEC_VALIDATOR:-}" ]; then
-	exec "$SPEC_VALIDATOR" "$@"
-fi
-
 here=$(cd "$(dirname "$0")" && pwd)
-version=$(tr -d ' \r\n' <"$here/VERSION")
+lock=$(cd "$here/../../.." && pwd)/spec-validator.lock
+base=${SPEC_VALIDATOR_BASE_URL:-https://github.com/thst71/spec-validator}
 
 fail() {
 	echo "validate-specs: $*" >&2
 	exit 2
 }
+
+pinned() {
+	awk '$1 == "version" { print $2 }' "$lock"
+}
+
+update() {
+	tag=${1:-}
+	signers=${SPEC_VALIDATOR_SIGNERS:-$HOME/.agents/allowed_signers}
+	[ -f "$signers" ] ||
+		fail "no allowed signers in $signers; add the line '<email> namespaces=\"git\" <ssh public key>' of the validator's maintainer"
+	if [ -z "$tag" ]; then
+		tag=$(git ls-remote --tags --refs "$base.git" 'v*' | sed 's#.*refs/tags/##' |
+			grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1) || true
+		[ -n "$tag" ] || fail "no release tag found in $base.git"
+	fi
+	case $tag in
+	v[0-9]*.[0-9]*.[0-9]*) ;;
+	*) fail "usage: validate-specs --update [v<major>.<minor>.<patch>]" ;;
+	esac
+	version=${tag#v}
+
+	work=$(mktemp -d)
+	trap 'rm -rf "$work"' EXIT
+	git clone -q --depth 1 --no-checkout --branch "$tag" "$base.git" "$work/validator" 2>/dev/null ||
+		fail "cannot clone $tag from $base.git"
+	validator="$work/validator"
+	[ "$(git -C "$validator" cat-file -t "refs/tags/$tag")" = tag ] || fail "$tag is not an annotated tag"
+	output=$(git -C "$validator" -c gpg.ssh.program=ssh-keygen -c gpg.ssh.allowedSignersFile="$signers" \
+		verify-tag "$tag" 2>&1) || fail "$tag is not signed by an allowed signer: $output"
+	principal=$(printf '%s\n' "$output" | sed -n 's/^Good "git" signature for \(.*\) with .* key .*$/\1/p')
+	tagger=$(git -C "$validator" for-each-ref --format='%(taggeremail:trim)' "refs/tags/$tag")
+	[ "$principal" = "$tagger" ] || fail "$tag is signed by $principal but tagged by $tagger"
+
+	curl -fsSL -o "$work/checksums.txt" "$base/releases/download/$tag/checksums.txt" ||
+		fail "cannot download the checksums of $tag"
+	{
+		echo "# spec-validator pin, written by: .agents/skills/spec-system/bin/validate-specs --update"
+		echo "version $version"
+		awk -v prefix="spec-validator_${version}_" \
+			'index($2, prefix) == 1 && $2 ~ /\.(tar\.gz|zip)$/ { print $1 "  " $2 }' "$work/checksums.txt"
+	} >"$work/lock"
+	grep -q '^[0-9a-f]\{64\}  ' "$work/lock" || fail "the checksums of $tag list no archives"
+
+	previous=none
+	if [ -f "$lock" ]; then previous=$(pinned); fi
+	mv "$work/lock" "$lock"
+	git -C "$(dirname "$lock")" add "$lock" 2>/dev/null || true
+	echo "pinned spec-validator $version (was $previous), signed by $principal; commit it as: chore: spec-validator $version"
+}
+
+if [ "${1:-}" = --update ]; then
+	update "${2:-}"
+	exit 0
+fi
+
+if [ -n "${SPEC_VALIDATOR:-}" ]; then
+	exec "$SPEC_VALIDATOR" "$@"
+fi
+
+[ -f "$lock" ] || fail "no $lock; create it with: .agents/skills/spec-system/bin/validate-specs --update [v<version>]"
+version=$(pinned)
+[ -n "$version" ] || fail "no version line in $lock"
+
+if command -v spec-validator >/dev/null 2>&1; then
+	installed=$(spec-validator -version 2>/dev/null || true)
+	if [ "${installed#v}" = "$version" ]; then
+		exec spec-validator "$@"
+	fi
+fi
 
 case $(uname -s) in
 Darwin) os=darwin ;;
@@ -31,9 +103,9 @@ binary="$cache/spec-validator"
 
 if [ ! -x "$binary" ]; then
 	archive="spec-validator_${version}_${os}_${arch}.tar.gz"
-	url="https://github.com/thst71/spec-validator/releases/download/v$version/$archive"
-	expected=$(awk -v name="$archive" '$2 == name { print $1 }' "$here/checksums.txt")
-	[ -n "$expected" ] || fail "no checksum for $archive in $here/checksums.txt"
+	url="$base/releases/download/v$version/$archive"
+	expected=$(awk -v name="$archive" '$2 == name { print $1 }' "$lock")
+	[ -n "$expected" ] || fail "no checksum for $archive in $lock"
 
 	work=$(mktemp -d)
 	trap 'rm -rf "$work"' EXIT

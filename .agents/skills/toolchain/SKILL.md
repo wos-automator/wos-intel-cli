@@ -42,12 +42,13 @@ Load the [environment](../environment/SKILL.md) skill before running the first c
 | [go-task](go-task/PROFILE.md) | `go.mod` + `Taskfile.yml` |
 | [java-maven](java-maven/PROFILE.md) | `pom.xml` |
 | [java-gradle](java-gradle/PROFILE.md) | `build.gradle(.kts)` / `settings.gradle(.kts)` |
+| [node-npm](node-npm/PROFILE.md) | `package.json` + `package-lock.json` |
 
 A profile holds what is true for every project of its kind: task runner invocation, install command, test tooling per pyramid level and the language's debug leftovers. Project-specific values belong in `AGENTS.md`, never in a profile.
 
 ## Inference (no profile)
 
-1. **Detect**: Identify the ecosystem from marker files in the component root (`package.json` + lockfile, `Cargo.toml`, `*.csproj`, `Makefile`, the files above, …).
+1. **Detect**: Identify the ecosystem from marker files in the component root (`package.json` with another lockfile, `Cargo.toml`, `*.csproj`, `Makefile`, the files above, …).
 2. **Read the task definitions**: `[tool.poe.tasks]`, `package.json` `scripts`, `Taskfile.yml`, `Makefile` targets, Gradle tasks, Maven phases.
 3. **Map**: Assign each contract task to an existing task or command. Do not invent a task the project lacks; report the gap instead.
 4. **Report**: Tell the user the mapping before relying on it, and suggest adding it to `AGENTS.md` or as a new profile.

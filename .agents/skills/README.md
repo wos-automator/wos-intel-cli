@@ -24,7 +24,7 @@ Every project releases the same way, offline: the user signs an annotated tag `v
 
 ## Versions
 
-The library itself has no release pipeline: a version is a signed, annotated tag `v<semver>` whose message lists the changes since the previous tag. `vendor.sh` writes the vendored version into `.agents/skills/VERSION`; release notes name it ("Built with agent-skills v0.2.0.").
+The library itself has no release pipeline: a version is a signed, annotated tag `v<semver>` whose message lists the changes since the previous tag. `vendor.sh` writes the vendored version into `.agents/skills/VERSION`; release notes name it ("Built with agent-skills v0.3.0.").
 
 ## Precedence
 
@@ -36,13 +36,18 @@ Once per machine, trust the maintainer's signing key: `~/.agents/allowed_signers
 
 ```sh
 # first time: from a checkout of this repository
-sh /path/to/agent-skills/vendor.sh v0.2.0
+sh /path/to/agent-skills/vendor.sh v0.4.0
+# a project using the spec-system: pin the validator (latest release, or v<version>)
+.agents/skills/spec-system/bin/validate-specs --update
+git commit -m "chore(agents): vendor agent-skills v0.4.0"
 # later updates: the vendored copy updates itself
-.agents/skills/vendor.sh v0.3.0
-git commit -m "chore(agents): vendor agent-skills v0.3.0"
+.agents/skills/vendor.sh v0.5.0
+git commit -m "chore(agents): vendor agent-skills v0.5.0"
 ```
 
-`vendor.sh` clones the tag, refuses it unless its SSH signature is by an allowed signer who is the tagger, replaces `.agents/skills/` with the tag's content (without `.github/`) and stages the result, so that every update is one signed, linear commit. A project that used `git subtree` before switches by running it once.
+`vendor.sh` clones the tag, refuses it unless its SSH signature is by an allowed signer who is the tagger, replaces `.agents/skills/` with the tag's content (without `.github/` and `tests/`) and stages the result, so that every update is one signed, linear commit. A project that used `git subtree` before switches by running it once.
+
+The validator version is the project's own: `.agents/spec-validator.lock` lives outside `.agents/skills/`, so vendoring never changes it, and a new validator release changes neither the library nor the project until `validate-specs --update` pins it. The same key in `~/.agents/allowed_signers` signs the validator's tags. A project coming from v0.3.0 or older (pin inside the library) runs `--update v<version>` once, in the vendoring commit.
 
 Then write the project's `AGENTS.md`: what the project is, a skill table linking `.agents/skills/<skill>/SKILL.md`, the precedence rule, the components with their toolchain profiles, test limits and commit scopes. Adopt the release workflow as the [release](release/SKILL.md) skill describes.
 

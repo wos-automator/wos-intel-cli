@@ -19,5 +19,6 @@ Modify existing requirements and cascade impacts to downstream technical specifi
 1. **Locate**: Open the requirement's item file, found by ID (e.g. `ls specification/requirements/*/FR-1.0-*`).
 2. **Update**: Modify description, title, or acceptance criteria while ensuring SMART criteria compliance.
 3. **Impact Check**: Search `specification/tech-specification/` and `specification/backlog/` (e.g. `grep -rl '<<FR-1.0' specification`) for references to the changed requirement anchor.
-4. **Cascade**: Update affected technical specs and story test criteria, or flag dependencies for the user.
-5. **Validate**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).
+4. **Impact Report**: List the affected technical specifications and user stories for the user, each with what has to change.
+5. **Cascade**: Update affected technical specs and story acceptance and test criteria, or flag dependencies for the user.
+6. **Validate**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

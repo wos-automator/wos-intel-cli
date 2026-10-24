@@ -16,7 +16,7 @@ A release is a signed, annotated tag `v<semver>` pushed by the user. The pipelin
 
 ## Adoption (once per repository)
 
-1. **Workflow**: Copy [release.yml](release.yml) to `.github/workflows/release.yml`. Replace the placeholder steps of the job `build` with the `Release Build` steps of the component's toolchain profile; drop `artifacts/dist/*` from the assets if there is no `dist` task.
+1. **Workflow**: Copy [release.yml](release.yml) to `.github/workflows/release.yml`. Replace the placeholder steps of the job `build` with the `Release Build` steps of the component's toolchain profile; drop `artifacts/dist/*` from the assets if there is no `dist` task. A component delivered as a container image adds its image jobs to this workflow with `needs: [verify, build]`, tags the image with `needs.verify.outputs.version` and removes the tag trigger from any other workflow, so that only a verified tag publishes.
 2. **Repository**: With the user's consent and `gh` logged in as the repository owner, run [setup-repository.sh](setup-repository.sh) in the project. It creates the environment `release` (release tags only), its secret `RELEASE_ALLOWED_SIGNERS` from the project's `user.email` and `user.signingkey`, and the ruleset that lets only admins create, move or delete release tags.
 3. **User, once per machine**: `git config tag.gpgSign true` in the identity's git configuration, so that `git tag -a` signs; the signing key added to the GitHub account as a signing key.
 

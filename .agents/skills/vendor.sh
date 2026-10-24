@@ -45,6 +45,9 @@ main() {
 	printf '%s\n' "${tag#v}" >"$target/VERSION"
 	git -C "$root" add -A "$target"
 	echo "vendored agent-skills $tag, signed by $principal; commit it as: chore(agents): vendor agent-skills $tag"
+	if [ ! -f "$root/.agents/spec-validator.lock" ]; then
+		echo "the validate-specs task needs .agents/spec-validator.lock; pin a validator with: .agents/skills/spec-system/bin/validate-specs --update"
+	fi
 }
 
 # The whole script is read before main runs, so replacing .agents/skills/vendor.sh is safe.

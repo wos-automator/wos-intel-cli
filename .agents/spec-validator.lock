@@ -1,0 +1,8 @@
+# spec-validator pin, written by: .agents/skills/spec-system/bin/validate-specs --update
+version 0.1.1
+8161f04982155636af15c74d8a3f4877e577f8580129c24dedb17581a28123ec  spec-validator_0.1.1_darwin_amd64.tar.gz
+676af9c003bca60ea8ef9a469704ff2a9c93d70dd7f1c493ab936da9d0de2f7e  spec-validator_0.1.1_darwin_arm64.tar.gz
+b65f40fdb94035abec88880045110c76e1637499daa2b666659a7cda0cba7d74  spec-validator_0.1.1_linux_amd64.tar.gz
+10b28fe19e88206eb0a40dd5af8ffea9e3d204ba2b22bea5693fa023871765b7  spec-validator_0.1.1_linux_arm64.tar.gz
+66697fb31cce843e8662f3a5df2571e508eefde590df090b7f15a91a5765dce4  spec-validator_0.1.1_windows_amd64.zip
+0e9741a99811a2d65af4a888e3aba1b9edc37ecb2c11f693b07ce2d09bd12ac4  spec-validator_0.1.1_windows_arm64.zip
