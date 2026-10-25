@@ -3,24 +3,48 @@
 
 Implements <<FR-2.6>>.
 
-* `dialog_type(image) -> (MissionType, score) | None`: white mask of `dialog_pin_region`
-  (300–420 / 320–500); each symbol mask scaled by `dialog_pin_scales` (0.60, 0.70, 0.75, 0.80 –
-  the pin in the dialog is smaller than on the Intel screen) and matched; best type if its
-  score is ≥ `dialog_pin_threshold` (0.75). Measured: paw and axe pins at ≈ 359,367 score
-  0.93–0.94 at scale 0.75; the boss shield of `ref/boss-1-dialog.png` sits lower at ≈ 356,430
-  and scores 0.85 at scale 0.60; other types ≤ 0.58.
+* `dialog_type(image) -> (MissionType, score) | None`: white mask of `dialog_pin_region`; each
+  symbol mask scaled by `dialog_pin_scales` (the pin in the dialog is smaller than on the
+  Intel screen) and matched; best type if its score reaches `dialog_pin_threshold`. Measured:
+  paw and axe pins at ≈ 359,367 score 0.93–0.94 at scale 0.75; the boss shield of
+  `ref/boss-1-dialog.png` sits lower at ≈ 356,430 and scores 0.85 at scale 0.60; other types
+  ≤ 0.58. A banner over the pin leaves every type below the threshold, so the result is
+  `None`.
 * `world_pin(image) -> (MissionType, Match) | None`: the same mask matching (shared helper
-  `_pin`) in `world_pin_region` (280–440 / 580–740) with `world_pin_scales` (0.55–0.70) and
-  `world_pin_threshold` (0.75). Measured on the failure screenshots of 2026-10-17: paw pins at
-  360,659–662 score 0.82–0.93, skull pins at 356,661 score 0.75–0.84; a map without target
-  (`failure-0118-WORLD.png`) scores ≤ 0.70, the popup screenshots ≤ 0.58 (<<US-5.3>>).
+  `_pin`) in `world_pin_region` with `world_pin_scales` and `world_pin_threshold`. Measured on
+  the failure screenshots of 2026-10-17: paw pins at 360,659–662 score 0.82–0.93, skull pins
+  at 356,661 score 0.75–0.84; a map without target (`failure-0118-WORLD.png`) scores ≤ 0.70,
+  the popup screenshots ≤ 0.58 (<<US-5.3>>).
 * The boss dialog is lower than the hunt and combat dialogs: its "View" button is at 360,870
-  instead of 360,932, so the region of `btn_view` spans y 780–1010.
+  instead of 360,932, so `regions.btn_view` reaches down to both.
 * `find_action_button(image) -> (Action, Match) | None`: `btn_explore_top`, `btn_attack` and
-  the optional `btn_rescue` in `action_region` (y 250–700), best score wins. Without a template
-  hit: in `color_region` the pixels with S > 120 and V > 120 must cover at least
-  `color_min_fraction` (0.6) and their median hue must lie in `hue_rescue` (50–75) → `RESCUE`
-  with the region centre as tap point. Measured hue: Explore 105, Attack 12.
+  the optional `btn_rescue` in `buttons.action_region`, best score wins; only the upper half of
+  a button, with its label, is matched. Without a template hit: in `buttons.color_region` the
+  pixels reaching `color_min_saturation` and `color_min_value` must cover at least
+  `color_min_fraction`, and their median hue must lie in `hue_rescue` → `RESCUE` with the
+  region centre as tap point. Measured hue: Explore 105, Attack 12.
 * `likely_to_prevail(image)`: `text_likely_prevail` (colour template, so a differently
   coloured hint does not match).
 * `annotate(image, screen, symbols)`: copy of the screenshot with state, matches and symbols.
+
+Verified by `tests/test_detect.py`, on the reference and synthetic screens:
+
+[cols="2,3"]
+|===
+|Test |Expected
+
+|`test_dialog_type` |`combat-1-dialog` `COMBAT`, `hunt-1-dialog` `HUNT`, `boss-1-dialog` `BOSS`,
+synthetic `rescue-dialog` `RESCUE`
+|`test_dialog_type_is_unknown_while_a_banner_covers_the_pin` |`hunt-1-dialog-banner`,
+`rescue-1-dialog-banner`: no type
+|`test_action_button` |`combat-2-world-explore` Explore, `hunt-2-world-attack` and
+`boss-2-world-attack` Attack, synthetic `rescue-popup` Rescue
+|`test_likely_to_prevail` |`hunt-3-deploy` yes; `boss-3-deploy` (red hint) and synthetic
+`deploy-unlikely` no
+|`test_world_pin_of_a_target_without_popup`, `test_world_pin_of_a_boss_without_popup`
+|`hunt-2-world-no-popup` `HUNT` at ≈ 360,661, `boss-2-world-no-popup` `BOSS` at ≈ 356,661
+|`test_no_world_pin_under_a_popup_or_on_the_plain_map` |the popup screenshots and the synthetic
+`world`: no pin
+|===
+
+The `detect` command does not report these results yet, so they have no acceptance scenario.

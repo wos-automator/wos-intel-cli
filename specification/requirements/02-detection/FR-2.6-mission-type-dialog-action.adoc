@@ -2,19 +2,17 @@
 === FR-2.6 Mission type in the dialog and action button in the popup
 
 .Acceptance criteria
-. The pin of the mission dialog is classified as one of the four mission types;
-  `combat-1-dialog.png` yields `COMBAT`, `hunt-1-dialog.png` yields `HUNT`,
-  `boss-1-dialog.png` yields `BOSS`.
-. The action button of the world-map popup is searched by template in y 250–700 and classified
-  as Explore or Attack; only the upper half with the label is matched.
-. A button without template whose median hue (pixels with S > 120 and V > 120 in the region
-  x 245–475, y 598–660) lies in 50–75 is classified as Rescue.
-. The green hint "You are quite likely to prevail" on the Deploy screen is detected; the red
-  "You are not likely to prevail" (`boss-3-deploy.png`) does not count as that hint.
-. On the world map without popup the intel pin above the target in the centre is classified
-  as one of the four mission types; `hunt-2-world-no-popup.png` yields `HUNT` at ≈ 360,661,
-  `boss-2-world-no-popup.png` yields `BOSS` at ≈ 356,661.
-  Under a popup and on the plain world map no pin is reported (<<US-5.3>>).
+. The pin of a mission dialog is recognised as one of the four mission types; while a
+  notification banner covers it, the type is unknown, never a guess.
+. The action button of a world-map popup is recognised as Explore, Attack or Rescue; Rescue
+  also before a reference screenshot of it exists (<<NFR-3>>).
+. The green hint "You are quite likely to prevail" on the Deploy screen is recognised; the red
+  "You are not likely to prevail" is not taken for it.
+. On the world map without popup, the intel pin above the target in the centre is recognised
+  with its mission type and position; under a popup and on the world map without target no
+  pin is reported (<<US-5.3>>).
+. On the reference screenshots of mission dialogs, popups, Deploy screens and the world map
+  the results are those the screens show.
 
 Stakeholder need:: SPEC.md §2 (Rescue without a reference image), §3.5 step 6, §5 +
 Effort:: 4 h
