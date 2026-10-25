@@ -12,3 +12,10 @@ Implements <<FR-4.1>> and <<FR-4.2>>.
 * "Quick Deploy" is never a target: only `btn_fight` is matched on `SQUAD`.
 * `Adb` has no swipe/zoom/text method and `Adb.tap` rejects off-screen coordinates
   (<<TS-1.1>>).
+
+Checked by the fake game (<<ADR-3>>): it records every tap that hits no known target, and 26
+tests of `tests/test_flow.py` assert that there is none, among them
+`test_full_run_starts_every_plausible_mission`. Also `test_unknown_screen_is_left_with_back`,
+`test_quit_confirmation_after_back_is_cancelled`, `test_dry_run_never_touches_the_device`, and
+in `tests/test_adb.py` `test_tap_outside_the_screen_is_refused` and
+`test_no_swipe_or_text_input_is_offered`.

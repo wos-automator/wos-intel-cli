@@ -11,3 +11,8 @@ Implements <<FR-1.3>> and <<FR-1.4>>.
   `<image stem>.debug.png` using `Detector.annotate`. Unreadable or wrongly sized image: exit 2.
 * `snap` accepts a plain file name only (no directories) and writes `ref/<name>.png`.
 * `AdbError`, `ConfigError` and `DetectError` are logged and mapped to exit code 1.
+
+Checked by the acceptance scenarios of <<FR-1.3>> and <<FR-1.4>> (the CLI as a separate
+process) and by `tests/test_cli.py` in-process: `test_detect_rejects_unreadable_and_wrongly_sized_images`,
+`test_snap_*`, `test_run_dry_run_with_debug_images`, `test_run_fails_on_the_wrong_screen`,
+`test_device_and_config_errors_exit_with_one`.

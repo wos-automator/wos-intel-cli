@@ -20,4 +20,9 @@ their file exists and otherwise never match (`Detector`, <<TS-2.1>>).
 
 Synthetic test screens (`tests/conftest.py`) stand in for the missing references: a recoloured
 Explore button for Rescue, a dialog with a pasted tent/skull mask, a victory screen without
-title, a Deploy screen without the prevail hint.
+title, a Deploy screen without the prevail hint. They are used by `test_states` (`defeat`),
+`test_action_button` (`rescue-popup`), `test_dialog_type` (`rescue-dialog`) and
+`test_likely_to_prevail` (`deploy-unlikely`) in `tests/test_detect.py`, and by
+`test_rescue_starts_without_deploy`, `test_lost_fight_is_dismissed_and_the_run_continues` and
+`test_hunt_without_prevail_hint_is_not_deployed` in `tests/test_flow.py`;
+`test_optional_template_never_matches_while_missing` checks the optional templates.

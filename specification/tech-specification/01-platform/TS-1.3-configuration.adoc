@@ -29,3 +29,8 @@ lists to tuples and rejects unknown sections/keys and wrong types with `ConfigEr
 is the directory of the file; `Config.path()` resolves relative paths against it.
 `ANDROID_SERIAL` overrides `device.serial`. The values themselves live only here, in code and
 in the shipped `config.toml`; the other items of this specification name their keys.
+
+Checked by `tests/test_config_state.py`: `test_defaults_follow_the_spec`,
+`test_shipped_config_file_equals_the_built_in_defaults`,
+`test_shipped_config_file_documents_every_setting`, `test_file_overrides_and_base_dir`,
+`test_android_serial_overrides_the_file`, `test_invalid_files_are_rejected`.
