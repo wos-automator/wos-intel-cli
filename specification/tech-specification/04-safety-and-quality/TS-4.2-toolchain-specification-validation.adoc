@@ -8,7 +8,8 @@ Implements <<NFR-1>> and <<NFR-2>>.
   `pytest-bdd`, `ruff`, `mypy`, `poethepoet`.
 * `uv run poe check` = `ruff check .` + `ruff format --check .` + `mypy` (strict) + `pytest` +
   `.agents/skills/spec-system/bin/validate-specs`. Ruff rule `T20` forbids `print`. `pytest` there
-  deselects the acceptance scenarios; `uv run poe bdt` runs them and writes Cucumber JSON to
+  deselects the acceptance scenarios and writes the time of every test to
+  `build/test/junit.xml` (the ten slowest on the console); `uv run poe bdt` runs them and writes Cucumber JSON to
   `build/bdt/cucumber.json`.
 * pytest markers map the test pyramid: `unit` (pure logic and detection on reference
   screenshots), `component` (one module with fakes/mocks: flow with a scripted fake game, ADB

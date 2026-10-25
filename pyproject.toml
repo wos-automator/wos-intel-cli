@@ -21,7 +21,7 @@ dev = [
 lint = "ruff check ."
 format-check = "ruff format --check ."
 typecheck = "mypy"
-test = "pytest -m 'not bdt'"
+test = "pytest -m 'not bdt' --junitxml=build/test/junit.xml --durations=10"
 # No --no-cov as in the profile: the project measures no coverage.
 bdt = { shell = "mkdir -p build/bdt && pytest -m bdt --cucumberjson=build/bdt/cucumber.json" }
 validate-specs = ".agents/skills/spec-system/bin/validate-specs"
