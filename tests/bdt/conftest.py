@@ -18,6 +18,9 @@ from wos_intel.config import PROJECT_ROOT
 
 REF_DIR = PROJECT_ROOT / "ref"
 TIMESTAMP = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} ")
+SYMBOL = re.compile(r" symbol (\w+) (\w+) (\w+) at (\d+),(\d+) ")
+TIERS = {"GOLD": 3, "PURPLE": 2, "BLUE": 1}
+TOLERANCE = 6  # px, SPEC.md §3.5
 # Test IDs and trace tags (AT-1.1, FR-1.4, NFR-2) identify scenarios; they are no pytest markers.
 _ID = re.compile(r"[A-Z][A-Z0-9]*-\d+(\.\d+)*")
 
@@ -47,6 +50,24 @@ class Session:
     def done(self) -> subprocess.CompletedProcess[str]:
         assert self.result is not None, "no command has run"
         return self.result
+
+    def symbols(self) -> list[tuple[str, str, str, int, int]]:
+        """The logged symbols as (type, tier, status, x, y), in the order of the log."""
+        return [
+            (kind, tier, status, int(x), int(y))
+            for kind, tier, status, x, y in SYMBOL.findall(self.done.stdout)
+        ]
+
+    def symbol_at(self, kind: str, x: int, y: int) -> tuple[str, str, str, int, int]:
+        near = [
+            symbol
+            for symbol in self.symbols()
+            if symbol[0] == kind
+            and abs(symbol[3] - x) <= TOLERANCE
+            and abs(symbol[4] - y) <= TOLERANCE
+        ]
+        assert len(near) == 1, f"{kind} at {x},{y}: {near or self.done.stdout}"
+        return near[0]
 
 
 @dataclass
@@ -102,6 +123,28 @@ def exit_code(session: Session, code: int) -> None:
 @then(parsers.parse('the screen state is "{state}"'))
 def screen_state(session: Session, state: str) -> None:
     assert f" state {state}\n" in session.done.stdout, session.done.stdout
+
+
+@then(parsers.parse("exactly {count:d} symbols are reported"))
+def symbol_count(session: Session, count: int) -> None:
+    assert len(session.symbols()) == count, session.done.stdout
+
+
+@then(parsers.parse("a {kind} symbol with status {status} is reported at about {x:d},{y:d}"))
+def symbol_status(session: Session, kind: str, status: str, x: int, y: int) -> None:
+    assert session.symbol_at(kind, x, y)[2] == status
+
+
+@then(parsers.parse("the {kind} symbol at about {x:d},{y:d} has the tier {tier}"))
+def symbol_tier(session: Session, kind: str, x: int, y: int, tier: str) -> None:
+    assert session.symbol_at(kind, x, y)[1] == tier
+
+
+@then("the symbols are listed by tier, highest first, then from top to bottom")
+def symbol_order(session: Session) -> None:
+    keys = [(-TIERS[tier], y, x) for _, tier, _, x, y in session.symbols()]
+    assert len(keys) > 1
+    assert keys == sorted(keys), session.done.stdout
 
 
 @then("every log line starts with a timestamp")

@@ -4,11 +4,11 @@
 On the Intel screen the mission symbols are found with type and click point.
 
 .Acceptance criteria
-. Search band y 170–1050; white mask HSV (0,0,215)–(180,45,255); `TM_CCOEFF_NORMED` against
-  `paw_mask`, `firebeast_mask`, `tent_mask`, `axe_mask`, `skull_mask`; threshold 0.75; non-maximum suppression
-  within 20 px.
-. The types are `HUNT` (paw, or the firebeast during Flame and Fangs, <<FR-5.5>>), `RESCUE` (tent), `COMBAT` (halberds), `BOSS` (skull).
-. The click point is the centre of the match (centre of the disc).
+. The types are `HUNT` (paw, or the firebeast during Flame and Fangs, <<FR-5.5>>), `RESCUE`
+  (tent), `COMBAT` (halberds), `BOSS` (skull).
+. The click point of a symbol is the centre of its disc.
+. Only the mission area yields symbols: the title, timer and stamina at the top and the level
+  bar and "Claim All" at the bottom never do.
 . On `ref/intel-x.png`, `-xx.png` and `-xxx.png` exactly the symbols of SPEC.md §3.5 are
   found, each within ±6 px.
 

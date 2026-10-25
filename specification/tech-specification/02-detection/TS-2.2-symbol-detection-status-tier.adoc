@@ -5,11 +5,12 @@ Implements <<FR-2.2>>, <<FR-2.3>> and <<FR-2.4>>.
 
 `detect_symbols(image) -> list[Symbol]`:
 
-. HSV image; white mask `inRange(white_lo, white_hi)`; rows outside `search_y` set to 0.
+. HSV image; white mask `inRange(white_lo, white_hi)`; rows outside `search_y` set to 0, so
+  the title, timer, stamina, level bar and "Claim All" never yield a symbol.
 . Per type: `matchTemplate(mask, <type>_mask, TM_CCOEFF_NORMED)`; repeatedly take the maximum
   while it is ≥ `match_threshold` and blank ±`nms_radius` around it; then keep the best hit
   within `nms_radius` across all types (`_mask_hits`).
-. Second pass with the wider mask `dim_white_lo`–`dim_white_hi` (0,0,190)–(180,70,255): a
+. Second pass with the wider mask `dim_white_lo`–`dim_white_hi`: a
   running mission is drawn half transparent and its symbol is too dark for the first mask
   (running boss of `ref/intel-boss-running.png`: 0.51 with the first mask, 0.82 with the
   second; other types ≤ 0.46). Hits within `nms_radius` of a first-pass hit are dropped; the
@@ -23,9 +24,12 @@ Implements <<FR-2.2>>, <<FR-2.3>> and <<FR-2.4>>.
   search band with an area between `check_min_area` and `check_max_area`.
 . Status: `DONE` if a check mark centroid lies within `check_tolerance` of centre +
   `check_offset`; else `AVAILABLE` if saturation ≥ `available_min_saturation`; else `RUNNING`.
+  Saturations from `running_max_saturation` up to `available_min_saturation` are uncertain:
+  they count as `RUNNING` (logged at debug level), so an uncertain mission is never started.
 . Tier: nearest of `hue_gold`, `hue_blue`, `hue_purple` by `hue_distance` (circular, 0–179).
   The tier of a greyed-out `RUNNING` symbol is not reliable and is never used.
 . Result sorted by `(-tier, y, x)`.
 
-This is the algorithm of `tools/prototype_detect.py`; the prototype output in SPEC.md §3.5 is
-the expected test result.
+This is the algorithm of `tools/prototype_detect.py`; its output in SPEC.md §3.5 is the expected
+result, checked by `tests/test_detect.py` and by the acceptance scenarios of <<FR-2.2>>,
+<<FR-2.3>> and <<FR-2.4>>. The keys are those of `[symbols]` in `config.toml`.
