@@ -5,8 +5,6 @@
 . Python 3.11 or newer.
 . Runtime dependencies are `opencv-python` and `numpy` only; nothing that needs a server and
   no OCR engine.
-. Project structure as in SPEC.md §8: `wos_intel/` with `__main__.py`, `adb.py`, `detect.py`,
-  `flow.py`, `state.py`; `templates/`, `ref/`, `tests/`, `config.toml`.
 
-Stakeholder need:: SPEC.md §1, §8 +
+Stakeholder need:: SPEC.md §1 +
 Effort:: 1 h

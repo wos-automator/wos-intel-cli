@@ -1,0 +1,76 @@
+== Context and Scope
+
+wos-intel is a command line program on the operator's computer. It sees the game only as
+screenshots and acts on it only with taps and BACK, both through `adb` against one Android
+device or emulator (BlueStacks Air in the project's setup, SPEC.md §1). Everything else it
+touches is a file next to its configuration. The companion `wos-watchdog.sh` (crash restart)
+is a program of its own and not part of this system (SPEC.md §1).
+
+[plantuml, context, svg]
+----
+@startuml
+left to right direction
+skinparam componentStyle rectangle
+
+actor Operator
+component "wos-intel\npython -m wos_intel" as W
+component "adb" as ADB
+node "Android device / emulator" {
+  component "Whiteout Survival\ncom.gof.global" as Game
+}
+file "config.toml" as Cfg
+folder "templates/" as T
+folder "ref/" as R
+file "state.json" as St
+folder "debug/" as D
+
+Operator --> W : run | detect | snap
+W --> Operator : log on stdout, exit code
+W --> ADB : screencap, input tap / keyevent,\nget-state, wm size, dumpsys
+ADB --> Game
+Cfg --> W : overrides
+T --> W : templates, masks, digit glyphs
+R --> W : detect on a reference
+W --> R : snap
+W <--> St : boss lock, event hold
+W --> D : annotated and failure screenshots
+@enduml
+----
+
+[cols="1,2,3"]
+|===
+|Neighbour |Interface |What crosses it
+
+|Operator
+|command line, stdout
+|the commands `run`, `detect`, `snap` with their options (<<FR-1.3>>); log lines and the
+exit code (<<FR-1.4>>)
+
+|Game on the Android device
+|the `adb` binary as a subprocess, one serial (<<ADR-2>>)
+|in: PNG screenshots; out: taps and BACK; at start the device check (<<FR-1.1>>, <<FR-1.2>>).
+No other input channel exists, in particular none through macOS (<<FR-4.2>>)
+
+|`config.toml`
+|TOML, read once at start
+|overrides of the built-in defaults (<<FR-1.5>>)
+
+|`templates/`
+|PNG files, read once at start
+|colour templates, symbol masks and digit glyphs the detection matches against (<<TS-2.1>>,
+<<TS-2.2>>, <<TS-2.3>>)
+
+|`ref/`
+|PNG files
+|reference screenshots: written by `snap`, read by `detect`, the tests and
+`tools/cut_templates.py` (<<NFR-2>>, <<NFR-3>>)
+
+|`state.json`
+|JSON, read and written during a run
+|the boss lock and the event hold, which outlive a run (<<FR-3.5>>, <<FR-5.3>>)
+
+|`debug/`
+|PNG files, written
+|annotated screenshots of every step with `--debug`; the screenshot of a failed or skipped
+step (<<FR-1.4>>, <<FR-3.6>>)
+|===

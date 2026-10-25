@@ -1,0 +1,78 @@
+== Building Block View
+
+One Python package, `wos_intel/`, with seven modules: the layout the stakeholder proposed
+(SPEC.md §8) plus `config` and `event`. Next to it are `templates/`, `ref/`, `tests/`, `tools/`
+and `config.toml` (see Context and Scope). Dependencies point downwards only:
+`flow` never imports `adb`; it sees the device through the `Device` protocol it defines
+itself (<<TS-3.1>>), and the command line wires the real `Adb` in. `adb` is the only module
+that starts a process; `detect`, `event` and `config` neither touch the device nor the clock.
+
+[plantuml, building-blocks, svg]
+----
+@startuml
+skinparam componentStyle rectangle
+
+package "wos_intel" {
+  [~_~_main~_~_] as main
+  [flow]
+  [detect]
+  [event]
+  [state]
+  [adb]
+  [config]
+}
+
+main --> flow
+main --> adb
+main --> detect
+main --> state
+main --> config
+flow --> detect
+flow --> event
+flow --> state
+flow --> config
+flow ..> adb : Device protocol,\nbound by __main__
+detect --> config
+adb --> config
+@enduml
+----
+
+[cols="1,3,1"]
+|===
+|Module |Responsibility |Design
+
+|`__main__`
+|Command line `run`, `detect`, `snap`; logging; wires the other modules together and maps
+errors to exit codes
+|<<TS-1.2>>
+
+|`flow`
+|The run: `Runner` with the run loop, mission sequences, target selection, waiting and
+recovery, busy march queues and the pre-event phases; defines the `Device` protocol
+|<<TS-3.1>>, <<TS-3.2>>, <<TS-3.3>>, <<TS-3.5>>, <<TS-3.6>>, <<TS-5.2>>
+
+|`detect`
+|`Detector`: screen state, mission symbols with status and tier, dialog type and action
+button, digit OCR, event icon; the annotated debug image
+|<<TS-2.1>>, <<TS-2.2>>, <<TS-2.3>>, <<TS-2.4>>, <<TS-5.1>>, <<TS-5.3>>
+
+|`event`
+|Pure classification of a mission by its expiry relative to the event start
+|<<TS-5.2>>
+
+|`state`
+|`StateStore`: `state.json` with the boss lock and the event hold
+|<<TS-3.4>>, <<TS-5.2>>
+
+|`adb`
+|`Adb`: screenshot, tap, BACK and the device check, each one `adb` call
+|<<TS-1.1>>
+
+|`config`
+|`Config`: defaults in code, overrides from `config.toml`, path resolution
+|<<TS-1.3>>
+|===
+
+Outside the package, `tools/cut_templates.py` derives the digit glyphs and several templates
+from the reference screenshots at development time (<<TS-2.3>>); `tests/` holds the fake game
+and the fixtures (<<TS-4.2>>).

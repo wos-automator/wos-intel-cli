@@ -16,6 +16,11 @@
       "kinds": ["US"]
     },
     {
+      "master": "architecture-web.adoc",
+      "folder": "specification/architecture",
+      "kinds": ["ADR"]
+    },
+    {
       "master": "release-notes.adoc",
       "folder": "specification/release-notes",
       "kinds": []
@@ -24,7 +29,8 @@
   "traceability": [
     { "kind": "TS", "requires": ["FR", "NFR"], "name": "requirement" },
     { "kind": "US", "requires": ["FR", "NFR"], "name": "requirement" },
-    { "kind": "US", "requires": ["TS"], "name": "technical specification" }
+    { "kind": "US", "requires": ["TS"], "name": "technical specification" },
+    { "kind": "ADR", "requires": ["FR", "NFR"], "name": "requirement" }
   ],
   "tests": [
     {

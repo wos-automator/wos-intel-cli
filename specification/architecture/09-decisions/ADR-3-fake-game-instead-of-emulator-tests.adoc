@@ -1,0 +1,43 @@
+[[ADR-3]]
+=== ADR-3 A scripted fake game on reference screenshots instead of emulator tests
+
+Status:: Accepted (0.1.0) +
+Motivated by:: <<NFR-2>>, <<NFR-3>>, <<FR-4.1>>
+
+.Context
+The run loop is the part with the most behaviour: sequences per mission type, timeouts,
+recovery, waiting for marches, locks and event phases. Testing it against the running game
+would need the emulator, an account and stamina, would take minutes per run, could not
+reproduce rare screens (a session taken over by another device, a target that vanished) on
+demand, and would be non-deterministic. At the same time the detection must be tested on
+real pixels, and the safety rule "no tap outside detected targets" needs a device that
+records every tap.
+
+.Decision
+Tests are organised by the test pyramid (<<TS-4.2>>). The detection is tested as a pure
+function on the reference screenshots in `ref/`, with the values the stakeholder measured
+(<<NFR-2>>). The run loop is tested against `FakeGame`, a scripted device in `tests/`: it
+implements the `Device` protocol, serves reference screenshots as screens, maps a tap near a
+known point to the next screen, records every other tap as a stray tap, and lets screens
+change by themselves on a fake clock (<<TS-3.1>>, <<TS-3.5>>). Screens without a reference
+are synthesised from existing ones (<<TS-4.3>>). Runs against the real device are manual
+(AGENTS.md).
+
+.Alternatives
+* Tests against the emulator: slow, non-deterministic, consume game resources, cannot stage
+  the rare screens; kept as the manual verification step (release notes 0.1.0, "Known
+  limitations").
+* Replaying a recorded ADB session: a recording does not react to a wrong tap, so it can
+  neither prove that the run follows the game nor that no stray tap was sent.
+* Mocking `Detector` in the flow tests: faster, but the templates and thresholds would never
+  be exercised together with the flow.
+
+.Consequences
+* A whole run executes in seconds without waiting; every stray tap fails a test, which makes
+  <<FR-4.1>> checkable.
+* The fake encodes assumptions about the game: which screen follows which tap, where the
+  buttons are. A wrong assumption passes the tests and shows up on the device: the defects
+  fixed in release 0.1.1 were found on device runs, and their screens became reference
+  screenshots and transitions of the fake.
+* Every new screen needs a reference before its path can be tested for real; until then the
+  synthetic screen is the stand-in and the path is marked as unverified (<<NFR-3>>).

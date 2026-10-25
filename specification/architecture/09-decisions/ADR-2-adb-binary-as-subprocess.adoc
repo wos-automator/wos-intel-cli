@@ -1,0 +1,38 @@
+[[ADR-2]]
+=== ADR-2 Device access through the `adb` binary as a subprocess
+
+Status:: Accepted (0.1.0) +
+Motivated by:: <<FR-1.1>>, <<FR-1.2>>, <<FR-4.2>>, <<NFR-1>>
+
+.Context
+The game runs in an Android emulator on the operator's machine. The program needs
+screenshots and a way to tap and press BACK. An earlier approach drove the emulator window
+with macOS mouse and keyboard input; it proved unreliable because the window coordinates
+shift and the map moves (SPEC.md §1). The game is a Unity application, so its screen has no
+Android view hierarchy to query. Several devices may be attached to `adb` at the same time.
+
+.Decision
+`adb.Adb` runs the `adb` binary with `subprocess.run`, always with `-s <serial>` and a
+timeout, for exactly four operations: `exec-out screencap -p`, `shell input tap`,
+`shell input keyevent KEYCODE_BACK` and the device check (`get-state`, `wm size`,
+`dumpsys window`). Nothing in the project talks to macOS input APIs (<<TS-1.1>>).
+
+.Alternatives
+* macOS input on the emulator window (Quartz events, pyautogui): rejected by the stakeholder
+  after it moved the map; it also depends on the window's position and scale.
+* A Python ADB library (`pure-python-adb`, `adb_shell`): an extra dependency that
+  re-implements the ADB protocol; harder to reproduce a failing call in a shell; no gain for
+  four commands.
+* `uiautomator` or the accessibility tree: no widget tree exists for a Unity game; buttons
+  are pixels.
+
+.Consequences
+* No dependency beyond the `adb` binary that the emulator setup needs anyway; every call can
+  be repeated by hand from a shell, and the tests replace `subprocess.run` (<<TS-4.2>>).
+* The device check, the fixed resolution and the explicit serial are cheap to enforce in one
+  place (<<FR-1.2>>).
+* Each operation starts a process and transfers a PNG. A run spends its time waiting for
+  the game, so the poll interval and tap delay of <<TS-1.3>> absorb that latency; anything
+  that needed frame-rate observation would not fit this design.
+* The emulator must expose its ADB port and keep the configured resolution
+  (`docs/guides/bluestacks-setup.md`).

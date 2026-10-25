@@ -1,0 +1,35 @@
+== Glossary
+
+Game and domain terms as the specification uses them.
+
+Action button:: The Explore, Attack or Rescue button in the popup on the world map; which one appears depends on the mission type.
+BlueStacks Air:: The Android emulator on macOS in which the game runs; reached through `adb` (<<FR-1.1>>).
+Boss:: The mission with the skull shield ("Ultimate Bounty"); attacked last and once per refresh cycle.
+Claim All:: The green button on the Intel screen once a mission is done; collects all rewards and opens the rewards screen.
+Combat:: Mission type (crossed halberds, template `axe`) fought in the squad screen: Explore, Fight, Victory.
+Deploy:: The screen and button that send a march to a hunt or boss target.
+Dry run:: `run --dry-run`: detect and log, never tap.
+Expert:: The sign top left on the Intel screen that hands out more missions once a day when tapped.
+Firebeast:: The gold pin of the Flame and Fangs event; detected and worked on as a hunt.
+Flame and Fangs:: A game event announced the day before by an icon with a countdown on the Intel screen; rewards claimed during it count towards it, hence the pre-event rules claim, hold and ignore.
+Hold:: The pre-event phase in which finished missions are not claimed until the event starts; remembered in `state.json` across runs.
+Hunt:: Mission type (paw) that sends a march to a beast: Attack, Deploy.
+Intel:: The game feature that offers missions on its own screen; the subject of this program.
+Intel button:: The round button on the right of the world map that opens the Intel screen.
+Intel screen:: The screen with the mission symbols, the stamina top right and the "Refreshes In" timer.
+March queue:: A slot for troops under way; a hunt or boss needs a free one; the world map shows "Marching N/M".
+Mission dialog:: The dialog a tap on a symbol opens: the pin with the type, rewards, "Intel Expires In" and the View button.
+Pin:: The drop-shaped marker of a mission: a white symbol in a dark disc with a coloured rim; on the Intel screen, in the mission dialog and above the target on the world map.
+Popup:: The window above the target on the world map with the mission name and the action button.
+Prevail hint:: "You are quite likely to prevail" on the Deploy screen; required for a hunt, ignored for the boss.
+Reference screenshot:: A screenshot of the device in `ref/`, taken with `snap`; source of templates and oracle of the tests.
+Refresh cycle:: The period after which the Intel screen offers new missions, shown as "Refreshes In: HH:MM:SS"; the boss is attacked once per cycle.
+Rescue:: Mission type (tent) that starts at once with the Rescue button; no deploy step.
+Rewards screen:: The screen after Claim All; left with a tap top centre.
+Stamina:: The resource every mission costs, shown top right on the Intel screen (<<FR-2.5>>); too little ends the run.
+State:: The classification of a screenshot (`INTEL`, `WORLD`, …); the input of every decision.
+Status:: Of a symbol: `AVAILABLE`, `RUNNING` (half transparent) or `DONE` (green check mark).
+Symbol:: A detected pin or boss shield on the Intel screen with type, tier, status and click point.
+Template:: An image in `templates/` the detection matches against a screenshot: a colour cut-out of a button or title, a binary mask of a symbol, or a digit glyph.
+Tier:: The pin colour, `GOLD` > `PURPLE` > `BLUE`; the processing order of the missions.
+World map:: The game's main map; after View it is centred on the mission's target.

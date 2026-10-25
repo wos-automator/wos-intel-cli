@@ -1,0 +1,21 @@
+= wos-intel – Architecture
+:toc: left
+:toclevels: 2
+
+The architecture overview in the structure of arc42: context, solution strategy, building
+blocks, cross-cutting concepts, decisions and glossary. It describes how the parts fit together
+and why; goals and constraints are the requirements in `specification-web.adoc`, the design of
+each part is in `tech-specification-web.adoc`. Sections of arc42 without content of their own
+are left out.
+
+include::specification/architecture/03-context/index.adoc[]
+
+include::specification/architecture/04-solution-strategy/index.adoc[]
+
+include::specification/architecture/05-building-blocks/index.adoc[]
+
+include::specification/architecture/08-concepts/index.adoc[]
+
+include::specification/architecture/09-decisions/index.adoc[]
+
+include::specification/architecture/12-glossary/index.adoc[]

@@ -10,5 +10,10 @@ Built with agent-skills v0.6.1.
 
 === Documentation
 
+* Architecture overview `architecture-web.adoc` in the structure of arc42: context, solution
+  strategy, building blocks, cross-cutting concepts, decisions (<<ADR-1>>, <<ADR-2>>,
+  <<ADR-3>>) and glossary. The project structure is part of its building block view instead
+  of <<NFR-1>> and the chapter intro of the technical specification.
+
 * The specification validator is pinned in `.agents/spec-validator.lock` (spec-validator
   0.2.1) instead of inside the agent-skills library (<<TS-4.2>>).

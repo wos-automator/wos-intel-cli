@@ -1,0 +1,11 @@
+== Architecture Decisions
+
+An ADR records a choice that had real alternatives, with the forces at the time. An ADR is
+never deleted or renumbered; when a decision changes, a new ADR is written and the old one
+gets the status "Superseded by" with a reference to the new one.
+
+include::ADR-1-template-matching-instead-of-ocr-engine.adoc[]
+
+include::ADR-2-adb-binary-as-subprocess.adoc[]
+
+include::ADR-3-fake-game-instead-of-emulator-tests.adoc[]

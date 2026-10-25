@@ -1,0 +1,40 @@
+[[ADR-1]]
+=== ADR-1 Template matching and digit glyphs instead of an OCR engine
+
+Status:: Accepted (0.1.0) +
+Motivated by:: <<NFR-1>>, <<FR-2.5>>, <<FR-2.1>>
+
+.Context
+The program must recognise screens, buttons and mission symbols and read a few numbers:
+stamina, the refresh timer, the march counter and later the event countdown and the mission
+expiry. The screen is always 720x1280 (<<FR-1.2>>), the game draws every element at a fixed
+place with a fixed font, and the numbers are short digit strings in known regions. The
+stakeholder asked for a small runtime (OpenCV and numpy, nothing that needs a server) and
+explicitly for no OCR engine (SPEC.md §1, §4). A wrong number is worse than no number: with
+an unreadable stamina the run carries on until the game's "not enough stamina" dialog
+(SPEC.md §4), a misread one would skip missions or end the run early.
+
+.Decision
+All recognition is `cv2.matchTemplate` with `TM_CCOEFF_NORMED` against templates cut from
+reference screenshots: colour templates for buttons and titles, binary masks for the mission
+symbols, and single digit glyphs for the numbers. Digits are segmented as connected
+components of a colour mask, normalised to a fixed height and classified against the glyph
+templates; a glyph below the threshold makes the whole reading "unreadable" (<<TS-2.3>>).
+
+.Alternatives
+* Tesseract (pytesseract) or another OCR engine: a system binary to install, trained for
+  document fonts, prone to confident misreads on short game digits; excluded by the
+  stakeholder.
+* Cloud vision APIs: need a server and an account, excluded by <<NFR-1>>.
+* Reading the game's data through its network traffic or memory: not available for a
+  third-party game and outside the declared scope of screenshots and taps (<<FR-1.1>>).
+
+.Consequences
+* Two runtime dependencies; recognition is deterministic and testable file by file against
+  `ref/` (<<NFR-2>>).
+* Every new font size or colour needs glyphs cut from a reference: the dark expiry digits and
+  the white countdown each got their own mask and templates (<<TS-5.1>>), and a digit that
+  no reference shows in a given size is classified by glyphs of another size (<<TS-2.3>>).
+* Templates are scale-bound: the resolution is fixed, and the pin in the dialog and on the
+  world map is matched at an enumerated set of scales (<<TS-2.4>>).
+* A new screen or dialog is a reference and a cut-out, not code (<<TS-4.3>>).
