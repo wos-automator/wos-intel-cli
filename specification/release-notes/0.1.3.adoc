@@ -23,7 +23,8 @@ Built with agent-skills v0.6.1.
   minimum stamina, how long a run waits); the values that only tune a step (delays, screenshot
   intervals, step timeouts, tap positions, distances) are in the technical specification and
   `config.toml` (<<FR-3.2>>, <<FR-3.3>>, <<FR-3.4>>,
-  <<FR-3.5>>, <<FR-3.6>>, <<FR-3.7>>).
+  <<FR-3.5>>, <<FR-3.6>>, <<FR-3.7>>,
+  <<FR-3.8>>).
 * The data model of the detection lists the states `HINT`, `QUIT_CONFIRMATION` and
   `SESSION_LOST` of 0.1.1 (<<FR-2.1>>).
 * The run loop names the parameter `failure_dir` and the outcomes `REWARDS_HELD` and

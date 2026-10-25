@@ -81,9 +81,10 @@ found by the white mask (SPEC.md §3.5).
 Expert (<<FR-3.8>>): on every evaluation of the Intel screen `Detector.find_expert` is asked
 for the sign and a hit is logged (`expert sign at x,y`), so a dry run always shows it. It is
 tapped after the mission-limit check and before the stamina check, if every candidate is a
-boss (or there is none) and `_expert_used` is not set. The sign (template `expert_sign`, cut by `tools/cut_templates.py` from the inside
-of the sign in `ref/intel-expert-available.png`, region `regions.expert_sign`; other references
-score ≤ 0.57). If found: set `_expert_used`, tap the match, return `None` so that the loop
+boss (or there is none) and `_expert_used` is not set. The sign is the colour template
+`expert_sign`, cut by `tools/cut_templates.py` from the inside of the sign in
+`ref/intel-expert-available.png` (centre ≈ 59,210) and matched by `Detector.find` in
+`regions.expert_sign` against `buttons.threshold`; the other references score ≤ 0.57. If found: set `_expert_used`, tap the match, return `None` so that the loop
 evaluates the Intel screen again. What the game shows after the tap has no reference yet; a
 screen other than `INTEL*` runs into the normal `StepFailed` recovery (<<TS-3.5>>).
 
