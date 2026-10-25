@@ -1,11 +1,8 @@
-"""The command line interface, in-process and as a separate process (US-1.2)."""
+"""The command line interface in-process (US-1.2); as a separate process it is accepted by
+the scenarios of FR-1.3 (tests/bdt)."""
 
 from __future__ import annotations
 
-import re
-import shutil
-import subprocess
-import sys
 from pathlib import Path
 
 import cv2
@@ -13,12 +10,10 @@ import numpy as np
 import pytest
 from pytest_mock import MockerFixture
 
-from tests.conftest import REF_DIR, load_ref
+from tests.conftest import load_ref
 from wos_intel.__main__ import main
 from wos_intel.adb import Adb, AdbError
 from wos_intel.config import PROJECT_ROOT
-
-TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} ", re.MULTILINE)
 
 
 def project_config(tmp_path: Path) -> Path:
@@ -26,45 +21,6 @@ def project_config(tmp_path: Path) -> Path:
     file = tmp_path / "config.toml"
     file.write_text(f'[paths]\ntemplates = "{PROJECT_ROOT / "templates"}"\n', encoding="utf-8")
     return file
-
-
-@pytest.mark.blackbox
-def test_detect_as_a_process_reports_the_spec_table(tmp_path: Path) -> None:
-    image = tmp_path / "intel-xxx.png"
-    shutil.copy(REF_DIR / "intel-xxx.png", image)
-
-    result = subprocess.run(
-        [sys.executable, "-m", "wos_intel", "detect", str(image)],
-        cwd=PROJECT_ROOT,
-        capture_output=True,
-        text=True,
-        timeout=120,
-        check=False,
-    )
-
-    assert result.returncode == 0, result.stderr
-    assert TIMESTAMP.search(result.stdout)
-    assert "state INTEL_CLAIMABLE" in result.stdout
-    assert "stamina 2035" in result.stdout
-    assert result.stdout.count(" symbol ") == 8
-    assert "RESCUE PURPLE DONE at 287,351" in result.stdout
-    assert "HUNT GOLD DONE at 564,737" in result.stdout
-    assert (tmp_path / "intel-xxx.debug.png").is_file()
-
-
-@pytest.mark.blackbox
-def test_usage_error_without_a_command() -> None:
-    result = subprocess.run(
-        [sys.executable, "-m", "wos_intel"],
-        cwd=PROJECT_ROOT,
-        capture_output=True,
-        text=True,
-        timeout=120,
-        check=False,
-    )
-
-    assert result.returncode == 2
-    assert "run" in result.stderr and "detect" in result.stderr and "snap" in result.stderr
 
 
 @pytest.mark.integration

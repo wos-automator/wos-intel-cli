@@ -19,6 +19,8 @@ wos-intel automates the Intel missions in Whiteout Survival via ADB. This file h
 | Release | [release](.agents/skills/release/SKILL.md) |
 | Commands, test tooling | [toolchain](.agents/skills/toolchain/SKILL.md) |
 | Specification layout and rules | [spec-system](.agents/skills/spec-system/SKILL.md) |
+| Acceptance scenarios for a requirement | [create-acceptance-scenarios](.agents/skills/create-acceptance-scenarios/SKILL.md), [update-acceptance-scenarios](.agents/skills/update-acceptance-scenarios/SKILL.md) |
+| Test and traceability reports | [traceability-report](.agents/skills/traceability-report/SKILL.md) |
 
 ## Precedence
 
@@ -26,7 +28,7 @@ wos-intel automates the Intel missions in Whiteout Survival via ADB. This file h
 2. The project skills in `.agents/skills/`.
 3. Personal instructions and skills of the user (e.g. `~/.claude/skills`, `~/.agents/`). They may only cover the machine environment and how to communicate; they never override a project rule or a project skill of the same purpose.
 
-A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the vendored agent-skills library (version in `.agents/skills/VERSION`): adapt it here, under "Project Facts", not by editing a skill. Update it to a new version with `.agents/skills/vendor.sh v<version>`, then commit `chore(agents): vendor agent-skills v<version>`.
+A change to a project rule is a change to this file or to `.agents/skills/`, made through the project's review. Files in `.agents/skills/` are the vendored agent-skills library (version in `.agents/skills/VERSION`): adapt it here, under "Project Facts", not by editing a skill. Update it to a new version with `.agents/skills/vendor.sh v<version>`, then commit `chore(agents): vendor agent-skills v<version>`. The spec-validator release is pinned in `.agents/spec-validator.lock`; change it only with `.agents/skills/spec-system/bin/validate-specs --update v<version>`.
 
 ---
 
@@ -38,16 +40,18 @@ A change to a project rule is a change to this file or to `.agents/skills/`, mad
 |---|---|
 | `.` (`wos_intel/`, `tools/`, `tests/`) | [python-uv](.agents/skills/toolchain/python-uv/PROFILE.md) |
 
-The contract tasks are defined in `[tool.poe.tasks]` of `pyproject.toml`; `validate-specs` runs the library's launcher.
+The contract tasks are defined in `[tool.poe.tasks]` of `pyproject.toml`; `validate-specs` runs the library's launcher. Deviation from the profile: the `bdt` task has no `--no-cov`, because the project measures no coverage.
 
 ### Releases
 
 Releases follow the [release](.agents/skills/release/SKILL.md) skill with `.github/workflows/release.yml`. The version lives in `[project] version` of `pyproject.toml` (task `version`). There is no `dist` task: wos-intel is installed with `git clone` and run with `uv run`, so a release carries the documentation; GitHub adds the source archives. Release tags are signed with the `wos-automator` key; its environment secret holds that key.
 
-### Test Pyramid Limits
+### Testing
+
+Testing: requirements-based blackbox tests (BDT). Acceptance scenarios in `specification/acceptance/` trace to requirements; they run on pull requests and releases, and every release carries a test report and a traceability report.
 
 - Component tests replace the game with a scripted fake device.
-- Blackbox tests run the CLI as a separate process (`detect`, usage errors). Runs against the real device are manual.
+- Blackbox tests are the acceptance scenarios: the CLI as a separate process on reference screenshots, without a device (`tests/bdt/`). Runs against the real device are manual.
 
 ### Commit Scopes
 

@@ -1,8 +1,8 @@
 name: ci
 
+# Pull requests run pull-request.yml (the gate plus the acceptance scenarios).
 on:
   push:
-  pull_request:
 
 permissions:
   contents: read

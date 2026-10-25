@@ -19,7 +19,7 @@ I can run the automation, inspect a screenshot and collect reference images.
 . Exit codes: 0 regular end, 1 aborted run or device/configuration/template error, 2 usage.
 
 .Test criteria
-* Blackbox test (pytest + subprocess, `tests/test_cli.py`): `detect` and the usage error as a
-  separate process.
+* Blackbox test: the acceptance scenarios <<AT-1.1>> and <<AT-1.2>> of <<FR-1.3>> (`detect` and
+  the usage errors as a separate process).
 * Integration test (pytest, `tests/test_cli.py`): `snap`, `run --dry-run --debug`, wrong
   screen, error mapping – in-process with the `Adb` methods mocked and files in `tmp_path`.

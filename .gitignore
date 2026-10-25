@@ -9,3 +9,7 @@ debug/
 state.json
 *.debug.png
 /.idea
+# BDT results and the reports generated from them
+build/
+test-report.adoc
+traceability-report.adoc

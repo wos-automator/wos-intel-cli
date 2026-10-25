@@ -4,14 +4,17 @@
 Implements <<NFR-1>> and <<NFR-2>>.
 
 * Python ≥ 3.11, dependencies and tasks in `pyproject.toml`, environment managed with `uv`
-  (`uv sync`). Runtime: `numpy`, `opencv-python`. Development: `pytest`, `pytest-mock`, `ruff`,
-  `mypy`, `poethepoet`.
+  (`uv sync`). Runtime: `numpy`, `opencv-python`. Development: `pytest`, `pytest-mock`,
+  `pytest-bdd`, `ruff`, `mypy`, `poethepoet`.
 * `uv run poe check` = `ruff check .` + `ruff format --check .` + `mypy` (strict) + `pytest` +
-  `.agents/skills/spec-system/bin/validate-specs`. Ruff rule `T20` forbids `print`.
+  `.agents/skills/spec-system/bin/validate-specs`. Ruff rule `T20` forbids `print`. `pytest` there
+  deselects the acceptance scenarios; `uv run poe bdt` runs them and writes Cucumber JSON to
+  `build/bdt/cucumber.json`.
 * pytest markers map the test pyramid: `unit` (pure logic and detection on reference
   screenshots), `component` (one module with fakes/mocks: flow with a scripted fake game, ADB
   with a mocked `subprocess.run`), `integration` (configuration and state files, CLI
-  in-process), `blackbox` (CLI as a separate process).
+  in-process), `bdt` (the acceptance scenarios of `specification/acceptance/`, run by
+  `pytest-bdd` from `tests/bdt/`: the CLI as a separate process on reference screenshots).
 * Specification layout: each master includes `specification/<kind>/<NN-chapter>/index.adoc`;
   the chapter index includes one file per item (`<ID>-<slug>.adoc`), resolved relative to the
   index. Release notes are one file per version in `specification/release-notes/`.
@@ -21,5 +24,7 @@ Implements <<NFR-1>> and <<NFR-2>>.
   are followed relative to the including file; every file below the master's folder is reached
   by an include; anchors `+[[FR-x.y]]+`, `+[[NFR-x]]+`, `+[[TS-x.y]]+`, `+[[US-x.y]]+` are unique
   and in the folder of their kind; every `+<<ID>>+` resolves; each TS references a requirement,
-  each US a TS and a requirement.
+  each US a TS and a requirement; every scenario of `specification/acceptance/` has exactly one
+  unique `@AT-x.y` and traces to existing requirements (`.spec-validator.json`). From the Cucumber
+  JSON it writes the test report and the traceability report.
 * `tools/prototype_detect.py` is the frozen prototype of SPEC.md and excluded from linting.

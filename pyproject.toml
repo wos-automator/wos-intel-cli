@@ -8,13 +8,22 @@ license-files = ["LICENSE"]
 dependencies = ["numpy>=1.26", "opencv-python>=4.9"]
 
 [dependency-groups]
-dev = ["mypy>=1.10", "poethepoet>=0.27", "pytest>=8", "pytest-mock>=3.14", "ruff>=0.6"]
+dev = [
+    "mypy>=1.10",
+    "poethepoet>=0.27",
+    "pytest>=8",
+    "pytest-bdd>=9.0.0",
+    "pytest-mock>=3.14",
+    "ruff>=0.6",
+]
 
 [tool.poe.tasks]
 lint = "ruff check ."
 format-check = "ruff format --check ."
 typecheck = "mypy"
-test = "pytest"
+test = "pytest -m 'not bdt'"
+# No --no-cov as in the profile: the project measures no coverage.
+bdt = { shell = "mkdir -p build/bdt && pytest -m bdt --cucumberjson=build/bdt/cucumber.json" }
 validate-specs = ".agents/skills/spec-system/bin/validate-specs"
 check = ["lint", "format-check", "typecheck", "test", "validate-specs"]
 version = "uv version --short"
@@ -41,5 +50,5 @@ markers = [
     "unit: pure logic on in-memory data and reference screenshots",
     "component: one module with its collaborators replaced by fakes or mocks",
     "integration: several modules together, including the file system",
-    "blackbox: the command line interface run as a separate process",
+    "bdt: acceptance scenarios of the specification, the CLI as a separate process",
 ]

@@ -2,6 +2,12 @@
 
 Built with agent-skills v0.6.1.
 
+=== Features
+
+* Requirements-based blackbox tests: the acceptance scenarios in `specification/acceptance/`
+  accept <<FR-1.3>> and <<FR-1.4>>; every release carries a test report and a traceability
+  report (<<TS-4.2>>, <<US-1.2>>).
+
 === Documentation
 
 * The specification validator is pinned in `.agents/spec-validator.lock` (spec-validator

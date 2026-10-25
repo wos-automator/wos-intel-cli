@@ -155,7 +155,7 @@ lists the built-in defaults. The device is taken from `ANDROID_SERIAL` if set, o
 wos_intel/     CLI, ADB wrapper, detection, run loop, boss state
 templates/     symbol masks, button and title cut-outs, digit glyphs
 ref/           reference screenshots the tests run against
-tests/         unit, component, integration and blackbox tests
+tests/         unit, component and integration tests; tests/bdt runs the acceptance scenarios
 tools/         template cutter and the detection prototype
 docs/          guides and images
 specification/ requirements, technical specification, backlog, release notes, stakeholder input
@@ -165,6 +165,7 @@ specification/ requirements, technical specification, backlog, release notes, st
 
 ```sh
 uv run poe check    # ruff, format check, mypy, pytest and the specification validator
+uv run poe bdt      # the acceptance scenarios of specification/acceptance/
 ```
 
 The detection is tested against the screenshots in `ref/`; the run loop against a scripted fake

@@ -1,0 +1,37 @@
+{
+  "documents": [
+    {
+      "master": "specification-web.adoc",
+      "folder": "specification/requirements",
+      "kinds": ["FR", "NFR"]
+    },
+    {
+      "master": "tech-specification-web.adoc",
+      "folder": "specification/tech-specification",
+      "kinds": ["TS"]
+    },
+    {
+      "master": "backlog-web.adoc",
+      "folder": "specification/backlog",
+      "kinds": ["US"]
+    },
+    {
+      "master": "release-notes.adoc",
+      "folder": "specification/release-notes",
+      "kinds": []
+    }
+  ],
+  "traceability": [
+    { "kind": "TS", "requires": ["FR", "NFR"], "name": "requirement" },
+    { "kind": "US", "requires": ["FR", "NFR"], "name": "requirement" },
+    { "kind": "US", "requires": ["TS"], "name": "technical specification" }
+  ],
+  "tests": [
+    {
+      "kind": "AT",
+      "folder": "specification/acceptance",
+      "format": "gherkin",
+      "traces": ["FR", "NFR"]
+    }
+  ]
+}
