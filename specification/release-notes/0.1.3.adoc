@@ -5,4 +5,4 @@ Built with agent-skills v0.6.1.
 === Documentation
 
 * The specification validator is pinned in `.agents/spec-validator.lock` (spec-validator
-  0.1.1) instead of inside the agent-skills library (<<TS-4.2>>).
+  0.2.1) instead of inside the agent-skills library (<<TS-4.2>>).
