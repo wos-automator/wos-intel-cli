@@ -15,10 +15,9 @@ ending.
 . If the popup of a hunt or boss target does not open after "View" and the counter shows all
   queues busy, the target is not tapped again (no retry of <<FR-3.4>>). The target is deferred,
   the run returns to the Intel screen, and no failure is counted.
-. If only deferred targets are left, the run does not end. It waits on the Intel screen for
-  10 s (configurable) and then tries the first deferred target again; its world map shows the
-  counter once more.
-. While it waits, the run looks at the Intel screen every 10 s. As soon as "Claim All"
+. If only deferred targets are left, the run does not end. It waits briefly on the Intel screen
+  and then tries the first deferred target again; its world map shows the counter once more.
+. While it waits, the run keeps looking at the Intel screen. As soon as "Claim All"
   appears the wait ends: the rewards are claimed (<<FR-3.2>>) and the deferred target is tried
   again at once, because a claimed hunt is a march that has returned. In the hold phase before
   the Flame and Fangs event nothing is claimed and "Claim All" does not end the wait

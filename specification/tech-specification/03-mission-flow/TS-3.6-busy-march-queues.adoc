@@ -26,10 +26,10 @@ Runner state:
   deferred hunts count as regular missions left.
 * `_await_queue(symbols) -> Outcome | None`:
 ** dry run: log `would wait for a free march queue`, return `DRY_RUN`;
-** `clock() - _busy_since >= timing.queue_timeout` (900 s): log a warning, return
+** `clock() - _busy_since >= timing.queue_timeout`: log a warning, return
    `_settle(QUEUES_BUSY, symbols)` (<<TS-3.1>>);
-** otherwise log the wait and wait up to `timing.queue_poll` (10 s) in steps of
-   `timing.completion_poll` (10 s), with a screenshot after each step; `INTEL_CLAIMABLE`
+** otherwise log the wait and wait up to `timing.queue_poll` in steps of
+   `timing.completion_poll`, with a screenshot after each step; `INTEL_CLAIMABLE`
    outside the hold phase (<<TS-5.2>>) ends the wait early (log `rewards to claim while
    waiting for a march queue`). Then clear `_queues_busy` and return `None`: the next
    iteration claims the rewards first and then picks the first deferred target. The next iteration picks the first deferred target; the world map after its "View"
