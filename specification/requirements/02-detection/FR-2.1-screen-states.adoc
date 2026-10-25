@@ -3,36 +3,34 @@
 
 Every screenshot is classified as exactly one state.
 
-[cols="1,3,2"]
+[cols="1,3"]
 |===
-|State |Feature |Reference
+|State |What the screen shows
 
-|`INTEL` |title "Intel" top left |`ref/intel-x.png`, `ref/intel-xx.png`, `ref/flame-and-fangs-announced.png`, `ref/flame-and-fangs-missions.png`
-|`INTEL_CLAIMABLE` |as `INTEL` plus the green "Claim All" button |`ref/intel-xxx.png`
-|`REWARDS` |banner "Rewards" |`ref/intel-xxxx.png`
-|`MISSION_DIALOG` |blue "View" button |`ref/combat-1-dialog.png`, `ref/hunt-1-dialog.png`, `ref/boss-1-dialog.png`
-|`WORLD_TARGET` |popup with an Explore, Attack or Rescue button |`ref/combat-2-world-explore.png`, `ref/hunt-2-world-attack.png`
-|`DEPLOY` |"Deploy" button bottom right |`ref/hunt-3-deploy.png`
-|`SQUAD` |green "Fight" button |`ref/combat-3-squad-fight.png`
-|`VICTORY` |"Victory!" and "Tap anywhere to exit" |`ref/combat-4-victory.png`
-|`DEFEAT` |"Tap anywhere to exit" without "Victory!" |none yet
-|`WORLD` |round Intel button on the right, no popup |visible in `ref/combat-2-world-explore.png`; without popup `ref/hunt-2-world-queues-busy.png`
-|`NO_STAMINA`, `NO_TROOPS` |blocking dialogs |none yet
-|`HINT` |hint bubble "You have enabled Simple Battle Mode …" over any screen |`ref/world-simple-battle-mode.png`
-|`QUIT_CONFIRMATION` |dialog "Quit game?" with "Cancel" and "Confirm" |`ref/dialog-quit-game.png`
-|`SESSION_LOST` |dialog "The account has been logged in on another device." with "Reconnect" |`ref/dialog-logged-in-elsewhere.png`
-|`UNKNOWN` |none of the above |–
+|`INTEL` |title "Intel" top left
+|`INTEL_CLAIMABLE` |as `INTEL` plus the green "Claim All" button
+|`REWARDS` |banner "Rewards"
+|`MISSION_DIALOG` |blue "View" button
+|`WORLD_TARGET` |popup with an Explore, Attack or Rescue button
+|`DEPLOY` |"Deploy" button bottom right
+|`SQUAD` |green "Fight" button
+|`VICTORY` |"Victory!" and "Tap anywhere to exit"
+|`DEFEAT` |"Tap anywhere to exit" without "Victory!"
+|`WORLD` |round Intel button on the right, no popup
+|`NO_STAMINA`, `NO_TROOPS` |blocking dialogs
+|`HINT` |hint bubble "You have enabled Simple Battle Mode …" over any screen
+|`QUIT_CONFIRMATION` |dialog "Quit game?" with "Cancel" and "Confirm"
+|`SESSION_LOST` |dialog "The account has been logged in on another device." with "Reconnect"
+|`UNKNOWN` |none of the above
 |===
 
 .Acceptance criteria
-. Each of the twenty-four reference screenshots yields the state listed for it.
-. Button and title templates are matched in colour with `TM_CCOEFF_NORMED` and threshold 0.9;
-  the Intel button with 0.85, with and without the red badge.
-. `DEPLOY` is recognised by the Deploy button, never by the title alone.
+. Each reference screenshot in `ref/` is classified as the state of the screen it shows.
+. The world map is recognised whether or not its Intel button carries the red badge.
+. A hint bubble is recognised as `HINT` whatever screen lies beneath it (<<US-5.1>>,
+  BUG-0002).
 . For every state with a tap target the position of that target is reported.
-. A hint bubble is recognised before every other state, because it can lie over any of them
-  (<<US-5.1>>, BUG-0002).
-. A screen that matches nothing is `UNKNOWN`.
+. A screen that shows none of the states is `UNKNOWN`.
 
 Stakeholder need:: SPEC.md §2, §8 (Templates, cross-check) +
 Effort:: 6 h

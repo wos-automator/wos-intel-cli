@@ -4,8 +4,8 @@
 Implements <<FR-2.1>>.
 
 `Detector.find(image, name, region=None, threshold=None)` matches one colour template with
-`cv2.matchTemplate(..., TM_CCOEFF_NORMED)` inside the region configured for it and returns a
-`Match` or `None`. `detect_state(image)` checks in this order and returns the first hit:
+`cv2.matchTemplate(..., TM_CCOEFF_NORMED)` inside the region configured for it
+(`regions.<name>`) and returns a `Match` if the score reaches `buttons.threshold`, else `None`. `detect_state(image)` checks in this order and returns the first hit:
 
 [cols="1,2,2"]
 |===
@@ -24,7 +24,8 @@ Implements <<FR-2.1>>.
 |`WORLD_TARGET` |action button (<<TS-2.4>>) |`action`
 |`INTEL_CLAIMABLE` |`title_intel` and `btn_claim_all` |`btn_claim_all`
 |`INTEL` |`title_intel` |–
-|`WORLD` |`intel_button` or `intel_button_badge`, threshold 0.85 |`intel_button`
+|`WORLD` |`intel_button` or `intel_button_badge` (with the red badge), each against
+`buttons.intel_button_threshold` |`intel_button`
 |`UNKNOWN` |otherwise |–
 |===
 
@@ -35,4 +36,8 @@ victory screen) does not match the rewards screen. `text_simple_battle_mode` (fi
 hint bubble) is cut from `ref/world-simple-battle-mode.png` the same way, `text_quit_game` and
 `btn_cancel` from `ref/dialog-quit-game.png`, `text_logged_in_elsewhere` and `btn_reconnect`
 from `ref/dialog-logged-in-elsewhere.png`. `title_deploy` and `title_squad_settings`
-are not used (0.77 against each other's screen).
+are not used (0.77 against each other's screen), so `DEPLOY` and `SQUAD` are recognised by
+their buttons only. `HINT` is checked first because its bubble can lie over any other screen.
+
+Verified by `tests/test_detect.py` (`test_states`, `test_tap_targets`, also on the synthetic
+screens `world`, `rescue-popup` and `defeat`) and by the acceptance scenarios of <<FR-2.1>>.

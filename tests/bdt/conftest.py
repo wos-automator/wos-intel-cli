@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -49,9 +49,22 @@ class Session:
         return self.result
 
 
+@dataclass
+class Detections:
+    """``detect`` runs once per reference screenshot and test session; scenarios share it."""
+
+    folder: Path
+    results: dict[str, subprocess.CompletedProcess[str]] = field(default_factory=dict)
+
+
 @pytest.fixture
 def session() -> Session:
     return Session()
+
+
+@pytest.fixture(scope="session")
+def detections(tmp_path_factory: pytest.TempPathFactory) -> Detections:
+    return Detections(tmp_path_factory.mktemp("detect"))
 
 
 @given(parsers.parse('a copy of the reference screenshot "{name}"'))
@@ -66,6 +79,16 @@ def run_on_screenshot(session: Session, command: str) -> None:
     session.run(command, str(session.screenshot))
 
 
+@when(parsers.parse('the detection runs on the reference screenshot "{name}"'))
+def detect_reference(session: Session, detections: Detections, name: str) -> None:
+    if name not in detections.results:
+        copy = detections.folder / name
+        shutil.copy(REF_DIR / name, copy)
+        session.run("detect", str(copy))
+        detections.results[name] = session.done
+    session.result = detections.results[name]
+
+
 @when(parsers.re(r'I run wos-intel with the arguments "(?P<arguments>[^"]*)"'))
 def run_with_arguments(session: Session, arguments: str) -> None:
     session.run(*arguments.split())
@@ -74,6 +97,11 @@ def run_with_arguments(session: Session, arguments: str) -> None:
 @then(parsers.parse("the exit code is {code:d}"))
 def exit_code(session: Session, code: int) -> None:
     assert session.done.returncode == code, session.done.stderr
+
+
+@then(parsers.parse('the screen state is "{state}"'))
+def screen_state(session: Session, state: str) -> None:
+    assert f" state {state}\n" in session.done.stdout, session.done.stdout
 
 
 @then("every log line starts with a timestamp")
