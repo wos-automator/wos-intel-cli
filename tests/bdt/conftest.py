@@ -147,6 +147,17 @@ def symbol_order(session: Session) -> None:
     assert keys == sorted(keys), session.done.stdout
 
 
+@then(parsers.parse("the stamina reads {stamina:d}"))
+def stamina_reads(session: Session, stamina: int) -> None:
+    assert f" stamina {stamina}\n" in session.done.stdout, session.done.stdout
+
+
+@then(parsers.parse("the refresh timer reads {hours:d}:{minutes:d}:{seconds:d}"))
+def timer_reads(session: Session, hours: int, minutes: int, seconds: int) -> None:
+    total = (hours * 60 + minutes) * 60 + seconds
+    assert f" refresh in {total} s\n" in session.done.stdout, session.done.stdout
+
+
 @then("every log line starts with a timestamp")
 def timestamped(session: Session) -> None:
     lines = session.done.stdout.splitlines()

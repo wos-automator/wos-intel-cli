@@ -1,16 +1,14 @@
 [[FR-2.5]]
 === FR-2.5 Stamina and refresh timer
 
-Stamina (top right) and the remaining time of "Refreshes In" are read without an OCR engine.
+The stamina (top right) and the remaining time of "Refreshes In" are read from the Intel screen.
 
 .Acceptance criteria
-. Digits are recognised by matching single glyphs against digit templates; the comma is a
-  thousands separator and is ignored.
-. `ref/intel-x.png` reads 2047, `intel-xx.png` and `intel-xxx.png` read 2035.
-. The refresh timer of the three Intel screenshots reads 06:59:27, 06:59:10 and 06:59:05.
-. `intel-boss-running.png` reads stamina 1975 and timer 02:46:03; digits that touch each other
-  (the bold "46") are separated before they are classified.
-. If a glyph cannot be classified the result is "unreadable", never a guessed number.
+. The stamina is read as a whole number; the thousands separator is not a digit.
+. The refresh timer is read as hours, minutes and seconds.
+. Digits that touch each other on the screen are read as separate digits.
+. On the reference Intel screens stamina and timer read the values the screens show.
+. If a digit cannot be recognised the result is "unreadable", never a guessed number.
 
 Stakeholder need:: SPEC.md §4, §5 (BOSS, refresh cycle) +
 Effort:: 5 h
