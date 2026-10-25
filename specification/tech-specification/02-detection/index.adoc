@@ -4,7 +4,8 @@
 [source,python]
 ----
 class State(StrEnum):       INTEL, INTEL_CLAIMABLE, REWARDS, MISSION_DIALOG, WORLD_TARGET, DEPLOY,
-                            SQUAD, VICTORY, DEFEAT, WORLD, NO_STAMINA, NO_TROOPS, UNKNOWN
+                            SQUAD, VICTORY, DEFEAT, WORLD, NO_STAMINA, NO_TROOPS, HINT,
+                            QUIT_CONFIRMATION, SESSION_LOST, UNKNOWN
 class MissionType(StrEnum): HUNT, RESCUE, COMBAT, BOSS
 class Tier(IntEnum):        BLUE = 1, PURPLE = 2, GOLD = 3
 class Status(StrEnum):      AVAILABLE, RUNNING, DONE
