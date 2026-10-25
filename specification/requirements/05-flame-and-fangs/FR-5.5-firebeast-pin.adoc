@@ -6,9 +6,9 @@ hunt and runs in the hunt flow (SPEC.md §3.7).
 
 .Acceptance criteria
 . On `ref/flame-and-fangs-missions.png` the firebeast pin is found as a `HUNT` of tier `GOLD`
-  at 430,279 (±6 px), next to the other symbols of that screenshot.
+  at its position (±6 px), next to the other symbols of that screenshot.
 . Its status follows <<FR-2.3>> like every other pin.
-. Its mask scores below the threshold of 0.75 on every other reference screenshot.
+. The firebeast adds no symbol on any other reference screenshot.
 
 Stakeholder need:: SPEC.md §3.7 +
 Effort:: 1 h

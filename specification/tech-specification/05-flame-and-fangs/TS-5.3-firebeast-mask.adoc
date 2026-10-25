@@ -9,7 +9,10 @@ Implements <<FR-5.5>>.
 * `tools/cut_templates.py` cuts `firebeast_mask` as the white mask (`symbols.white_lo` –
   `white_hi`) of `ref/flame-and-fangs-missions.png` (406, 255, 454, 303), 48 × 48 px centred on
   the disc, like the other symbol masks. It scores 1.0 at 430,279 and at most 0.61 on every
-  other reference (both passes); the other masks find nothing there.
+  other reference (both passes), below `symbols.match_threshold`; the other masks find nothing
+  there. Checked by `test_firebeast_is_a_gold_hunt_worked_on_first` in `tests/test_detect.py`
+  and by the acceptance scenario of <<FR-5.5>>; that it adds nothing elsewhere, by the exact
+  symbol counts of the acceptance scenarios of <<FR-2.2>>.
 * `templates/flame-and-fangs-firebeast-mission.png` delivered with SPEC.md §3.7 is a colour
   picture of the whole pin at another scale; it stays as the stakeholder's source and is not
   used for matching.
