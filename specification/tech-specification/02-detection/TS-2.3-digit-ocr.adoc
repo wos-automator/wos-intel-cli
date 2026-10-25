@@ -19,12 +19,17 @@ Implements <<FR-2.5>> and <<FR-2.7>>.
   and seconds above 59 give `None`. The letters of "Refreshes In" left of them are ignored.
   Stamina and timer are checked by `tests/test_detect.py` and by the acceptance scenarios of
   <<FR-2.5>>.
-* `read_marches(image) -> tuple[int, int] | None`: the glyphs of `ocr.march_region`
-  (185, 195, 250, 232), the "N/M" right of the word "Marching". Exactly one glyph scores below
+* `read_marches(image) -> tuple[int, int] | None`: the glyphs of `ocr.march_region`,
+  the "N/M" right of the word "Marching". Exactly one glyph scores below
   `glyph_threshold` against every digit template: the "/" (best score 0.43, the digits ≥ 0.85
   on the references). The glyphs left of it are N, the ones right of it M; both must be
   non-empty and every digit must reach `glyph_threshold`, otherwise `None`. A collapsed panel
-  leaves no glyph in the region and gives `None`.
+  leaves no glyph in the region and gives `None`. Checked by `tests/test_detect.py`:
+  `test_march_counter` (`hunt-2-world-queues-busy` 6/6, `hunt-2-world-no-popup` 5/6,
+  `world-target-vanished` 3/6, `hunt-2-world-attack` 1/6) and
+  `test_march_counter_is_none_without_the_panel` (`boss-2-world-no-popup` with the collapsed
+  panel, `intel-x`, `hunt-3-deploy`). The `detect` command does not report the counter yet, so
+  it has no acceptance scenario.
 
 `tools/cut_templates.py` generates the digit templates from `ref/`: stamina (0, 2, 3, 4, 5, 7),
 refresh timer (0, 1, 2, 5, 6, 7, 9) and the troop and power numbers of the Deploy screen

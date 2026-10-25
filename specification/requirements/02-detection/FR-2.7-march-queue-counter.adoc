@@ -2,15 +2,14 @@
 === FR-2.7 March queue counter
 
 The counter "Marching N/M" top left on the world map tells how many march queues are busy (N)
-out of how many there are (M). It is read without an OCR engine, with the digits of <<FR-2.5>>.
+out of how many there are (M).
 
 .Acceptance criteria
 . The counter is read on the world map with and without the popup of a target.
-. `ref/hunt-2-world-queues-busy.png` reads 6/6, `ref/hunt-2-world-no-popup.png` 5/6,
-  `ref/world-target-vanished.png` 3/6 and `ref/hunt-2-world-attack.png` 1/6.
-. The "/" between the numbers is recognised as the separator, never as a digit.
-. With the marching panel collapsed to the left edge (`ref/boss-2-world-no-popup.png`) and on
-  the Intel screen the counter is "unreadable", never a guessed number.
+. N and M are read as separate numbers; the "/" between them is never taken for a digit.
+. With the marching panel collapsed to the left edge, and on screens without the counter, the
+  result is "unreadable", never a guessed number.
+. On the reference screenshots of the world map the counter reads what the screens show.
 
 Stakeholder need:: SPEC.md §5 (Busy march queues) +
 Effort:: 2 h
