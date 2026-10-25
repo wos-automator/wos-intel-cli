@@ -18,7 +18,7 @@ Both values are seconds from the same moment: the countdown is converted once in
 `event_start = now() + countdown` (logged), and each expiry into `now() + expires_in` when its
 dialog is read, so `classify` gets `expiry - now()` and `event_start - now()`.
 
-Configuration `[event]`: `tolerance_minutes = 10`, `expert_hours = 2.0`; regions in `[ocr]` and
+Configuration `[event]`: `tolerance_minutes`, `expert_hours`; regions in `[ocr]` and
 `[regions]` as in <<TS-5.1>>.
 
 State (`state.json`, <<TS-3.4>>), written atomically like the boss lock:
@@ -51,3 +51,17 @@ New outcomes, both regular (`ok`): `REWARDS_HELD = "rewards held for the event"`
 
 Without the event icon none of this applies; `state.json` keeps a stale `hold_until`, which
 is ignored once it is in the past.
+
+Checked by `tests/test_event.py` (`test_classify_at_the_borders_of_the_tolerance`,
+`test_the_13_00_example_of_the_spec`), `tests/test_config_state.py`
+(`test_event_hold_round_trip_keeps_the_boss_lock`, `test_unusable_event_hold_means_not_holding`)
+and `tests/test_flow.py` against the fake game (<<ADR-3>>):
+`test_claim_missions_are_claimed_before_the_held_ones_are_started`,
+`test_missions_expiring_after_the_event_are_never_started`,
+`test_a_later_run_before_the_event_claims_nothing`,
+`test_held_missions_wait_while_claim_missions_are_unclaimed`,
+`test_boss_is_attacked_before_the_event_without_an_expiry`,
+`test_mission_with_an_unreadable_expiry_is_skipped`,
+`test_expert_is_held_back_until_shortly_before_the_event`,
+`test_expert_is_used_within_two_hours_of_the_event`,
+`test_unreadable_event_countdown_ends_the_run_untouched`, `test_dry_run_logs_the_event_start`.

@@ -23,9 +23,9 @@ its expiry (<<FR-5.2>>) with the event start (<<FR-5.1>>), with a tolerance of 1
 . In the hold phase only hold missions are started, "Claim All" is never tapped and running
   missions are not waited for. When nothing is left, the run ends regularly with "rewards held
   for the event".
-. The hold phase is stored in `state.json` with the event start, before the first hold mission
-  is started. A later run before the event start begins in the hold phase; after the event
-  start the entry is ignored.
+. The hold phase is remembered across runs, with the event start, before the first hold
+  mission is started. A later run before the event start begins in the hold phase; after the
+  event start it no longer applies.
 . A mission of another group than the current phase is closed with BACK, without tapping
   "View", and costs no failure. Its group is remembered: a hold mission is opened again in the
   hold phase, an ignore mission not at all in this run. A claim mission met in the hold phase
