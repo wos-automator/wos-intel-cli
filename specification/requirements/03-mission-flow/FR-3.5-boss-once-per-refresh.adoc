@@ -5,7 +5,7 @@
 . After a boss attack the boss is locked until the end of the refresh cycle: time of the
   attack plus the remaining time of "Refreshes In" read before the attack.
 . If the timer is unreadable the lock lasts a configurable time (default 8 h).
-. The lock is stored in `state.json` and survives a restart.
+. The lock survives a restart of the program.
 . A locked boss is not a candidate; an expired lock has no effect.
 . The boss is locked only once it has been deployed: a boss whose popup does not open is
   tapped again like any other target (<<FR-3.4>>) and stays unlocked if that fails too
