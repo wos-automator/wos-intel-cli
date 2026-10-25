@@ -15,7 +15,7 @@ Each project exposes these tasks through its task runner. Spelling may follow th
 | Task | Required | Does |
 |---|---|---|
 | `check` | yes | the quality gate: everything below that the project has, in one command; fails on any error or warning |
-| `test` | yes | the full test suite |
+| `test` | yes | the full test suite; records the execution time of every test in a report the profile names (see [spec-system](../spec-system/SKILL.md), Test Pyramid) |
 | `lint` | yes | static analysis |
 | `format-check` | if a formatter is used | formatting verification without changing files |
 | `typecheck` | if the language has a separate type check | type check or compilation |

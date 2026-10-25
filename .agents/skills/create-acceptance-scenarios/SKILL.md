@@ -8,6 +8,12 @@ description: >-
 
 Turn the acceptance criteria of a requirement into acceptance scenarios that run as blackbox tests. Only in a project whose `AGENTS.md` names requirements-based blackbox testing; layout, IDs and traces are defined in [spec-system](../spec-system/SKILL.md), section BDT.
 
+## Reads
+
+- The requirement item and the reference material its criteria name
+- The feature file of its chapter and the existing step texts
+- Not the technical specification: scenarios check the requirement from outside
+
 ## Files Modified
 
 - `specification/acceptance/<NN-chapter>/<slug>.feature` (new or extended)

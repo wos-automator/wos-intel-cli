@@ -8,6 +8,12 @@ description: >-
 
 Create implementable, atomic user stories with structured test pyramid criteria in modular item files. Layout, anchors, SMART criteria and test pyramid levels are defined in [spec-system](../spec-system/SKILL.md).
 
+## Reads
+
+- The technical specification items to cut into stories and the requirements they implement
+- The acceptance scenarios of those requirements (BDT): IDs and titles
+- The test limits in `AGENTS.md` and the test tooling of the component's toolchain profile
+
 ## Files Modified
 
 - `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc` (one new file per story)

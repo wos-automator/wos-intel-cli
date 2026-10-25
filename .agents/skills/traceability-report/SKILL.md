@@ -8,6 +8,11 @@ description: >-
 
 Create the two generated reports locally and act on them. The release pipeline creates the same reports for every release, pull requests attach them as an artifact. Rules in [spec-system](../spec-system/SKILL.md), section BDT.
 
+## Reads
+
+- The results of the last `bdt` run and the two generated reports
+- For each finding, only the requirement or scenario it names
+
 ## Files Modified
 
 - `test-report.adoc`, `traceability-report.adoc` in the project root (generated, ignored by git)

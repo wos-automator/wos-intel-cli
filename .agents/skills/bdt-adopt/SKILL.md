@@ -8,6 +8,12 @@ description: >-
 
 Run once per project, after the user decided that its blackbox level is requirements-based. The rules are in [spec-system](../spec-system/SKILL.md), section BDT; this skill sets the project up for them.
 
+## Reads
+
+- `AGENTS.md`, the BDT section and the Pull Request and Release Build steps of the component's toolchain profile
+- The existing workflows and task definitions of the component
+- One requirement for the first scenarios
+
 ## Files Modified
 
 - `AGENTS.md` (Testing, the BDT skills)

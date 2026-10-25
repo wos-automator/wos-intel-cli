@@ -8,6 +8,11 @@ description: >-
 
 Reproduce, diagnose, and resolve defects with automated regression coverage.
 
+## Reads
+
+- The defect report and the requirement it violates
+- The technical specification of the affected part and its code and tests
+
 ## Files Modified
 
 - Source code files causing the defect

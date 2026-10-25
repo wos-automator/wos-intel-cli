@@ -13,13 +13,14 @@
   "lint": "eslint . --max-warnings 0",
   "format-check": "prettier --check src",
   "typecheck": "tsc --noEmit",
-  "test": "vitest run --coverage",
+  "test": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=build/test/junit.xml",
   "validate-specs": ".agents/skills/spec-system/bin/validate-specs",
   "check": "npm run lint && npm run format-check && npm run typecheck && npm run test && npm run validate-specs"
 }
 ```
 
 - `test` runs once and always measures coverage; keep the watch mode under another name (e.g. `test:watch`). There is no separate coverage script or pipeline step.
+- Test durations: the JUnit reporter writes the time of every test to `build/test/junit.xml`, next to the console output; `build/` belongs in `.gitignore` and the ESLint ignores.
 - `coverage.thresholds` in the Vitest configuration make coverage part of the gate: set them to today's values, rounded down, raise them when coverage grows and never lower them to make a change pass. ESLint ignores the `coverage/` output.
 - `--max-warnings 0` makes lint warnings fail the gate, as the [definition-of-done](../../definition-of-done/SKILL.md) demands.
 - A component below the project root calls the launcher with a relative path and passes the root: `../.agents/skills/spec-system/bin/validate-specs ..`.

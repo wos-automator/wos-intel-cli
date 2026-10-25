@@ -8,6 +8,12 @@ description: >-
 
 Implement a backlog user story adhering to strict TDD and Definition of Done.
 
+## Reads
+
+- The story item and the technical specification items it traces to
+- The concepts and decisions those name (architecture overview), not the whole overview
+- The code of the building block and its tests
+
 ## Files Modified
 
 - Source code files of the affected components
@@ -16,7 +22,7 @@ Implement a backlog user story adhering to strict TDD and Definition of Done.
 
 ## Execution Steps
 
-1. **Context Gathering**: Read the story's item file `specification/backlog/<NN-chapter>/<US-ID>-<slug>.adoc` and the referenced tech spec item files `specification/tech-specification/<NN-chapter>/<TS-ID>-<slug>.adoc` (saving tokens by loading only the relevant items).
+1. **Context Gathering**: Read the story's item file `specification/backlog/<NN-chapter>/<US-ID>-<slug>.adoc` and the referenced tech spec item files `specification/tech-specification/<NN-chapter>/<TS-ID>-<slug>.adoc` (saving tokens by loading only the relevant items). A story that needs a design the technical specification does not hold goes back to [create-tech-specification](../create-tech-specification/SKILL.md) first; settings get their value in the configuration, not in the specification.
 2. **Baseline Check**: Run the `check` task (see [toolchain](../toolchain/SKILL.md)) to ensure a green starting state.
 3. **TDD Approach**: Write failing unit/component/integration tests matching the story's Test Criteria before writing implementation code.
 4. **Implementation**: Write the minimal code necessary to pass all tests.

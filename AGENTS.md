@@ -21,6 +21,8 @@ wos-intel automates the Intel missions in Whiteout Survival via ADB. This file h
 | Specification layout and rules | [spec-system](.agents/skills/spec-system/SKILL.md) |
 | Acceptance scenarios for a requirement | [create-acceptance-scenarios](.agents/skills/create-acceptance-scenarios/SKILL.md), [update-acceptance-scenarios](.agents/skills/update-acceptance-scenarios/SKILL.md) |
 | Test and traceability reports | [traceability-report](.agents/skills/traceability-report/SKILL.md) |
+| Architecture check before a technical specification | [update-architecture](.agents/skills/update-architecture/SKILL.md) |
+| Architecture decision | [create-architecture-decision](.agents/skills/create-architecture-decision/SKILL.md) |
 
 ## Precedence
 
@@ -52,6 +54,10 @@ Testing: requirements-based blackbox tests (BDT). Acceptance scenarios in `speci
 
 - Component tests replace the game with a scripted fake device.
 - Blackbox tests are the acceptance scenarios: the CLI as a separate process on reference screenshots, without a device (`tests/bdt/`). Runs against the real device are manual.
+
+### Architecture
+
+Architecture: architecture overview (`architecture-web.adoc`). New and changed requirements pass the architecture check before their technical specification is written.
 
 ### Commit Scopes
 

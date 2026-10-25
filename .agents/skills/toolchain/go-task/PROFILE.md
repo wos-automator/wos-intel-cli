@@ -13,10 +13,12 @@ tasks:
   lint:           { cmds: [golangci-lint run] }
   format-check:   { cmds: ["test -z \"$(gofmt -l .)\""] }
   typecheck:      { cmds: [go build ./...] }
-  test:           { cmds: [go test ./... -race -cover, go test -tags=integration ./...] }
+  test:           { cmds: [mkdir -p build/test, "go run gotest.tools/gotestsum@v1.13.0 --junitfile build/test/junit.xml -- ./... -race -cover", "go run gotest.tools/gotestsum@v1.13.0 --junitfile build/test/junit-integration.xml -- -tags=integration ./..."] }
   validate-specs: { cmds: [.agents/skills/spec-system/bin/validate-specs] }
   check:          { cmds: [task: typecheck, task: lint, task: format-check, task: test, task: validate-specs] }
 ```
+
+- Test durations: `gotestsum` runs `go test` and writes the time of every test to `build/test/junit*.xml`; it is run with `go run` at a pinned version, not added to `go.mod`. `build/` belongs in `.gitignore`.
 
 ## Test Pyramid Tooling
 

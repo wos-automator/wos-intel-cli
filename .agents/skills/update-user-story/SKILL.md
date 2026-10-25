@@ -8,6 +8,10 @@ description: >-
 
 Modify an existing user story, technical tasks, and associated test pyramid criteria in its item file, following [spec-system](../spec-system/SKILL.md).
 
+## Reads
+
+- The story item and the technical specification items it traces to
+
 ## Files Modified
 
 - `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc`

@@ -8,6 +8,11 @@ description: >-
 
 Keep the acceptance scenarios in line with changed requirements. Only in a project whose `AGENTS.md` names requirements-based blackbox testing; rules in [spec-system](../spec-system/SKILL.md), section BDT.
 
+## Reads
+
+- The changed requirement items
+- The scenarios that trace to them and the existing step texts
+
 ## Files Modified
 
 - `specification/acceptance/<NN-chapter>/<slug>.feature`
