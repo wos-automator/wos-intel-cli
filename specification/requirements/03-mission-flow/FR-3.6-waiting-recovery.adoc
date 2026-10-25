@@ -2,21 +2,23 @@
 === FR-3.6 Waiting and recovery
 
 .Acceptance criteria
-. After every tap the program waits 1.0 s (configurable), then takes a fresh screenshot and
-  determines the state.
-. Waiting for an expected state lasts at most 8 s (configurable) with a screenshot every 0.7 s.
+. After every tap the program waits briefly, then takes a fresh screenshot and determines the
+  state; taps are never chained without looking.
+. A step waits for its expected state for a limited time, taking fresh screenshots meanwhile;
+  then it has failed.
 . A hint bubble (`HINT`) is dismissed by a tap on its detected text before the state is
-  evaluated, at most 3 times in a row; the running step continues and BACK is never pressed on
-  it (<<US-5.1>>).
-. After a timeout BACK is pressed up to 3 times, re-detecting before each press; BACK is never
-  pressed on `INTEL` or `WORLD`. `REWARDS`, `VICTORY` and `DEFEAT` are left by their exit tap.
+  evaluated, a limited number of times in a row; the running step continues and BACK is never
+  pressed on it (<<US-5.1>>).
+. After a failed step the run recovers with a limited number of BACK presses, re-detecting
+  before each one; BACK is never pressed on `INTEL` or `WORLD`. `REWARDS`, `VICTORY` and
+  `DEFEAT` are left by their exit tap.
 . If a BACK opens the "Quit game?" confirmation, "Cancel" is tapped and the recovery ends:
   nothing was open any more, so no further BACK is pressed (<<US-5.2>>).
 . If the account has been logged in on another device (`SESSION_LOST`), the run waits 60 s
-  (configurable) so that the player can look something up, then taps "Reconnect" and waits up
-  to 120 s (configurable) for `INTEL` or `WORLD`. The interrupted step is abandoned without
-  counting as a failure and the run starts over with the next iteration (<<US-5.4>>).
-. After 3 failed steps in a row the run ends with exit code 1.
+  (configurable) so that the player can look something up, then taps "Reconnect" and waits for
+  `INTEL` or `WORLD`. The interrupted step is abandoned without counting as a failure and the
+  run starts over with the next iteration (<<US-5.4>>).
+. After 3 failed steps in a row (configurable) the run ends with exit code 1.
 . The screenshot on which a mission was skipped or a step failed is saved under `debug/`.
 
 Stakeholder need:: SPEC.md §2 (state detection), §5 (expect X) +
