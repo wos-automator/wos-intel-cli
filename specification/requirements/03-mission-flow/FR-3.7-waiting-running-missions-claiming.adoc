@@ -5,8 +5,8 @@ The run does not end while missions are running; the player does not have to cla
 
 .Acceptance criteria
 . When nothing is left to start, and a symbol is shown as `RUNNING` or a mission was started in
-  this run since the last claim, the program stays on the Intel screen and takes a screenshot
-  every 10 s (configurable).
+  this run since the last claim, the program stays on the Intel screen and keeps looking at
+  it.
 . As soon as "Claim All" appears the rewards are claimed (<<FR-3.2>>) and the Intel screen is
   evaluated again, so further running missions are waited for as well.
 . The wait lasts at most 5 min (configurable); then the run ends regularly and the log says

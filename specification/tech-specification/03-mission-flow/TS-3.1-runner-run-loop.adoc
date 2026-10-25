@@ -60,7 +60,7 @@ while the queues are busy (<<TS-3.6>>).
 Settling (<<FR-3.7>>): every regular end (`NOTHING_TO_DO`, `OUT_OF_STAMINA`, `MISSION_LIMIT`)
 goes through `Runner._settle(final, symbols)`. It returns `final` at once if no symbol is
 `RUNNING` and `_unclaimed` (missions started since the last claim) is 0. Otherwise it polls
-every `timing.completion_poll` (10 s) for up to `timing.completion_timeout` (300 s):
+every `timing.completion_poll` for up to `timing.completion_timeout`:
 `INTEL_CLAIMABLE` → `_claim` (resets `_unclaimed` and `_unclaimed_regular`) and `None`, so the
 loop evaluates the Intel screen again; any state other than `INTEL` → `StepFailed`. On `INTEL`
 the symbols are detected again:
