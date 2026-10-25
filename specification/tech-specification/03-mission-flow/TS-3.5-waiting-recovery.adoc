@@ -5,7 +5,7 @@ Implements <<FR-3.6>>.
 
 * `_tap` / `_back`: log, send, `sleep(timing.tap_delay)`.
 * `_observe`: `_look` (fresh screenshot → `detect_state`; logs the state; writes
-  `debug/<step>-<STATE>.png` when debugging). While the state is `HINT` – at most `max_back`
+  `debug/<step>-<STATE>.png` when debugging). While the state is `HINT` – at most `limits.max_back`
   times, never in a dry run – the `hint` match is tapped and `_look` repeated, so every caller
   sees the screen below the hint (<<US-5.1>>). On `SESSION_LOST` it calls `_reconnect`.
 * `_reconnect`: `sleep(timing.reconnect_delay)`; a fresh screenshot that still shows
@@ -27,4 +27,9 @@ Implements <<FR-3.6>>.
 Failed steps in a row are counted in `Runner.run`; `limits.max_failures` of them end the run
 with `TOO_MANY_FAILURES` (<<TS-3.2>>).
 
-`sleep`, `clock` and `now` are injected, so the tests run without real waiting.
+`sleep`, `clock` and `now` are injected, so the tests run without real waiting. Checked by
+`tests/test_flow.py` against the fake game (<<ADR-3>>): `test_expect_polls_until_the_timeout`,
+`test_simple_battle_mode_hint_*`, `test_unknown_screen_is_left_with_back`,
+`test_quit_confirmation_after_back_is_cancelled`, `test_session_is_reclaimed_*`,
+`test_login_elsewhere_during_a_mission_costs_no_failure`,
+`test_run_ends_after_three_consecutive_failures`, `test_screenshot_of_a_skipped_mission_is_kept`.

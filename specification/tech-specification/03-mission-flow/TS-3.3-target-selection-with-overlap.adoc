@@ -12,3 +12,7 @@ Implements <<FR-3.3>>.
   (repeated). If the occluder is not a candidate, the tap point is
   `centre + edge_tap_radius × unit(centre − occluder)`, i.e. on the disc edge opposite to it.
   The keys are those of `[symbols]` and `[costs]` in `config.toml`.
+
+Checked by `tests/test_flow.py`: `test_choose_target_*`,
+`test_symbols_further_apart_than_the_overlap_distance_do_not_occlude`,
+`test_boss_ring_offset_counts_for_the_depth_order`, `test_mission_costs`.

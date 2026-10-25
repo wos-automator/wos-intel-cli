@@ -58,3 +58,15 @@ longer than any other step.
 
 `ACTION_FOR` maps COMBAT → EXPLORE, HUNT/BOSS → ATTACK, RESCUE → RESCUE. The target is added
 to the attempted list before the first tap, so no symbol is tapped twice in a run.
+
+Checked by `tests/test_flow.py` against the fake game (<<ADR-3>>):
+`test_full_run_starts_every_plausible_mission`,
+`test_mismatching_dialog_is_closed_with_back_and_not_retried`,
+`test_missions_under_a_notification_banner_are_started_before_the_boss`,
+`test_boss_is_not_attacked_before_a_mission_delayed_by_a_banner`,
+`test_dialog_that_stays_unreadable_is_closed_after_the_timeout`,
+`test_popup_with_unexpected_action_is_rejected`,
+`test_target_whose_popup_did_not_open_is_tapped_again`, `test_pin_of_another_type_is_not_tapped`,
+`test_vanished_target_is_skipped_without_a_failure`, `test_hunt_without_prevail_hint_is_not_deployed`,
+`test_lost_fight_is_dismissed_and_the_run_continues`, `test_rescue_starts_without_deploy`,
+`test_boss_is_deployed_even_when_not_likely_to_prevail`.

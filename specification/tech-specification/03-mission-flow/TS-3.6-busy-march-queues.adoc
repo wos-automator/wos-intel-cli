@@ -44,5 +44,10 @@ Runner state:
   unlocked.
 * `Outcome.QUEUES_BUSY = "all march queues busy"` is a regular (`ok`) outcome.
 
+Checked by `tests/test_flow.py`: `test_hunt_without_popup_on_busy_queues_is_deferred_not_failed`,
+`test_busy_queues_after_a_deploy_defer_the_next_hunt`,
+`test_deferred_hunt_is_tried_every_10_s_and_deployed_once_a_queue_is_free`,
+`test_rewards_are_claimed_while_waiting_for_a_march_queue`, `test_deferred_boss_is_not_locked`.
+
 Reference: `ref/hunt-2-world-queues-busy.png` is `failure-0014-WORLD.png` of the device run
 of 2026-10-17: the map is centred on the hunt target, no popup, "Marching 6/6".

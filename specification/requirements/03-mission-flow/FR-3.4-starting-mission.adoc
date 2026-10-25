@@ -6,8 +6,8 @@
   (<<FR-2.6>>); otherwise BACK and the symbol is skipped for this run.
 . If the type cannot be recognised – a notification banner such as "Troops have returned to the
   city." covers the pin for a few seconds – the dialog is checked again on fresh screenshots
-  for as long as a step may take (<<FR-3.6>>). Nothing is tapped meanwhile. Only a pin that shows another type, or stays unreadable
-  until the timeout, causes the skip, so that a workable mission is not left behind and the
+  for as long as a step may take (<<FR-3.6>>). Nothing is tapped meanwhile. Only a pin that
+  shows another type, or stays unreadable until then, causes the skip, so that a workable mission is not left behind and the
   boss is not attacked before it.
 . Tap "View" → `WORLD_TARGET`. The popup must offer the action of the mission type
   (combat: Explore, hunt and boss: Attack, rescue: Rescue); otherwise BACK and skip.

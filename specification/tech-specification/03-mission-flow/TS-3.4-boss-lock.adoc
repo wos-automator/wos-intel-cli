@@ -13,3 +13,10 @@ Writing goes to `state.json.tmp` followed by `os.replace`. A missing, unreadable
 file means "not locked". The runner reads the refresh timer from the Intel screenshot on which
 the boss was selected and locks after the march has started; an unreadable timer falls back to
 `boss.fallback_cycle_hours`.
+
+Checked by `tests/test_config_state.py` (`test_boss_lock_round_trip`,
+`test_unusable_state_file_means_not_locked`, `test_lock_keeps_unrelated_state`) and
+`tests/test_flow.py` (`test_boss_is_locked_for_the_refresh_cycle`,
+`test_boss_lock_falls_back_to_configured_cycle`, `test_locked_boss_is_not_tapped`,
+`test_expired_boss_lock_is_ignored`, `test_boss_whose_popup_did_not_open_is_tapped_again_and_locked`,
+`test_boss_is_not_locked_when_its_popup_never_opens`).

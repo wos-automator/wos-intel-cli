@@ -96,3 +96,19 @@ Candidates are the `AVAILABLE` symbols that were not attempted in this run (same
 `lock_radius` of an attempted one) and, for the boss, not locked (<<TS-3.4>>). With `dry_run`
 the runner logs the tap it would send (Intel button, Claim All, first mission) and returns
 `DRY_RUN` without calling `tap` or `back`.
+
+Checked by `tests/test_flow.py` against the fake game (<<ADR-3>>):
+
+* start and claim: `test_run_starting_on_the_world_map_opens_intel_first`,
+  `test_run_aborts_without_input_on_any_other_screen`, `test_claim_all_then_rewards_exit`;
+* selection: `test_missions_are_processed_by_tier_then_top_down`,
+  `test_run_ends_when_stamina_is_below_minimum`, `test_unaffordable_mission_is_skipped`,
+  `test_run_continues_when_stamina_is_unreadable`, `test_boss_is_attacked_*`,
+  `test_mission_limit_ends_the_run`;
+* settling: `test_run_waits_for_running_missions_and_claims_them`,
+  `test_waiting_for_running_missions_gives_up_after_the_timeout`,
+  `test_wait_ends_when_nothing_runs_any_more`, `test_missions_that_appear_while_waiting_are_started`,
+  `test_started_mission_is_waited_for_even_if_its_pin_is_hidden`,
+  `test_running_boss_is_not_tapped_but_waited_for`, `test_nothing_running_ends_without_waiting`;
+* expert: `test_expert_*`;
+* dry run: `test_dry_run_*`.
