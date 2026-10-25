@@ -6,16 +6,16 @@
 . The boss is the exception to that order: it is attacked last, only when no other affordable
   candidate is left, and once (<<FR-3.5>>).
 . A mission is only started if the stamina covers its cost (hunt 10, rescue 12, combat 10,
-  boss 10); unaffordable missions are skipped.
-. The run ends regularly when the stamina is below 10, when no candidate is left, or when
+  boss 10; configurable, SPEC.md §4); unaffordable missions are skipped.
+. The run ends regularly when the stamina is below 10 (configurable), when no candidate is left, or when
   no remaining candidate is affordable – after running missions have been waited for
   (<<FR-3.7>>). Hunt and boss targets deferred because all march queues are busy do not end
   the run (<<FR-3.9>>).
 . If the stamina cannot be read the run continues.
 . A symbol is attempted at most once per run.
-. If another detected symbol lies closer than 30 px to the click point and further in front
-  (larger y of the ground ring), the one in front is processed first; if that one is not a
-  candidate, the tap moves to the edge of the disc opposite to it.
+. If another symbol covers the target – it lies close to the click point and further in front –
+  the one in front is processed first; if that one is not a candidate, the tap goes to the
+  part of the target's disc that it does not cover.
 
 Stakeholder need:: SPEC.md §3.3, §3.5 step 5, §4, §5 +
 Effort:: 4 h

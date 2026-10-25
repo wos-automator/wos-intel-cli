@@ -42,7 +42,7 @@ repeat
     :Claim All -> REWARDS -> tap rewards exit -> INTEL;
   else (no)
     :detect symbols, build candidates;
-    if (stamina < 10 / none / none affordable?) then (yes)
+    if (stamina < min_stamina / none / none affordable?) then (yes)
       :OUT_OF_STAMINA or NOTHING_TO_DO;
       stop
     endif

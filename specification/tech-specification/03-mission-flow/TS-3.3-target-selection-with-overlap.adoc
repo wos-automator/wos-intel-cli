@@ -4,11 +4,11 @@
 Implements <<FR-3.3>>.
 
 * `mission_cost(config, type)` returns the cost from `[costs]`.
-* `find_occluder(config, target, symbols)`: a symbol closer than `overlap_distance` (30 px)
-  whose ground ring is lower on the screen; ring y = centre y + `ring_offset_pin` (55) or
-  `ring_offset_boss` (65).
+* `find_occluder(config, target, symbols)`: a symbol closer than `overlap_distance` whose
+  ground ring is lower on the screen, i.e. further in front; ring y = centre y +
+  `ring_offset_pin` or `ring_offset_boss`.
 * `choose_target(config, candidates, symbols) -> (Symbol, Point)`: starts with the first
   candidate. If it has an occluder that is itself a candidate, the occluder becomes the target
   (repeated). If the occluder is not a candidate, the tap point is
-  `centre + edge_tap_radius (20) × unit(centre − occluder)`, i.e. on the disc edge opposite to
-  it.
+  `centre + edge_tap_radius × unit(centre − occluder)`, i.e. on the disc edge opposite to it.
+  The keys are those of `[symbols]` and `[costs]` in `config.toml`.
