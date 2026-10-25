@@ -13,7 +13,7 @@ WORLD_TARGET --> SQUAD : COMBAT, tap Explore
 WORLD_TARGET --> DEPLOY : HUNT/BOSS, tap Attack
 WORLD_TARGET --> WORLD : RESCUE, tap Rescue
 WORLD_TARGET --> [*] : wrong action (rejected)
-SQUAD --> RESULT : tap Fight, up to 60 s
+SQUAD --> RESULT : tap Fight, up to fight_timeout
 RESULT --> WORLD : tap exit text
 DEPLOY --> WORLD : prevail hint or BOSS, tap Deploy
 DEPLOY --> [*] : HUNT without prevail hint (rejected)
@@ -44,7 +44,7 @@ passed over in favour of the boss.
 
 Popup that did not open: `_await_popup(target)` waits for `WORLD_TARGET`; on `StepFailed`
 with the last screen `WORLD` it asks `world_pin` on that screenshot. A pin of `target.type` is
-tapped `world_pin_tap_offset` (70 px) below its centre – the target the map is centred on,
+tapped `world_pin_tap_offset` below its centre – the target the map is centred on,
 ≈ 360,731 – and `WORLD_TARGET` is awaited once more. Without a pin of that type the target has
 vanished (`ref/world-target-vanished.png`, BUG-0118) and `MissionRejected` is raised, so the
 recovery leads back to the Intel screen and the next mission is selected (<<US-5.6>>); a
@@ -52,6 +52,9 @@ screen other than `WORLD` re-raises the `StepFailed`.
 Found on the device run of 2026-10-17 (`ref/hunt-2-world-no-popup.png`, Marching 5/6), also
 for the boss right after a march returned (BUG-0095b, BUG-0141). Before the pin is asked, a
 hunt or boss target with all march queues busy raises `QueuesBusy` instead (<<TS-3.6>>).
+
+The fight is awaited with `timing.fight_timeout` instead of `expect_timeout`, because it takes
+longer than any other step.
 
 `ACTION_FOR` maps COMBAT → EXPLORE, HUNT/BOSS → ATTACK, RESCUE → RESCUE. The target is added
 to the attempted list before the first tap, so no symbol is tapped twice in a run.
