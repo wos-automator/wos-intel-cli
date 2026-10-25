@@ -19,6 +19,10 @@ Built with agent-skills v0.6.1.
   specification, the values are the defaults of `config.toml`, and the expected results on the
   reference screenshots are acceptance scenarios (<<FR-2.1>>, <<FR-2.2>>, <<FR-2.3>>,
   <<FR-2.4>>, <<FR-2.5>>, <<FR-2.6>>, <<FR-2.7>>).
+* The mission flow requirements keep the values the operator experiences (mission costs,
+  minimum stamina, how long a run waits); the values that only tune a step (delays, screenshot
+  intervals, step timeouts, tap positions, distances) are in the technical specification and
+  `config.toml` (<<FR-3.2>>).
 * The data model of the detection lists the states `HINT`, `QUIT_CONFIRMATION` and
   `SESSION_LOST` of 0.1.1 (<<FR-2.1>>).
 * The run loop names the parameter `failure_dir` and the outcomes `REWARDS_HELD` and

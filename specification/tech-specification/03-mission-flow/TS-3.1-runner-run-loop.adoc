@@ -39,7 +39,7 @@ repeat
   :enter Intel (tap Intel button on WORLD);
   :read stamina;
   if (INTEL_CLAIMABLE?) then (yes)
-    :Claim All -> REWARDS -> tap 360,180 -> INTEL;
+    :Claim All -> REWARDS -> tap rewards exit -> INTEL;
   else (no)
     :detect symbols, build candidates;
     if (stamina < 10 / none / none affordable?) then (yes)
@@ -86,6 +86,10 @@ of the sign in `ref/intel-expert-available.png`, region `regions.expert_sign`; o
 score ≤ 0.57). If found: set `_expert_used`, tap the match, return `None` so that the loop
 evaluates the Intel screen again. What the game shows after the tap has no reference yet; a
 screen other than `INTEL*` runs into the normal `StepFailed` recovery (<<TS-3.5>>).
+
+Claiming (<<FR-3.2>>): `_claim` taps the detected "Claim All", awaits `REWARDS`, taps
+`buttons.rewards_exit` (above the rewards, the only fixed tap point, <<TS-4.1>>) and awaits
+`INTEL*`; it resets `_unclaimed` and `_unclaimed_regular`.
 
 Candidates are the `AVAILABLE` symbols that were not attempted in this run (same type within
 `lock_radius` of an attempted one) and, for the boss, not locked (<<TS-3.4>>). With `dry_run`

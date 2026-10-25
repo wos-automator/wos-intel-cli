@@ -3,7 +3,8 @@
 
 .Acceptance criteria
 . On `INTEL_CLAIMABLE` "Claim All" is tapped at its detected position and `REWARDS` awaited.
-. `REWARDS` is left by a tap at 360,180 (above the rewards); then `INTEL` is awaited.
+. `REWARDS` is left by a tap above the rewards, the one fixed tap of the program (<<FR-4.1>>);
+  then `INTEL` is awaited.
 . Rewards are claimed before the next mission is selected.
 . Exception: in the hold phase before the Flame and Fangs event nothing is claimed (<<FR-5.3>>).
 
