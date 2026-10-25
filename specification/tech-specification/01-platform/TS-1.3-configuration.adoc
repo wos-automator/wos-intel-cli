@@ -11,13 +11,14 @@ values of SPEC.md.
 |Section |Content
 
 |`device` |serial, adb path, package, resolution, command timeout
-|`timing` |tap delay 1.0 s, poll interval 0.7 s, expect timeout 8 s, fight timeout 60 s, completion timeout 300 s, completion poll 10 s, reconnect delay 60 s, reconnect timeout 120 s, queue poll 10 s, queue timeout 900 s
-|`limits` |max missions 30, max BACK 3, max failures 3, minimum stamina 10
+|`timing` |`tap_delay`, `poll_interval`, `expect_timeout`, `fight_timeout`, `completion_timeout`, `completion_poll`, `reconnect_delay`, `reconnect_timeout`, `queue_poll`, `queue_timeout`
+|`limits` |`max_missions`, `max_back`, `max_failures`, `min_stamina`
 |`costs` |stamina cost per mission type
 |`symbols` |search band, white mask, thresholds, disc radius, check mark, tier hues, overlap, dialog pin
 |`buttons` |template thresholds, popup band, colour classification, rewards exit point
 |`ocr` |white mask for text, stamina, timer and march counter region, glyph thresholds
 |`boss` |fallback cycle length
+|`event` |tolerance of the pre-event groups, expert hours before the event
 |`paths` |templates, ref, debug, state file
 |`regions` |search region per template
 |===
@@ -26,4 +27,5 @@ values of SPEC.md.
 lists to tuples and rejects unknown sections/keys and wrong types with `ConfigError`. Without
 `path` it uses `config.toml` from the working directory, then from the project root. `base_dir`
 is the directory of the file; `Config.path()` resolves relative paths against it.
-`ANDROID_SERIAL` overrides `device.serial`.
+`ANDROID_SERIAL` overrides `device.serial`. The values themselves live only here, in code and
+in the shipped `config.toml`; the other items of this specification name their keys.
