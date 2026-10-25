@@ -11,7 +11,8 @@ Built with agent-skills v0.6.1.
 === Documentation
 
 * Architecture overview `architecture-web.adoc` in the structure of arc42: context, solution
-  strategy, building blocks, cross-cutting concepts, decisions (<<ADR-1>>, <<ADR-2>>,
+  strategy with the logical functions (<<LF-1>> to <<LF-10>>) and their principles, building
+  blocks with the allocation of the functions to the modules, cross-cutting concepts, decisions (<<ADR-1>>, <<ADR-2>>,
   <<ADR-3>>) and glossary. The project structure is part of its building block view instead
   of <<NFR-1>> and the chapter intro of the technical specification.
 * The data model of the detection lists the states `HINT`, `QUIT_CONFIRMATION` and

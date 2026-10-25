@@ -1,40 +1,142 @@
 == Solution Strategy
 
 The program has no access to the game's data. It works the way a player does: look at the
-screen, recognise what is shown, tap. Six ideas follow from that.
+screen, recognise what is shown, decide, tap. The function structure says what the system has
+to do for that, free of any solution; the solution principles say how each function is
+achieved and why. The building blocks follow from both (see Building Block View).
 
-Screenshot-driven state machine::
-Every decision starts with a fresh screenshot, classified as exactly one screen state
-(<<FR-2.1>>, <<TS-2.1>>). The run loop and the mission sequences are transitions between these
-states: tap, then poll with a timeout until the expected state shows up (<<TS-3.1>>,
-<<TS-3.2>>, <<TS-3.5>>). Taps are never chained blindly (SPEC.md §2).
+=== Function Structure
 
-Detection as a pure function::
-`wos_intel/detect.py` depends on the screenshot, the templates and the configuration only;
-it knows neither the device nor the time nor the run (<<TS-2.1>> to <<TS-2.4>>). It can
-therefore be run on a file (`detect`, <<FR-1.3>>) and tested against the reference
-screenshots in `ref/` with the values the stakeholder measured (<<NFR-2>>, <<AT-1.1>>).
+Logical functions, derived from the functional requirements. Every functional requirement is
+served by at least one function. A new requirement that fits none of them changes this
+structure, its principle and the allocation to building blocks before any technical
+specification is written.
 
-Safety by construction::
-The device offers tap, BACK and screenshot, nothing else (<<TS-1.1>>, <<FR-4.2>>). Every tap
-coordinate comes from the detection of the current screenshot; the one fixed point is
-documented (<<FR-4.1>>, <<TS-4.1>>). An unknown screen is only ever left with BACK, so a
-dialog the program does not know cannot be confirmed.
+The functions are logical. The implementation is free in how it realises them: a function
+need not exist as one class or method, and one piece of code may serve several functions. The
+run loop, for example, waits by choosing a step without a tap when the screen is known and
+nothing else is to be done, and it recovers when a step fails instead of asking Decide for an
+explicit "undecided". The allocation in the Building Block View records where each function is
+realised; the technical specification describes how.
 
-Minimal technology::
-Runtime dependencies are OpenCV and numpy (<<NFR-1>>). Buttons, titles and mission symbols
-are found by template matching, digits by matching single glyphs against digit templates; no
-OCR engine, no server (<<FR-2.5>>, <<TS-2.3>>, <<ADR-1>>). The device is reached through the
-`adb` binary, not through a library (<<ADR-2>>).
+[cols="1,3,3"]
+|===
+|Function |What it does |Serves
+
+|
+[[LF-1]]
+LF-1 Observe
+|get the current screen of the game as an image
+|<<FR-1.1>>
+
+|
+[[LF-2]]
+LF-2 Recognise
+|tell which screen is shown and where its targets are: buttons, mission symbols with type,
+status and tier, the pins and the action of a mission
+|<<FR-2.1>>, <<FR-2.2>>, <<FR-2.3>>, <<FR-2.4>>, <<FR-2.6>>, <<FR-5.1>>, <<FR-5.5>>
+
+|
+[[LF-3]]
+LF-3 Read values
+|read the numbers a screen shows: stamina, refresh timer, march counter, event countdown,
+mission expiry
+|<<FR-2.5>>, <<FR-2.7>>, <<FR-5.1>>, <<FR-5.2>>
+
+|
+[[LF-4]]
+LF-4 Decide
+|choose the next step from what is seen and remembered: enter, claim, start which mission,
+use the expert, wait or end; a screen for which no step fits goes to LF-6
+|<<FR-3.1>>, <<FR-3.2>>, <<FR-3.3>>, <<FR-3.5>>, <<FR-3.7>>, <<FR-3.8>>, <<FR-3.9>>,
+<<FR-4.3>>, <<FR-5.3>>, <<FR-5.4>>
+
+|
+[[LF-5]]
+LF-5 Act
+|carry a step out on the game: tap a recognised target or go back, then wait for the screen
+the step leads to; a wait without a tap is a step as well
+|<<FR-1.1>>, <<FR-3.1>>, <<FR-3.2>>, <<FR-3.4>>, <<FR-3.6>>, <<FR-3.7>>, <<FR-4.1>>,
+<<FR-4.2>>
+
+|
+[[LF-6]]
+LF-6 Recover
+|get back to a known screen (Intel screen or world map) when LF-4 finds no step for the
+current one; its taps and BACK presses are carried out by LF-5
+|<<FR-3.6>>
+
+|
+[[LF-7]]
+LF-7 Remember
+|keep what has to outlive a run: the boss lock, the event hold
+|<<FR-3.5>>, <<FR-5.3>>
+
+|
+[[LF-8]]
+LF-8 Guard
+|refuse to act unless the expected device, resolution and game are present
+|<<FR-1.2>>
+
+|
+[[LF-9]]
+LF-9 Operate
+|take the operator's command and settings
+|<<FR-1.3>>, <<FR-1.5>>
+
+|
+[[LF-10]]
+LF-10 Report
+|make every run traceable afterwards: log, annotated and failure screenshots
+|<<FR-1.4>>
+|===
+
+=== Solution Principles
+
+Per function, the chosen principle; the requirements that constrain the solution space are
+<<NFR-1>> (local, OpenCV and numpy only, no OCR engine), <<FR-4.1>> and <<FR-4.2>> (input
+only on recognised targets, nothing that moves the map).
+
+Through `adb` only (LF-1, LF-5, LF-8)::
+Screenshots, taps, BACK and the device check are single calls of the `adb` binary
+(<<ADR-2>>). The device offers nothing else, so no other input can reach the game
+(<<TS-1.1>>).
+
+Taps only on what was recognised (LF-5)::
+Every tap coordinate comes from the recognition of the current screenshot; the one fixed point
+is documented. An unknown screen is only ever left with BACK, so a dialog the program does not
+know cannot be confirmed (<<TS-4.1>>).
+
+Template matching on the fixed screen (LF-2, LF-3)::
+Buttons, titles and symbols are found by template matching, numbers by matching single digit
+glyphs, all on the fixed 720x1280 screen (<<ADR-1>>). Recognition is a pure function of
+screenshot, templates and configuration: it knows neither the device nor the time nor the run
+(<<TS-2.1>> to <<TS-2.4>>), so it also runs on a file (`detect`).
+
+Screen-state machine (LF-4, LF-5, LF-6)::
+Every decision starts from a fresh screenshot classified as exactly one screen state. A step is
+a tap followed by polling, with a timeout, until the expected state shows up; taps are never
+chained blindly (SPEC.md §2). A screen without a transition, or a step that timed out, is the
+default case: recovery leaves the screen step by step, classifying again before each BACK,
+until a known screen is reached (<<TS-3.1>>, <<TS-3.2>>, <<TS-3.5>>).
+
+A small, forgiving state file (LF-7)::
+What outlives a run is one JSON file, written atomically; a missing or damaged file means
+"nothing remembered" and never blocks a run (<<TS-3.4>>, <<TS-5.2>>).
+
+One process per run, defaults in code (LF-9, LF-10)::
+Each command is one process that ends with an exit code. Every setting has its default in code
+and can be overridden from `config.toml`. The log and the screenshots in `debug/` are the only
+evidence of a run on the device (<<TS-1.2>>, <<TS-1.3>>).
+
+Two principles serve the quality requirements rather than a function:
 
 Testability by substitution::
-The run loop sees the device through a protocol and receives sleep, clock and current time as
-parameters (<<TS-3.1>>, <<TS-3.5>>). The component tests replace the game with a scripted
-fake built from reference screenshots and run whole runs without waiting (<<TS-4.2>>,
-<<ADR-3>>).
+The run sees the device through a protocol and receives sleep, clock and current time as
+parameters, so the component tests replace the game with a scripted fake built from reference
+screenshots (<<ADR-3>>, <<NFR-2>>, <<TS-4.2>>).
 
 Completed from device evidence::
-Screens without a reference screenshot are implemented against synthetic screens and
-optional templates; `snap` records the missing reference, `tools/cut_templates.py` cuts the
-template, and the path becomes active as soon as the file exists (<<NFR-3>>, <<TS-4.3>>).
-The screenshot of every failed step is kept for the same purpose (<<FR-3.6>>).
+Screens without a reference screenshot are implemented against synthetic screens and optional
+templates; `snap` records the missing reference, and the path becomes active as soon as its
+template exists (<<NFR-3>>, <<TS-4.3>>).

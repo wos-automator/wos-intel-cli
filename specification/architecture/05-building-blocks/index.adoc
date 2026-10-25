@@ -37,6 +37,27 @@ adb --> config
 @enduml
 ----
 
+.Allocation of the logical functions (Solution Strategy) to the modules
+[cols="2,1,1,1,1,1,1,1",options="header"]
+|===
+|Function |`__main__` |`flow` |`detect` |`event` |`state` |`adb` |`config`
+
+|<<LF-1,LF-1 Observe>> |||||| x |
+|<<LF-2,LF-2 Recognise>> ||| x ||||
+|<<LF-3,LF-3 Read values>> ||| x ||||
+|<<LF-4,LF-4 Decide>> || x || x |||
+|<<LF-5,LF-5 Act>> || x |||| x |
+|<<LF-6,LF-6 Recover>> || x |||||
+|<<LF-7,LF-7 Remember>> ||||| x ||
+|<<LF-8,LF-8 Guard>> |||||| x |
+|<<LF-9,LF-9 Operate>> | x |||||| x
+|<<LF-10,LF-10 Report>> | x | x | x ||||
+|===
+
+`flow` decides which target to tap and `adb` sends the tap (LF-5); the device check is a call
+of `flow` that `adb` carries out (LF-8). Every function has a module and every module has a
+function; a change of this table is a change of the architecture.
+
 [cols="1,3,1"]
 |===
 |Module |Responsibility |Design
