@@ -15,6 +15,9 @@ Implements <<NFR-3>>.
 |No troops / march slots |`templates/dialog_no_troops.png` if present; else timeout → recovery |`snap`, cut the template
 |===
 
+The optional templates (`btn_rescue`, `dialog_no_stamina`, `dialog_no_troops`) are loaded when
+their file exists and otherwise never match (`Detector`, <<TS-2.1>>).
+
 Synthetic test screens (`tests/conftest.py`) stand in for the missing references: a recoloured
 Explore button for Rescue, a dialog with a pasted tent/skull mask, a victory screen without
 title, a Deploy screen without the prevail hint.
