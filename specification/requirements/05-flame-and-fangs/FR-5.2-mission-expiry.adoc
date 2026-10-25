@@ -5,11 +5,10 @@ Every mission dialog except the boss shows "Intel Expires In HH:MM:SS" in dark t
 "View" button.
 
 .Acceptance criteria
-. The expiry is read without an OCR engine, by digit templates for the dark text.
-. `ref/combat-1-dialog.png` reads 13:51:07, `ref/hunt-1-dialog.png` 13:48:42,
-  `ref/hunt-1-dialog-banner.png` 14:59:41 and `ref/rescue-1-dialog-banner.png` 14:59:19.
-. `ref/boss-1-dialog.png` has no expiry; the result is "none", never a guessed time.
-. A glyph that cannot be classified makes the whole expiry "unreadable".
+. The expiry is read from every mission dialog that shows it; on the reference dialogs it reads
+  the time the dialog shows.
+. The boss dialog has no expiry; the result is "none", never a guessed time.
+. A digit that cannot be recognised makes the whole expiry "unreadable".
 . The expiry is only read while the event icon is shown (<<FR-5.1>>).
 
 Stakeholder need:: SPEC.md §3.7 +

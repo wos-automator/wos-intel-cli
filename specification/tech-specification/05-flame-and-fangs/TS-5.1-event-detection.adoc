@@ -7,23 +7,23 @@ Implements <<FR-5.1>> and <<FR-5.2>>.
   `ref/flame-and-fangs-announced.png` (≈ 595–690 / 1150–1210), without the countdown below
   it. `templates/flame-and-fangs-event-icon.png` delivered with SPEC.md §3.7 is about twice
   the device scale (182 px wide, the icon on the screenshot ≈ 95 px) and has an alpha channel;
-  it stays as the stakeholder's source and is not used for matching. Region
-  `regions.event_icon` (560, 1100, 720, 1280), threshold 0.9: the cut scores 1.0 on its
-  reference and at most 0.50 on every other one. It is a required template like
+  it stays as the stakeholder's source and is not used for matching. Matched by
+  `Detector.find` in `regions.event_icon` against `buttons.threshold`: the cut scores 1.0 on
+  its reference and at most 0.50 on every other one. It is a required template like
   `expert_sign`, because it is cut from a reference.
 * `Detector.find_event_icon(image) -> Match | None`, asked on every evaluation of the Intel
   screen.
 * `Detector.read_event_countdown(image) -> int | None`: the six rightmost glyphs of
-  `ocr.countdown_region` (590, 1228, 695, 1254) as HHMMSS, like `read_refresh_seconds`
+  `ocr.countdown_region` as HHMMSS, like `read_refresh_seconds`
   (<<TS-2.3>>). The digits are pure white with a dark outline on a light map (V ≈ 220,
   S ≈ 30), which the white mask of `[ocr]` takes in as well; the countdown therefore has its own
-  mask `ocr.countdown_lo` / `ocr.countdown_hi` (V ≥ 235, S ≤ 25). With it the existing digit
-  templates read 07:52:41 with scores ≥ 0.82.
+  mask `ocr.countdown_lo` / `ocr.countdown_hi`. With it the existing digit templates read
+  07:52:41 on `ref/flame-and-fangs-announced.png` with scores ≥ 0.82.
 * `Runner._note_event(image)`: on every evaluation of the Intel screen; with the icon and a
   readable countdown it sets `_event_start = now() + countdown` once per run and logs it.
 * `Detector.read_expiry_seconds(image) -> int | None`: the six rightmost glyphs of
-  `ocr.expiry_region` (380, 800, 500, 890) as HHMMSS, segmented with the dark-text mask
-  `ocr.dark_lo` / `ocr.dark_hi` (V 40–110, S ≤ 120). The line is at y ≈ 860 on the combat and
+  `ocr.expiry_region` as HHMMSS, segmented with the dark-text mask `ocr.dark_lo` /
+  `ocr.dark_hi`. The line is at y ≈ 860 on the combat and
   hunt dialogs and at y ≈ 817 on the rescue dialog; the region covers both, and the white
   "View" and reward numbers drop out of the dark mask. With the white digit templates alone the
   scores went down to 0.68, so `tools/cut_templates.py` cuts digit templates
@@ -33,3 +33,11 @@ Implements <<FR-5.1>> and <<FR-5.2>>.
   `ref/boss-1-dialog.png` the region holds no glyph: `None`.
 * Same rules as <<TS-2.3>>: below `glyph_threshold` the whole reading is `None`, minutes and
   seconds above 59 give `None`.
+
+Checked by `tests/test_detect.py`: `test_event_icon_and_countdown` (icon and 07:52:41 on
+`flame-and-fangs-announced`), `test_no_event_icon_on_a_normal_day`, `test_mission_expiry`
+(`combat-1-dialog` 13:51:07, `hunt-1-dialog` 13:48:42, `hunt-1-dialog-banner` 14:59:41,
+`rescue-1-dialog-banner` 14:59:19), `test_no_mission_expiry_without_the_line` (`boss-1-dialog`)
+and `test_covered_mission_expiry_is_unreadable`; the run with the event by the `test_flow.py`
+tests named in <<TS-5.2>>. The `detect` command does not report the event icon, the countdown
+or the expiry yet, so they have no acceptance scenario.

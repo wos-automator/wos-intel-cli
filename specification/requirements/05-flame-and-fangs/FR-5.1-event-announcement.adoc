@@ -6,11 +6,11 @@ the event start ("Opens in HH:MM:SS").
 
 .Acceptance criteria
 . The icon is detected on `ref/flame-and-fangs-announced.png` and on no other Intel reference.
-. Its countdown reads 07:52:41 on that screenshot. The event start is the time of the
-  screenshot plus the countdown.
+. Its countdown is read; the event start is the time of the screenshot plus the countdown.
 . Without the icon the run works as on a normal day; the pre-event rules (<<FR-5.3>>,
   <<FR-5.4>>) do not apply.
-. If the icon is shown but its countdown stays unreadable for 8 s, the run starts no mission,
+. If the icon is shown but its countdown stays unreadable for as long as a step may take
+  (<<FR-3.6>>), the run starts no mission,
   claims nothing and ends regularly with "event countdown unreadable".
 . The event start is logged once per run.
 
