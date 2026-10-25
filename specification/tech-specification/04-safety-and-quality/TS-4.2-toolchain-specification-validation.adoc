@@ -15,6 +15,9 @@ Implements <<NFR-1>> and <<NFR-2>>.
   with a mocked `subprocess.run`), `integration` (configuration and state files, CLI
   in-process), `bdt` (the acceptance scenarios of `specification/acceptance/`, run by
   `pytest-bdd` from `tests/bdt/`: the CLI as a separate process on reference screenshots).
+  The run-loop tests use `CachingDetector` (`tests/conftest.py`): the fake game shows the same
+  screenshots again and again, so each one is detected once per test module, keyed by its
+  content. The detection itself is tested uncached in `tests/test_detect.py`.
 * Specification layout: each master includes `specification/<kind>/<NN-chapter>/index.adoc`;
   the chapter index includes one file per item (`<ID>-<slug>.adoc`), resolved relative to the
   index. Release notes are one file per version in `specification/release-notes/`.

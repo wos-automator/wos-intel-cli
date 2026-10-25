@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Callable
 from pathlib import Path
+from typing import TypeVar, cast
 
 import cv2
 import numpy as np
 import pytest
 
 from wos_intel.config import PROJECT_ROOT, Config
-from wos_intel.detect import Detector, Image
+from wos_intel.detect import Action, Detector, Image, Match, MissionType, Screen, Symbol
 
 REF_DIR = PROJECT_ROOT / "ref"
 TEMPLATE_DIR = PROJECT_ROOT / "templates"
@@ -137,6 +139,69 @@ def config() -> Config:
 @pytest.fixture(scope="session")
 def detector(config: Config) -> Detector:
     return Detector(config)
+
+
+Result = TypeVar("Result")
+
+
+class CachingDetector(Detector):
+    """Detection results by image content, for the run-loop tests.
+
+    The fake game shows the same screenshots again and again, and every look of the runner
+    detects them anew. Detection is deterministic and tested uncached in test_detect.py, so the
+    run-loop tests detect each screenshot once. The key is the image content, so a changed or
+    newly drawn screen is detected again.
+    """
+
+    def __init__(self, config: Config) -> None:
+        super().__init__(config)
+        self._results: dict[tuple[str, bytes], object] = {}
+
+    def _cached(self, name: str, image: Image, detect: Callable[[Image], Result]) -> Result:
+        digest = hashlib.blake2b(np.ascontiguousarray(image).data, digest_size=16).digest()
+        key = (name, digest)
+        if key not in self._results:
+            self._results[key] = detect(image)
+        return cast(Result, self._results[key])
+
+    def detect_state(self, image: Image) -> Screen:
+        return self._cached("detect_state", image, super().detect_state)
+
+    def detect_symbols(self, image: Image) -> list[Symbol]:
+        return list(self._cached("detect_symbols", image, super().detect_symbols))
+
+    def find_action_button(self, image: Image) -> tuple[Action, Match] | None:
+        return self._cached("find_action_button", image, super().find_action_button)
+
+    def find_expert(self, image: Image) -> Match | None:
+        return self._cached("find_expert", image, super().find_expert)
+
+    def likely_to_prevail(self, image: Image) -> bool:
+        return self._cached("likely_to_prevail", image, super().likely_to_prevail)
+
+    def dialog_type(self, image: Image) -> tuple[MissionType, float] | None:
+        return self._cached("dialog_type", image, super().dialog_type)
+
+    def world_pin(self, image: Image) -> tuple[MissionType, Match] | None:
+        return self._cached("world_pin", image, super().world_pin)
+
+    def read_stamina(self, image: Image) -> int | None:
+        return self._cached("read_stamina", image, super().read_stamina)
+
+    def read_refresh_seconds(self, image: Image) -> int | None:
+        return self._cached("read_refresh_seconds", image, super().read_refresh_seconds)
+
+    def read_expiry_seconds(self, image: Image) -> int | None:
+        return self._cached("read_expiry_seconds", image, super().read_expiry_seconds)
+
+    def find_event_icon(self, image: Image) -> Match | None:
+        return self._cached("find_event_icon", image, super().find_event_icon)
+
+    def read_event_countdown(self, image: Image) -> int | None:
+        return self._cached("read_event_countdown", image, super().read_event_countdown)
+
+    def read_marches(self, image: Image) -> tuple[int, int] | None:
+        return self._cached("read_marches", image, super().read_marches)
 
 
 @pytest.fixture(scope="session")

@@ -34,6 +34,7 @@ from tests.conftest import (
     TENT,
     VIEW,
     WORLD_TARGET,
+    CachingDetector,
     FakeClock,
     FakeGame,
     near,
@@ -48,6 +49,12 @@ pytestmark = pytest.mark.component
 NOW = datetime(2026, 10, 9, 19, 0, 0)
 
 GameFactory = Callable[..., FakeGame]
+
+
+@pytest.fixture(scope="module")
+def detector(config: Config) -> Detector:
+    """Cached detection: the run loop is under test here, detection in test_detect.py."""
+    return CachingDetector(config)
 
 
 def make_runner(
