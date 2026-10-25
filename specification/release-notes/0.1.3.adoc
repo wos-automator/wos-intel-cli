@@ -16,6 +16,8 @@ Built with agent-skills v0.6.1.
   of <<NFR-1>> and the chapter intro of the technical specification.
 * The data model of the detection lists the states `HINT`, `QUIT_CONFIRMATION` and
   `SESSION_LOST` of 0.1.1 (<<FR-2.1>>).
+* The run loop names the parameter `failure_dir` and the outcomes `REWARDS_HELD` and
+  `EVENT_UNREADABLE` of 0.1.1 (<<TS-3.1>>).
 
 * The specification validator is pinned in `.agents/spec-validator.lock` (spec-validator
   0.2.1) instead of inside the agent-skills library (<<TS-4.2>>).

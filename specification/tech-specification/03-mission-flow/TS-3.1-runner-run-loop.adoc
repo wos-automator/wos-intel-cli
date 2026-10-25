@@ -11,13 +11,15 @@ class Device(Protocol):          # implemented by adb.Adb and by the fake game o
     def tap(self, x: int, y: int) -> None: ...
     def back(self) -> None: ...
 
-Runner(config, device, detector, store, *, dry_run=False, debug_dir=None,
+Runner(config, device, detector, store, *, dry_run=False, debug_dir=None, failure_dir=None,
        sleep=time.sleep, clock=time.monotonic, now=datetime.now)
 Runner.run() -> Outcome
 ----
 
-`Outcome`: `NOTHING_TO_DO`, `OUT_OF_STAMINA`, `NO_TROOPS`, `QUEUES_BUSY`, `MISSION_LIMIT`,
-`DRY_RUN` (regular, `ok`), `WRONG_SCREEN`, `TOO_MANY_FAILURES` (not `ok`).
+`Outcome`: `NOTHING_TO_DO`, `OUT_OF_STAMINA`, `NO_TROOPS`, `QUEUES_BUSY`, `REWARDS_HELD`,
+`EVENT_UNREADABLE`, `MISSION_LIMIT`, `DRY_RUN` (regular, `ok`), `WRONG_SCREEN`,
+`TOO_MANY_FAILURES` (not `ok`). `failure_dir` receives the screenshot of a failed step
+(<<TS-3.5>>); the two event outcomes are those of <<TS-5.2>>.
 
 [plantuml]
 ----
