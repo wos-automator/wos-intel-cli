@@ -20,6 +20,7 @@ Implement a backlog user story adhering to strict TDD and Definition of Done.
 2. **Baseline Check**: Run the `check` task (see [toolchain](../toolchain/SKILL.md)) to ensure a green starting state.
 3. **TDD Approach**: Write failing unit/component/integration tests matching the story's Test Criteria before writing implementation code.
 4. **Implementation**: Write the minimal code necessary to pass all tests.
-5. **Quality & DoD Verification**: Apply [definition-of-done](../definition-of-done/SKILL.md).
-6. **Release Notes Update**: Update the target release version file in `specification/release-notes/<version>.adoc` with the new feature and trace back to requirements via story reference (`<<US-x.y>>`, `<<FR-x.y>>`).
-7. **Commit**: Commit the story as one commit using [commit](../commit/SKILL.md) (type `feat`).
+5. **Acceptance Scenarios**: If `AGENTS.md` names requirements-based blackbox testing (BDT), implement the step definitions the story's scenarios still miss and run the `bdt` task (see [toolchain](../toolchain/SKILL.md)) until they pass.
+6. **Quality & DoD Verification**: Apply [definition-of-done](../definition-of-done/SKILL.md).
+7. **Release Notes Update**: Update the target release version file in `specification/release-notes/<version>.adoc` with the new feature and trace back to requirements via story reference (`<<US-x.y>>`, `<<FR-x.y>>`).
+8. **Commit**: Commit the story as one commit using [commit](../commit/SKILL.md) (type `feat`).

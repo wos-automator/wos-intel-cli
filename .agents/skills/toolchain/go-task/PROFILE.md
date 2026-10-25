@@ -27,6 +27,35 @@ tasks:
 | Integration | `testcontainers-go`, behind the `integration` build tag | `go test -tags=integration ./...` |
 | Blackbox | `testscript` (`rogpeppe/go-internal`) for a CLI, Playwright-go for a web UI | per project, named in `AGENTS.md` |
 
+## BDT
+
+Only for requirements-based blackbox testing (see [spec-system](../../spec-system/SKILL.md), BDT): [godog](https://github.com/cucumber/godog) runs the feature files from `go test` and writes Cucumber JSON.
+
+- Module: `github.com/cucumber/godog` (`go get`, only when the user approved BDT).
+- The scenarios live in a test package `bdt/` behind the build tag `bdt`, so that `test` does not run them; its steps drive the built product from outside (`os/exec` for a CLI, `net/http` for an API).
+- Task: `bdt: { cmds: [mkdir -p build/bdt, go test -tags=bdt ./bdt/...] }`.
+
+```go
+//go:build bdt
+
+func TestAcceptance(t *testing.T) {
+	suite := godog.TestSuite{
+		ScenarioInitializer: initializeScenario, // sc.Step(`^I greet "([^"]*)"$`, …)
+		Options: &godog.Options{
+			Format:   "cucumber:../build/bdt/cucumber.json,pretty",
+			Paths:    []string{"../specification/acceptance"},
+			TestingT: t,
+			Strict:   true, // undefined and pending steps fail
+		},
+	}
+	if suite.Run() != 0 {
+		t.Fatal("acceptance scenarios failed")
+	}
+}
+```
+
+- The Cucumber JSON carries tags with `@`, the feature's tags on every scenario, and URIs relative to the test package; spec-validator matches by test ID only.
+
 ## Debug Leftovers
 
 - `fmt.Println` / `log.Println` used for debugging
@@ -36,6 +65,22 @@ tasks:
 
 - `version`: none; the tag is the version, passed to the binary with `-ldflags "-X main.version=…"`.
 - `dist`: `goreleaser release --clean --skip=publish` with `checksum: disable: true` in `.goreleaser.yaml` (publish-release writes the checksums over all assets); archives land in `dist/`.
+
+Pull Request steps (job `check` of the pull request template):
+
+```yaml
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: golangci/golangci-lint-action@v8
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: task check
+      # BDT only:
+      - run: task bdt
+```
 
 Release Build steps:
 
@@ -49,6 +94,8 @@ Release Build steps:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - run: task typecheck format-check test validate-specs
+      # BDT only:
+      - run: task bdt
       - uses: goreleaser/goreleaser-action@v6
         with:
           version: "~> v2"

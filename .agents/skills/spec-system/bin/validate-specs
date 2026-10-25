@@ -4,7 +4,7 @@
 # cache and verified against the lock. SPEC_VALIDATOR=<path> runs another binary.
 #
 # Usage: validate-specs [validator arguments]
-#        validate-specs --update [v<version>]   pin a release (default: the latest) in the lock
+#        validate-specs --update [v<version>]   pin a release (default: the latest release) in the lock
 # Environment: SPEC_VALIDATOR_SIGNERS  allowed_signers file for --update (default ~/.agents/allowed_signers)
 #              SPEC_VALIDATOR_BASE_URL the validator's repository (default https://github.com/thst71/spec-validator)
 set -eu
@@ -27,10 +27,20 @@ update() {
 	signers=${SPEC_VALIDATOR_SIGNERS:-$HOME/.agents/allowed_signers}
 	[ -f "$signers" ] ||
 		fail "no allowed signers in $signers; add the line '<email> namespaces=\"git\" <ssh public key>' of the validator's maintainer"
+	work=$(mktemp -d)
+	trap 'rm -rf "$work"' EXIT
 	if [ -z "$tag" ]; then
-		tag=$(git ls-remote --tags --refs "$base.git" 'v*' | sed 's#.*refs/tags/##' |
-			grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1) || true
-		[ -n "$tag" ] || fail "no release tag found in $base.git"
+		# The newest tag with a release: a tag can exist without one (failed or pending release).
+		for candidate in $(git ls-remote --tags --refs "$base.git" 'v*' | sed 's#.*refs/tags/##' |
+			grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -r -V); do
+			if curl -fsSL -o "$work/checksums.txt" "$base/releases/download/$candidate/checksums.txt" 2>/dev/null; then
+				tag=$candidate
+				break
+			fi
+			rm -f "$work/checksums.txt"
+			echo "validate-specs: skipping $candidate, it has no release" >&2
+		done
+		[ -n "$tag" ] || fail "no release found in $base"
 	fi
 	case $tag in
 	v[0-9]*.[0-9]*.[0-9]*) ;;
@@ -38,8 +48,6 @@ update() {
 	esac
 	version=${tag#v}
 
-	work=$(mktemp -d)
-	trap 'rm -rf "$work"' EXIT
 	git clone -q --depth 1 --no-checkout --branch "$tag" "$base.git" "$work/validator" 2>/dev/null ||
 		fail "cannot clone $tag from $base.git"
 	validator="$work/validator"
@@ -50,7 +58,8 @@ update() {
 	tagger=$(git -C "$validator" for-each-ref --format='%(taggeremail:trim)' "refs/tags/$tag")
 	[ "$principal" = "$tagger" ] || fail "$tag is signed by $principal but tagged by $tagger"
 
-	curl -fsSL -o "$work/checksums.txt" "$base/releases/download/$tag/checksums.txt" ||
+	[ -f "$work/checksums.txt" ] ||
+		curl -fsSL -o "$work/checksums.txt" "$base/releases/download/$tag/checksums.txt" ||
 		fail "cannot download the checksums of $tag"
 	{
 		echo "# spec-validator pin, written by: .agents/skills/spec-system/bin/validate-specs --update"

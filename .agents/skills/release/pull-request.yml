@@ -1,0 +1,36 @@
+# Pull request workflow of the agent-skills release skill. Copy to
+# .github/workflows/pull-request.yml and replace the placeholder steps of the job "check" with the
+# "Pull Request" steps of the component's toolchain profile. Keep everything else as it is.
+# Runs for every commit of a pull request, not for branch pushes without one.
+name: pull-request
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Pull Request steps of the toolchain profile: set up the toolchain, run the check task,
+      # with BDT the bdt task.
+      # BDT: the reports, also when scenarios failed, as a job artifact to look at
+      - name: BDT reports
+        if: always() && hashFiles('build/bdt/cucumber.json') != ''
+        run: |
+          .agents/skills/spec-system/bin/validate-specs -test-report build/bdt/cucumber.json
+          .agents/skills/spec-system/bin/validate-specs -trace-report -results build/bdt/cucumber.json
+      - uses: thst71/release-actions/render-docs@7e4daefa8a915c28fd06bcd6f6a5bc77b1f27217 # v0.2.0
+        if: always() && hashFiles('build/bdt/cucumber.json') != ''
+        with:
+          version: pr-${{ github.event.pull_request.number }}
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('build/bdt/cucumber.json') != ''
+        with:
+          name: bdt-reports
+          path: |
+            dist-docs/html/
+            build/bdt/cucumber.json

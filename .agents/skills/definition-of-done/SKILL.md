@@ -14,6 +14,7 @@ An implementation task is complete ONLY when all checks below pass.
 2. **No Leftovers**: No debug output, unused variables or imports, or leftover debug code. The component's profile lists what counts as a debug leftover in its language.
 3. **Conventions**: The code follows the existing architectural patterns and style of the surrounding code.
 4. **Release Notes**: The file of the next version, `specification/release-notes/<version>.adoc` with the heading `== Release v<version> (unreleased)`, names the change under Features, Fixes or Breaking Changes with its traced items (see [spec-system](../spec-system/SKILL.md)); create it if the last release closed the previous one.
-5. **Project Additions**: Any further criterion listed under `Definition of Done` in `AGENTS.md`.
+5. **Acceptance Scenarios**: If `AGENTS.md` names requirements-based blackbox testing (BDT): the `bdt` task passes for the scenarios of the changed requirements, and [traceability-report](../traceability-report/SKILL.md) shows no orphaned scenario.
+6. **Project Additions**: Any further criterion listed under `Definition of Done` in `AGENTS.md`.
 
 If a check cannot pass, the task is not done: report what fails instead of committing.

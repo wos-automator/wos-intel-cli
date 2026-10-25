@@ -31,5 +31,5 @@ Create implementable, atomic user stories with structured test pyramid criteria 
    - Integration: which persistence or cross-module flows?
    - Blackbox: is a critical user journey affected?
 
-   Name what each test must show, specific enough to implement without ambiguity; a level that does not apply says why. Name the tooling from the component's toolchain profile and respect the project's limits in `AGENTS.md`.
+   Name what each test must show, specific enough to implement without ambiguity; a level that does not apply says why. If `AGENTS.md` names requirements-based blackbox testing (BDT), the blackbox level names the acceptance scenarios of the traced requirements (`<<AT-x.y>>`) instead of journeys; new ones come from [create-acceptance-scenarios](../create-acceptance-scenarios/SKILL.md). Name the tooling from the component's toolchain profile and respect the project's limits in `AGENTS.md`.
 5. **Verify**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

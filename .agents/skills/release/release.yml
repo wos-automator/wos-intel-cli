@@ -30,18 +30,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Release Build steps of the toolchain profile: set up the toolchain, run the check task,
-      # run the dist task (artifacts in dist/). A project without artifacts runs only the check.
+      # run the dist task (artifacts in dist/), with BDT the bdt task. A project without artifacts
+      # runs only the check.
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
           if-no-files-found: ignore
+      # BDT: the results of the bdt task, for the reports of the docs job
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bdt-results
+          path: build/bdt/cucumber.json
+          if-no-files-found: ignore
 
   docs:
-    needs: verify
+    needs: [verify, build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # BDT: test and traceability report from the results, rendered with the other masters
+      - uses: actions/download-artifact@v4
+        if: hashFiles('specification/acceptance/**/*.feature') != ''
+        with:
+          name: bdt-results
+          path: build/bdt
+      - name: BDT reports
+        if: hashFiles('specification/acceptance/**/*.feature') != ''
+        run: |
+          .agents/skills/spec-system/bin/validate-specs -test-report build/bdt/cucumber.json
+          .agents/skills/spec-system/bin/validate-specs -trace-report -results build/bdt/cucumber.json
       - uses: thst71/release-actions/render-docs@7e4daefa8a915c28fd06bcd6f6a5bc77b1f27217 # v0.2.0
         with:
           version: ${{ needs.verify.outputs.version }}

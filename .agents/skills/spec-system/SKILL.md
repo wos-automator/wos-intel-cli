@@ -24,6 +24,7 @@ To keep the context small, every item lives in its own file.
 | User stories | `backlog-web.adoc` | `specification/backlog/<NN-chapter>/<ID>-<slug>.adoc` | `US-x.y` |
 | Release notes | `release-notes.adoc` | `specification/release-notes/<version>.adoc` | – |
 | Stakeholder input | `SPEC.md` (index only) | `specification/stakeholder/<NN>-<topic>.md` | `SPEC.md §n` = file `<NN>` |
+| Acceptance scenarios (BDT only) | – (rendered in the test report) | `specification/acceptance/<NN-chapter>/<slug>.feature` | `@AT-x.y` |
 
 - The master names above are the default layout of the validator; a project that names them differently configures them in `.spec-validator.json` (see Validator). The other skills say "the master" of a kind and mean these files.
 - A master includes each chapter as `include::specification/<folder>/<NN-chapter>/index.adoc[]`.
@@ -110,7 +111,7 @@ As a <role>, I want <goal>, so that <benefit>.
 ## Validator
 
 - The `validate-specs` task runs [spec-validator](https://github.com/thst71/spec-validator) through the launcher `bin/validate-specs` (`bin/validate-specs.ps1` on Windows), from the project root. The project pins the release in `.agents/spec-validator.lock` (version and archive checksums, checked in). The launcher runs an installed `spec-validator` whose `-version` is exactly the pinned version; otherwise it downloads the release once into the user cache and verifies it against the lock.
-- `bin/validate-specs --update [v<version>]` pins a release (default: the latest): it refuses a tag that is not signed by an allowed signer of `~/.agents/allowed_signers`, writes the lock from the release's checksums and stages it. Commit it as `chore: spec-validator <version>`. Update the pin only when the user asks for it; a stricter validator then shows up in that commit, not in an unrelated one.
+- `bin/validate-specs --update [v<version>]` pins a release (default: the latest release; tags without a release are skipped): it refuses a tag that is not signed by an allowed signer of `~/.agents/allowed_signers`, writes the lock from the release's checksums and stages it. Commit it as `chore: spec-validator <version>`. Update the pin only when the user asks for it; a stricter validator then shows up in that commit, not in an unrelated one.
 - Exit code 0: valid; 1: problems, one per line; 2: usage or configuration error.
 - A project with a different layout (masters, folders, anchor kinds, traceability rules) describes it in `.spec-validator.json` in its root; see the validator's README.
 - `SPEC_VALIDATOR=<path>` runs another binary, e.g. a development build.
@@ -125,6 +126,18 @@ User stories name the levels that apply. The tooling per level is in the compone
 | **Component** | one module in isolation, collaborators mocked or faked | every non-trivial module |
 | **Integration** | several modules together, incl. files, databases, services | persistence and multi-module flows |
 | **Blackbox** | the product as a separate process (CLI, API, UI) | critical user journeys |
+
+## Requirements-Based Blackbox Testing (BDT)
+
+A project decides whether its blackbox level is requirements-based. `AGENTS.md` says so under "Testing"; without that line, everything in this section is off and the blackbox level tests critical user journeys as the toolchain profile describes. The [bdt-adopt](../bdt-adopt/SKILL.md) skill turns it on.
+
+- **Scenarios**: acceptance scenarios are Gherkin feature files (English) in `specification/acceptance/<NN-chapter>/<slug>.feature`, one feature per file, chapters as in the requirements.
+- **IDs**: every `Scenario` or `Scenario Outline` carries exactly one tag `@AT-x.y`, unique across all feature files; `x` is the chapter, `y` counts within it. Never put an ID on `Feature`, `Rule` or `Examples`.
+- **Traces**: bottom-up only, from a scenario to the requirements it accepts: tags `@FR-x.y`, `@NFR-x` on the scenario, or on its `Feature` or `Rule` for all of its scenarios. Scenarios do not trace to user stories or technical specifications; stories may reference scenarios (`<<AT-x.y>>`) in their test criteria.
+- **Validation**: `.spec-validator.json` lists the test kind (`"tests": [{"kind": "AT", "folder": "specification/acceptance", "format": "gherkin", "traces": ["FR", "NFR"]}]`); the `validate-specs` task then checks IDs, uniqueness and traces with the rest of the specification. It needs spec-validator 0.2.1 or later.
+- **Runs**: the `bdt` task (see [toolchain](../toolchain/SKILL.md)) runs the scenarios against the built product and writes Cucumber JSON to `build/bdt/cucumber.json`. Not on every commit: in the Definition of Done, on pull requests and on releases.
+- **Reports**: `validate-specs -test-report build/bdt/cucumber.json` writes `test-report.adoc` (every scenario with its steps and result), `validate-specs -trace-report -results build/bdt/cucumber.json` writes `traceability-report.adoc` (requirements to scenarios, scenarios to requirements, orphaned scenarios, uncovered requirements). Both are generated, never committed; pull requests attach them as a job artifact, releases render them with the other masters. See [traceability-report](../traceability-report/SKILL.md).
+- **Later test kinds**: the validator configuration lists test kinds, so that manual test specifications (e.g. `MT`, with a report template) and a completeness rule for requirements can be added without changing this layout.
 
 ## Release Notes
 

@@ -26,4 +26,5 @@ Break down a feature into formal requirements meeting quality and traceability s
    - Acceptance criteria (numbered with verifiable conditions)
    - Stakeholder need / constraint link
    - Effort estimate
-5. **Verify**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).
+5. **Acceptance Scenarios**: If `AGENTS.md` names requirements-based blackbox testing (BDT), write the requirement's scenarios with [create-acceptance-scenarios](../create-acceptance-scenarios/SKILL.md).
+6. **Verify**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)).

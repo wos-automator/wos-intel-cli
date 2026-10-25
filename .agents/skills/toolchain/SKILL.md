@@ -22,6 +22,7 @@ Each project exposes these tasks through its task runner. Spelling may follow th
 | `validate-specs` | if the project uses the [spec-system](../spec-system/SKILL.md) | anchors, includes, traceability |
 | `dist` | if the project releases artifacts | builds the release artifacts into `dist/` (see [release](../release/SKILL.md)) |
 | `version` | if the version lives in a file | prints the project version, so that a release can compare it with the tag |
+| `bdt` | if `AGENTS.md` names requirements-based blackbox testing | runs the acceptance scenarios against the built product and writes Cucumber JSON to `build/bdt/cucumber.json` (see [spec-system](../spec-system/SKILL.md), BDT); not part of `check` |
 
 Dependency installation and running a single test level are not tasks; the profile names the commands. Each profile also lists its `Release Build`: the workflow steps that set up the toolchain and run `check` and `dist` in the release pipeline.
 

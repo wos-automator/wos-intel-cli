@@ -22,4 +22,5 @@ Update existing feature artifacts through end-to-end impact analysis across modu
 3. **Tech Spec Updates**: Update architecture, data models, or interface definitions in the affected tech-specification item files.
 4. **Backlog Updates**: Update user stories, acceptance criteria, and test pyramid criteria in the affected backlog item files using [update-user-story](../update-user-story/SKILL.md).
 5. **New Scope**: If the change adds scope that no existing item covers, create the new items with [create-requirement](../create-requirement/SKILL.md), [create-tech-specification](../create-tech-specification/SKILL.md) and [create-user-story](../create-user-story/SKILL.md) instead of stretching an existing item.
-6. **Traceability & Validation**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)) to verify cross-references.
+6. **Acceptance Scenarios**: If `AGENTS.md` names requirements-based blackbox testing (BDT), update the scenarios of the changed requirements with [update-acceptance-scenarios](../update-acceptance-scenarios/SKILL.md) and write those of new requirements with [create-acceptance-scenarios](../create-acceptance-scenarios/SKILL.md).
+7. **Traceability & Validation**: Run the `validate-specs` task (see [toolchain](../toolchain/SKILL.md)) to verify cross-references.

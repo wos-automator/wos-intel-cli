@@ -18,6 +18,10 @@ Lookup: `AGENTS.md` → workflow skill → method / toolchain → profile, each 
 
 Workflows never name commands, only tasks: `check`, `test`, `lint`, `format-check`, `typecheck`, `validate-specs`. Each project exposes them through its task runner; see [toolchain](toolchain/SKILL.md).
 
+## Requirements-Based Blackbox Testing
+
+A project may decide that its blackbox level is requirements-based (BDT): acceptance scenarios in Gherkin feature files trace to its requirements, run on pull requests and releases, and every release carries a test report and a traceability report. The [bdt-adopt](bdt-adopt/SKILL.md) skill turns it on; [spec-system](spec-system/SKILL.md) holds the rules, the toolchain profiles the runners (playwright-bdd for node-npm, pytest-bdd for the Python profiles, godog for go-task). Without the decision, nothing of it applies.
+
 ## Releases
 
 Every project releases the same way, offline: the user signs an annotated tag `v<semver>` and pushes it; the pipeline of [release-actions](https://github.com/thst71/release-actions) verifies the signature against the repository's environment secret, runs the gate, builds the artifacts, renders each specification master as one HTML file and publishes the release with the dated release notes. Other tag names stay free for other uses. See the [release](release/SKILL.md) skill for the procedure, the workflow template and the one-time repository setup.
