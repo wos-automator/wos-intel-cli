@@ -4,9 +4,9 @@
 Before the first input the program verifies that the device is usable.
 
 .Acceptance criteria
-. `adb get-state` must report `device`.
-. `adb shell wm size` must report `Physical size: 720x1280`; anything else aborts the run.
-. The package `com.gof.global` must own the focused window; otherwise the run aborts.
+. The device must be connected and ready; otherwise the run aborts.
+. The screen must be 720x1280; anything else aborts the run.
+. The game (package `com.gof.global`) must be in the foreground; otherwise the run aborts.
 . In all three cases no tap and no BACK is sent.
 
 Stakeholder need:: SPEC.md §1 (Resolution, Package), §5 (start) +
